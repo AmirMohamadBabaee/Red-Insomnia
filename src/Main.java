@@ -2,6 +2,7 @@ public class Main {
 
     public static void main(String[] args) {
 	// write your code here
-        new MainFrame("Insomnia", MainFrame.LIGHT_THEME);
+        System.out.println("\uD83D\uDDC1");
+        new MainFrame("RedInsomnia", MainFrame.LIGHT_THEME);
     }
 }
