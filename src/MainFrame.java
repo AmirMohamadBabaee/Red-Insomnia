@@ -1,10 +1,7 @@
-import com.sun.deploy.panel.JavaPanel;
-import com.sun.jmx.mbeanserver.JmxMBeanServer;
 
-import javax.imageio.ImageIO;
-import javax.naming.spi.DirectoryManager;
 import javax.swing.*;
-import javax.swing.text.DefaultTextUI;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -18,6 +15,8 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.sql.SQLOutput;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * This class is main Frame of insomnia app
@@ -87,7 +86,7 @@ public class MainFrame extends JFrame {
         // Central part of RedInsomnia (part 2)
 
 
-
+        JPanel centerPanel = centerPanel();
 
 
 
@@ -400,9 +399,27 @@ public class MainFrame extends JFrame {
 
 
 
-        JPanel requestSettingPanel = new JPanel();
+        JPanel requestSettingPanel = new JPanel(new BorderLayout());
         requestSettingPanel.setBackground(new Color(40,41,37));
         centerPanel.add(requestSettingPanel, BorderLayout.CENTER);
+
+        JPanel header = new JPanel();
+        header.setBackground(new Color(40, 41, 37));
+
+        JPanel formData = new JPanel();
+        formData.setBackground(new Color(40, 41, 37));
+
+        JTabbedPane headerTab = new JTabbedPane();
+        headerTab.setBackground(new Color(40, 41, 37));
+        headerTab.addTab("<html><body style =\"background-color:red;\"><h2>  Form Data  </h2></body></html>"
+                , formData);
+        headerTab.addTab("<html><body style =\"background-color:#282925;\"><h2>  Header  </h2></body></html>"
+                , header);
+
+        requestSettingPanel.add(headerTab, BorderLayout.CENTER);
+
+
+        return centerPanel;
 
     }
 
