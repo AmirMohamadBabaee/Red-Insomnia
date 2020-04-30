@@ -1,4 +1,7 @@
 
+import com.sun.xml.internal.messaging.saaj.soap.JpegDataContentHandler;
+import sun.swing.FilePane;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -15,6 +18,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.sql.SQLOutput;
+import java.util.Calendar;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -403,7 +407,29 @@ public class MainFrame extends JFrame {
         requestSettingPanel.setBackground(new Color(40,41,37));
         centerPanel.add(requestSettingPanel, BorderLayout.CENTER);
 
-        JPanel header = new JPanel();
+
+        JPanel mainSettingPanel = new JPanel(new CardLayout());
+        mainSettingPanel.setBackground(new Color(40, 41, 37));
+        mainSettingPanel.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69), 1));
+
+        JPanel formData = new JPanel();
+        formData.setBackground(new Color(40, 41, 37));
+        formData.add(new JLabel("form data fucking"));
+
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(new Color(40, 41, 37));
+        header.add(new JLabel("header"));
+
+        mainSettingPanel.add(formData , "form data");
+        mainSettingPanel.add(header, "header");
+
+        CardLayout cardLayout = (CardLayout) mainSettingPanel.getLayout();
+
+        cardLayout.show(mainSettingPanel, "formData");
+
+        requestSettingPanel.add(mainSettingPanel, BorderLayout.CENTER);
+
+        /*JPanel header = new JPanel();
         header.setBackground(new Color(40, 41, 37));
 
         JPanel formData = new JPanel();
@@ -416,12 +442,161 @@ public class MainFrame extends JFrame {
         headerTab.addTab("<html><body style =\"background-color:#282925;\"><h2>  Header  </h2></body></html>"
                 , header);
 
-        requestSettingPanel.add(headerTab, BorderLayout.CENTER);
+        requestSettingPanel.add(headerTab, BorderLayout.CENTER);*/
+
+        JPanel headerTab = new JPanel(new GridLayout(1, 2));
+        headerTab.setBackground(new Color(40, 41, 37));
+        headerTab.setBorder(BorderFactory.createLineBorder(new Color(71, 72,69)));
+
+        List<JButton> headers = new ArrayList<>();
+
+        for(int i=0 ; i<2; i++) {
+
+            headers.add(new JButton());
+            headers.get(i).setBackground(new Color(40, 41, 37));
+            headers.get(i).setForeground(new Color(153, 153, 153));
+            headers.get(i).setFont(new Font("Santa Fe Let", Font.PLAIN, 28));
+            headers.get(i).setPreferredSize(new Dimension(200, 50));
+            headers.get(i).setContentAreaFilled(false);
+            headers.get(i).setOpaque(true);
+            headers.get(i).setBorder(null);
+            final int index = i;
+            headers.get(i).addMouseListener(new MouseAdapter() {
+
+
+                @Override
+                public void mouseClicked(MouseEvent e) {
+
+                    if(e.getButton() == MouseEvent.BUTTON1) {
+
+                        if(index == 0) { // form data part
+
+                            cardLayout.show(mainSettingPanel, "form data");
+                            changeHeaderButtonsColor(headers, index, 2);
+
+                        } else if(index == 1) { // header part
+
+                            cardLayout.show(mainSettingPanel, "header");
+                            changeHeaderButtonsColor(headers, index, 2);
+
+                        }
+
+                    }
+
+                }
+
+                @Override
+                public void mouseEntered(MouseEvent e) {
+
+                    changeHeaderButtonsColor(headers, index, 0);
+
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+
+                    if(index == 0) { // form data part
+
+                        for(Component com : mainSettingPanel.getComponents()) {
+
+                            if(com.isVisible() && com != formData) {
+
+                                changeHeaderButtonsColor(headers, index, 1);
+
+                            }
+
+                        }
+
+                    } else if(index == 1) { // header part
+
+                        for(Component com : mainSettingPanel.getComponents()) {
+
+                            if(com.isVisible() && com != header) {
+
+                                changeHeaderButtonsColor(headers, index, 1);
+
+                            }
+
+                        }
+
+                    }
+                }
+            });
+
+        }
+
+        headers.get(0).setText("Form Data");
+        headers.get(1).setText("Header");
+
+        for (JButton button : headers) {
+            headerTab.add(button);
+        }
+
+        requestSettingPanel.add(headerTab, BorderLayout.NORTH);
+
+
+//        JPanel headerPanel = new JPanel();
+//        headerPanel.setBackground(new Color(40, 41, 37));
+//        header.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+
+
 
 
         return centerPanel;
 
     }
+
+
+    /**
+     * this method change color when an event happen and change color
+     * of buttons related to specific state.
+     *
+     * @param headers list of buttons
+     * @param index current index of list
+     * @param state determine type of operation
+     */
+    private void changeHeaderButtonsColor(List<JButton> headers,int index, int state) {
+
+        if(state == 0) { // selected form
+
+            headers.get(index).setBackground(new Color(71, 72, 69));
+            headers.get(index).setForeground(Color.white);
+            headers.get(index).setBorder(BorderFactory.createLineBorder(new Color(91, 92, 90)));
+
+        } else if(state == 1) { // nonselected form
+
+            headers.get(index).setBackground(new Color(40, 41, 37));
+            headers.get(index).setForeground(new Color(71, 72, 69));
+            headers.get(index).setBorder(null);
+
+        } else if(state == 2) { // nonselect other buttons
+
+            for(int i=0 ; i<headers.size() ; i++) {
+
+                if(i != index) {
+
+                    changeHeaderButtonsColor(headers, i, 1);
+
+                }
+
+            }
+
+        }
+
+    }
+
+
+//    private JPanel headerFieldCreator(int theme) {
+//
+//        JPanel field = new JPanel();
+//        if(theme == LIGHT_THEME) {
+//            // TODO: after completing dark theme
+//        } else if(theme == DARK_THEME) {
+//            field.setBackground(new Color(40, 41, 37));
+//        }
+//        field.setLayout(new BoxLayout(field, BoxLayout.X_AXIS));
+//        return field;
+//    }
 
 
 }
