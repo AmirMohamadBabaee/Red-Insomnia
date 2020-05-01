@@ -1,16 +1,17 @@
 
 import com.sun.xml.internal.messaging.saaj.soap.JpegDataContentHandler;
 import sun.swing.FilePane;
+import sun.text.normalizer.Trie;
 
+import javax.imageio.ImageIO;
+import javax.naming.spi.DirectoryManager;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
+import java.io.DataInput;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -37,6 +38,8 @@ public class MainFrame extends JFrame {
     private ImageIcon icon;
     private String openMenu = "\uD83D\uDF83";
     private String currentDir;
+    private List<Color> lightColor;
+    private List<Color> darkColor;
 
     // Constructor
 
@@ -67,14 +70,17 @@ public class MainFrame extends JFrame {
         setSize(1300, 600);
         setLocationRelativeTo(null);
         setLayout(null);
-        setContentPane(mainPanel());
+        setContentPane(mainPanel(theme));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
+
+        lightColor = new ArrayList<>();
+        darkColor = new ArrayList<>();
 
     }
 
 
-    private JPanel mainPanel() {
+    private JPanel mainPanel(int theme) {
 
         JPanel mainPanel = new JPanel();
 
@@ -84,13 +90,13 @@ public class MainFrame extends JFrame {
         // left part of RedInsomnia (part 1)
 
 
-        JPanel leftPanel = leftPanel();
+        JPanel leftPanel = leftPanel(theme);
 
 
         // Central part of RedInsomnia (part 2)
 
 
-        JPanel centerPanel = centerPanel();
+        JPanel centerPanel = centerPanel(theme);
 
 
 
@@ -162,7 +168,7 @@ public class MainFrame extends JFrame {
     }
 
 
-    private JPanel leftPanel() {
+    private JPanel leftPanel(int theme) {
 
         JPanel leftPanel = new JPanel(new BorderLayout());
         leftPanel.setPreferredSize(new Dimension(250, 580));
@@ -203,13 +209,13 @@ public class MainFrame extends JFrame {
         plusButton.setPreferredSize(new Dimension(25, 25));
         plusButton.setContentAreaFilled(false);
         plusButton.setOpaque(true);
-        File imageCheck = new File(currentDir + "\\plus-button.png");
+        File imageCheck = new File(currentDir + "\\plus_icon_normal.png");
         if(imageCheck.exists()) {
 
             try{
 
-                ImageIcon buttonImage = new ImageIcon(currentDir + "\\plus-button.png");
-                plusButton.setIcon(new ImageIcon(buttonImage.getImage()));
+                ImageIcon buttonImage = new ImageIcon(currentDir + "\\plus_icon_normal.png");
+                plusButton.setIcon(buttonImage);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -251,11 +257,47 @@ public class MainFrame extends JFrame {
             @Override
             public void mouseEntered(MouseEvent e) {
                 plusButton.setBackground(new Color(54, 55, 52));
+                File imageCheck = new File(currentDir + "\\plus_icon_white.png");
+                if(imageCheck.exists()) {
+
+                    try{
+
+                        ImageIcon buttonImage = new ImageIcon(currentDir + "\\plus_icon_white.png");
+                        plusButton.setIcon(buttonImage);
+
+                    } catch (Exception err) {
+                        err.printStackTrace();
+                    }
+
+                } else {
+
+                    System.out.println("plus icon white image not found!!!");
+                    plusButton.setText("+ " + openMenu);
+
+                }
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
                 plusButton.setBackground(new Color(46, 47, 43));
+                File imageCheck = new File(currentDir + "\\plus_icon_normal.png");
+                if(imageCheck.exists()) {
+
+                    try{
+
+                        ImageIcon buttonImage = new ImageIcon(currentDir + "\\plus_icon_normal.png");
+                        plusButton.setIcon(buttonImage);
+
+                    } catch (Exception err) {
+                        err.printStackTrace();
+                    }
+
+                } else {
+
+                    System.out.println("plus icon normal image not found!!!");
+                    plusButton.setText("+ " + openMenu);
+
+                }
             }
         });
 
@@ -297,7 +339,7 @@ public class MainFrame extends JFrame {
     }
 
 
-    private JPanel centerPanel() {
+    private JPanel centerPanel(int theme) {
 
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.setPreferredSize(new Dimension(550, 580));
@@ -418,7 +460,6 @@ public class MainFrame extends JFrame {
 
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(new Color(40, 41, 37));
-        header.add(new JLabel("header"));
 
         mainSettingPanel.add(formData , "form data");
         mainSettingPanel.add(header, "header");
@@ -535,12 +576,26 @@ public class MainFrame extends JFrame {
         requestSettingPanel.add(headerTab, BorderLayout.NORTH);
 
 
-//        JPanel headerPanel = new JPanel();
-//        headerPanel.setBackground(new Color(40, 41, 37));
-//        header.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+        JPanel headerPanel = new JPanel();
+        headerPanel.setBackground(new Color(40, 41, 37));
+        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+
+        List<JPanel> headerField = new ArrayList<>();
+
+        headerField.add(headerFieldCreator(theme,headerField, headerPanel));
+        addHeaderFieldPanel(headerPanel, headerField);
+
+        headerPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
 
+        JScrollPane scrolledHeaderPanel = new JScrollPane(headerPanel);
+        scrolledHeaderPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrolledHeaderPanel.setBackground(new Color(40, 41, 37));
 
+        header.add(scrolledHeaderPanel, BorderLayout.CENTER);
+
+        headerField.add(headerFieldCreator(theme,headerField, headerPanel));
+        addHeaderFieldPanel(headerPanel, headerField);
 
         return centerPanel;
 
@@ -586,17 +641,349 @@ public class MainFrame extends JFrame {
     }
 
 
-//    private JPanel headerFieldCreator(int theme) {
-//
-//        JPanel field = new JPanel();
-//        if(theme == LIGHT_THEME) {
-//            // TODO: after completing dark theme
-//        } else if(theme == DARK_THEME) {
-//            field.setBackground(new Color(40, 41, 37));
-//        }
-//        field.setLayout(new BoxLayout(field, BoxLayout.X_AXIS));
-//        return field;
-//    }
+    private JPanel headerFieldCreator(int theme, List<JPanel> headerField, JPanel headerPanel) {
+
+        JPanel field = new JPanel();
+        if(theme == LIGHT_THEME) {
+            // TODO: after completing dark theme
+        } else if(theme == DARK_THEME) {
+            field.setBackground(new Color(40, 41, 37));
+        }
+        field.setLayout(new BoxLayout(field, BoxLayout.X_AXIS));
+        field.setPreferredSize(new Dimension(400, 50));
+        field.setMaximumSize(new Dimension(2000, 50));
+        field.add(Box.createRigidArea(new Dimension(20, 0)));
+
+
+        JButton settingButton = new JButton();
+        settingButton.setBackground(new Color(40, 41, 37));
+        settingButton.setContentAreaFilled(false);
+        settingButton.setOpaque(true);
+
+        try {
+
+            File settingImage = new File(currentDir + "\\setting_icon_normal.png");
+            if(settingImage.exists()) {
+
+                ImageIcon settingIcon = new ImageIcon(currentDir + "\\setting_icon_normal.png");
+                settingButton.setIcon(settingIcon);
+
+            } else {
+                System.out.println("setting icon normal doesn't found!!!");
+            }
+
+        } catch (Exception err) {
+            err.printStackTrace();
+        }
+
+        settingButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+                try {
+
+                    File settingImage = new File(currentDir + "\\setting_icon_white.png");
+                    if(settingImage.exists()) {
+
+                        ImageIcon settingIcon = new ImageIcon(currentDir + "\\setting_icon_white.png");
+                        settingButton.setIcon(settingIcon);
+
+                    } else {
+                        System.out.println("setting icon white doesn't found!!!");
+                    }
+
+                } catch (Exception err) {
+                    err.printStackTrace();
+                }
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+                try {
+
+                    File settingImage = new File(currentDir + "\\setting_icon_normal.png");
+                    if(settingImage.exists()) {
+
+                        ImageIcon settingIcon = new ImageIcon(currentDir + "\\setting_icon_normal.png");
+                        settingButton.setIcon(settingIcon);
+
+                    } else {
+                        System.out.println("setting icon normal doesn't found!!!");
+                    }
+
+                } catch (Exception err) {
+                    err.printStackTrace();
+                }
+
+            }
+        });
+
+
+
+        JTextField headerTextField = new JTextField();
+
+        if(theme == LIGHT_THEME) {
+            // TODO: after completing dark theme
+        } else if(theme == DARK_THEME) {
+            headerTextField.setBackground(new Color(40, 41, 37));
+        }
+
+        headerTextField.setForeground(new Color(91, 92, 90));
+        headerTextField.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+        headerTextField.setPreferredSize(new Dimension(250, 30));
+        headerTextField.setMaximumSize(new Dimension(2000, 35));
+        headerTextField.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69), 1));
+
+        if(headerField.isEmpty()) {
+            headerTextField.setText("header");
+        } else {
+            headerTextField.setText("new header");
+        }
+
+        String initialName = headerTextField.getText();
+
+        headerTextField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+
+                if(headerTextField.getText().equals("header") || headerTextField.getText().equals("new header")) {
+
+                    headerTextField.setText("");
+
+                }
+                if(headerField.contains(field)) {
+                    if(headerField.get(headerField.size()-1) == field) {
+
+                        System.out.println("last field found!!!");
+                        headerField.add(headerFieldCreator(theme, headerField, headerPanel));
+                        addHeaderFieldPanel(headerPanel, headerField);
+                        headerPanel.revalidate();
+                        headerPanel.repaint();
+
+                    }
+                }
+
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+
+                if(headerTextField.getText().equals("")) {
+
+                    headerTextField.setText(initialName);
+
+                }
+
+            }
+        });
+
+        headerTextField.setAlignmentY(Component.CENTER_ALIGNMENT);
+
+
+        JTextField valueTextField = new JTextField();
+
+        if(theme == LIGHT_THEME) {
+            // TODO: after completing dark theme
+        } else if(theme == DARK_THEME) {
+            valueTextField.setBackground(new Color(40, 41, 37));
+        }
+
+        valueTextField.setForeground(new Color(91, 92, 90));
+        valueTextField.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+        valueTextField.setPreferredSize(new Dimension(200, 30));
+        valueTextField.setMaximumSize(new Dimension(2000, 35));
+        valueTextField.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69), 1));
+
+
+        if(headerField.isEmpty()) {
+            valueTextField.setText("value");
+        } else {
+            valueTextField.setText("new value");
+        }
+
+        String initialName1 = valueTextField.getText();
+
+        valueTextField.addFocusListener(new FocusAdapter() {
+
+            @Override
+            public void focusGained(FocusEvent e) {
+
+                if(valueTextField.getText().equals("value") || valueTextField.getText().equals("new value")) {
+
+                    valueTextField.setText("");
+
+                }
+                if(headerField.contains(field)) {
+                    if(headerField.get(headerField.size()-1) == field) {
+
+                        System.out.println("last field found!!!");
+                        headerField.add(headerFieldCreator(theme, headerField, headerPanel));
+                        addHeaderFieldPanel(headerPanel, headerField);
+                        headerPanel.revalidate();
+                        headerPanel.repaint();
+
+                    }
+                }
+
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+
+                if(valueTextField.getText().equals("")) {
+
+                    valueTextField.setText(initialName1);
+
+                }
+
+            }
+        });
+
+        valueTextField.setAlignmentY(Component.CENTER_ALIGNMENT);
+
+        JCheckBox headerState = new JCheckBox();
+        headerState.setAlignmentY(Component.CENTER_ALIGNMENT);
+        headerState.setBackground(new Color(40, 41, 37));
+        headerState.setForeground(new Color(71, 72, 69));
+        headerState.addItemListener(e -> {
+            if(e.getItemSelectable() == headerState && headerState.isSelected()) {
+
+                headerTextField.setForeground(new Color(60, 60, 60));
+                headerTextField.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 60)));
+                valueTextField.setForeground(new Color(60, 60, 60));
+                valueTextField.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 60)));
+
+            } else if(!headerState.isSelected()){
+
+                headerTextField.setForeground(new Color(91, 92, 90));
+                headerTextField.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69)));
+                valueTextField.setForeground(new Color(91, 92, 90));
+                valueTextField.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69)));
+
+            }
+        });
+
+        JButton trashButton = new JButton();
+        trashButton.setBackground(new Color(40, 41, 37));
+        trashButton.setContentAreaFilled(false);
+        trashButton.setOpaque(true);
+        try{
+            File trashImage = new File(currentDir + "\\trash_icon_normal.png");
+            if(trashImage.exists()) {
+
+                ImageIcon trashIcon = new ImageIcon(currentDir + "\\trash_icon_normal.png");
+                trashButton.setIcon(trashIcon);
+
+            } else {
+                System.out.println("trash image doesn't exist!!!");
+            }
+        } catch (Exception err) {
+            err.printStackTrace();
+        }
+
+        trashButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+                try{
+                    File trashImage = new File(currentDir + "\\trash_icon_white.png");
+                    if(trashImage.exists()) {
+
+                        ImageIcon trashIcon = new ImageIcon(currentDir + "\\trash_icon_white.png");
+                        trashButton.setIcon(trashIcon);
+
+                    } else {
+                        System.out.println("trash image doesn't exist!!!");
+                    }
+                } catch (Exception err) {
+                    err.printStackTrace();
+                }
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+                try{
+                    File trashImage = new File(currentDir + "\\trash_icon_normal.png");
+                    if(trashImage.exists()) {
+
+                        ImageIcon trashIcon = new ImageIcon(currentDir + "\\trash_icon_normal.png");
+                        trashButton.setIcon(trashIcon);
+
+                    } else {
+                        System.out.println("trash image doesn't exist!!!");
+                    }
+                } catch (Exception err) {
+                    err.printStackTrace();
+                }
+
+            }
+        });
+
+
+
+        field.add(settingButton);
+        field.add(Box.createRigidArea(new Dimension(5, 0)));
+        field.add(headerTextField);
+        field.add(Box.createRigidArea(new Dimension(10, 0)));
+        field.add(valueTextField);
+        field.add(Box.createRigidArea(new Dimension(10, 0)));
+        field.add(headerState);
+        field.add(Box.createRigidArea(new Dimension(5, 0)));
+        field.add(trashButton);
+        field.add(Box.createRigidArea(new Dimension(5, 0)));
+
+        return field;
+    }
+
+
+
+
+    private Color setSpecificColor(int theme, int type) {
+
+        // define light color for LIGHT_THEME
+
+        // end of light color
+
+        // define dark color for DARK_THEME
+
+        darkColor.add(new Color(71, 72, 69)); // color of left panel
+        darkColor.add(new Color(105, 94, 184)); // color of insomnia button in left panel
+
+        // end of dark color
+
+        if(theme == LIGHT_THEME) {
+
+        } else if(theme == DARK_THEME) {
+
+        }
+
+        return Color.white;
+    }
+
+    private void addHeaderFieldPanel(JPanel headerPanel, List<JPanel> headerField) {
+
+        System.out.println(headerField.size());
+        for (JPanel panel : headerField) {
+
+            headerPanel.add(panel);
+
+        }
+
+    }
 
 
 }
