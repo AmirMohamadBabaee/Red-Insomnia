@@ -5,6 +5,7 @@ import sun.text.normalizer.Trie;
 
 import javax.imageio.ImageIO;
 import javax.naming.spi.DirectoryManager;
+import javax.smartcardio.Card;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -18,6 +19,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.security.DomainCombiner;
 import java.sql.SQLOutput;
 import java.util.Calendar;
 import java.util.List;
@@ -454,9 +456,9 @@ public class MainFrame extends JFrame {
         mainSettingPanel.setBackground(new Color(40, 41, 37));
         mainSettingPanel.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69), 1));
 
-        JPanel formData = new JPanel();
+        JPanel formData = new JPanel(new CardLayout());
         formData.setBackground(new Color(40, 41, 37));
-        formData.add(new JLabel("form data fucking"));
+
 
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(new Color(40, 41, 37));
@@ -496,7 +498,7 @@ public class MainFrame extends JFrame {
             headers.add(new JButton());
             headers.get(i).setBackground(new Color(40, 41, 37));
             headers.get(i).setForeground(new Color(153, 153, 153));
-            headers.get(i).setFont(new Font("Santa Fe Let", Font.PLAIN, 28));
+            headers.get(i).setFont(new Font("Santa Fe Let", Font.PLAIN, 20));
             headers.get(i).setPreferredSize(new Dimension(200, 50));
             headers.get(i).setContentAreaFilled(false);
             headers.get(i).setOpaque(true);
@@ -566,7 +568,7 @@ public class MainFrame extends JFrame {
 
         }
 
-        headers.get(0).setText("Form Data");
+        headers.get(0).setText("Form Data   " + openMenu);
         headers.get(1).setText("Header");
 
         for (JButton button : headers) {
@@ -576,13 +578,15 @@ public class MainFrame extends JFrame {
         requestSettingPanel.add(headerTab, BorderLayout.NORTH);
 
 
+        // this part related to header part of center panel
+
         JPanel headerPanel = new JPanel();
         headerPanel.setBackground(new Color(40, 41, 37));
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
 
         List<JPanel> headerField = new ArrayList<>();
 
-        headerField.add(headerFieldCreator(theme,headerField, headerPanel));
+        headerField.add(headerFieldCreator(theme,headerField, headerPanel, false));
         addHeaderFieldPanel(headerPanel, headerField);
 
         headerPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -593,6 +597,25 @@ public class MainFrame extends JFrame {
         scrolledHeaderPanel.setBackground(new Color(40, 41, 37));
 
         header.add(scrolledHeaderPanel, BorderLayout.CENTER);
+
+        // end of changes to header part of central panel
+
+        // this part related to form data part of central panel
+
+        JPanel formPanel = new JPanel();
+        JPanel jsonPanle = new JPanel();
+        JPanel binaryFilePanel = new JPanel();
+
+        formPanel.setBackground(new Color(40, 41, 37));
+        formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
+
+        List<JPanel> formDataField = new ArrayList<>();
+        formDataField.add(headerFieldCreator(theme, formDataField, formPanel, true));
+        addHeaderFieldPanel(formPanel, formDataField);
+        formData.add(formPanel);
+
+
+        // end of changes to form data part of central panel
 
         return centerPanel;
 
@@ -638,7 +661,15 @@ public class MainFrame extends JFrame {
     }
 
 
-    private JPanel headerFieldCreator(int theme, List<JPanel> headerField, JPanel headerPanel) {
+    /**
+     * this method create header field in header tab for request body part
+     *
+     * @param theme theme of these frame
+     * @param headerField list of header fields
+     * @param headerPanel panel of header fields
+     * @return prepared header field panel
+     */
+    private JPanel headerFieldCreator(int theme, List<JPanel> headerField, JPanel headerPanel, boolean isFormData) {
 
         JPanel field = new JPanel();
         if(theme == LIGHT_THEME) {
@@ -775,10 +806,22 @@ public class MainFrame extends JFrame {
         headerTextField.setMaximumSize(new Dimension(2000, 35));
         headerTextField.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69), 1));
 
-        if(headerField.isEmpty()) {
-            headerTextField.setText("header");
+        if(isFormData) {
+
+            if(headerField.isEmpty()) {
+                headerTextField.setText("name");
+            } else {
+                headerTextField.setText("New name");
+            }
+
         } else {
-            headerTextField.setText("new header");
+
+            if(headerField.isEmpty()) {
+                headerTextField.setText("header");
+            } else {
+                headerTextField.setText("New header");
+            }
+
         }
 
         String initialName = headerTextField.getText();
@@ -787,7 +830,8 @@ public class MainFrame extends JFrame {
             @Override
             public void focusGained(FocusEvent e) {
 
-                if(headerTextField.getText().equals("header") || headerTextField.getText().equals("new header")) {
+                if(headerTextField.getText().equals("header") || headerTextField.getText().equals("New header")
+                || headerTextField.getText().equals("name") || headerTextField.getText().equals("New name")) {
 
                     headerTextField.setText("");
 
@@ -796,7 +840,7 @@ public class MainFrame extends JFrame {
                     if(headerField.get(headerField.size()-1) == field) {
 
                         System.out.println("last field found!!!");
-                        headerField.add(headerFieldCreator(theme, headerField, headerPanel));
+                        headerField.add(headerFieldCreator(theme, headerField, headerPanel, isFormData));
                         addHeaderFieldPanel(headerPanel, headerField);
                         headerPanel.revalidate();
                         headerPanel.repaint();
@@ -819,6 +863,11 @@ public class MainFrame extends JFrame {
         });
 
         headerTextField.setAlignmentY(Component.CENTER_ALIGNMENT);
+
+        JPanel valueCardLayout = new JPanel(new CardLayout());
+        valueCardLayout.setBackground(new Color(40, 41, 37));
+        valueCardLayout.setMaximumSize(new Dimension(2000, 35));
+        valueCardLayout.setAlignmentY(Component.CENTER_ALIGNMENT);
 
 
         JTextField valueTextField = new JTextField();
@@ -858,7 +907,7 @@ public class MainFrame extends JFrame {
                     if(headerField.get(headerField.size()-1) == field) {
 
                         System.out.println("last field found!!!");
-                        headerField.add(headerFieldCreator(theme, headerField, headerPanel));
+                        headerField.add(headerFieldCreator(theme, headerField, headerPanel, isFormData));
                         addHeaderFieldPanel(headerPanel, headerField);
                         headerPanel.revalidate();
                         headerPanel.repaint();
@@ -882,6 +931,23 @@ public class MainFrame extends JFrame {
 
         valueTextField.setAlignmentY(Component.CENTER_ALIGNMENT);
 
+        JButton editButton = new JButton("\u270E Click to Edit");
+        editButton.setBackground(new Color(40, 41, 37));
+        editButton.setForeground(Color.white);
+        editButton.setFont(new Font("Santa Fe Let", Font.PLAIN, 18));
+        editButton.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69), 1));
+        editButton.setPreferredSize(new Dimension(200, 30));
+        editButton.setContentAreaFilled(false);
+        editButton.setOpaque(true);
+
+
+        valueCardLayout.add(valueTextField, "textField");
+        valueCardLayout.add(editButton, "button");
+
+        CardLayout cardLayout = (CardLayout) valueCardLayout.getLayout();
+        cardLayout.show(valueCardLayout, "textField");
+
+
         JCheckBox headerState = new JCheckBox();
         headerState.setAlignmentY(Component.CENTER_ALIGNMENT);
         headerState.setBackground(new Color(40, 41, 37));
@@ -890,9 +956,11 @@ public class MainFrame extends JFrame {
             if(e.getItemSelectable() == headerState && headerState.isSelected()) {
 
                 headerTextField.setForeground(new Color(60, 60, 60));
-                headerTextField.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 60)));
+                headerTextField.setBorder(BorderFactory.createDashedBorder(new Color(60, 60, 60)));
                 valueTextField.setForeground(new Color(60, 60, 60));
-                valueTextField.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 60)));
+                valueTextField.setBorder(BorderFactory.createDashedBorder(new Color(60, 60, 60)));
+                editButton.setForeground(new Color(60, 60, 60));
+                editButton.setBorder(BorderFactory.createDashedBorder(new Color(60, 60, 60)));
 
             } else if(!headerState.isSelected()){
 
@@ -900,6 +968,8 @@ public class MainFrame extends JFrame {
                 headerTextField.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69)));
                 valueTextField.setForeground(new Color(91, 92, 90));
                 valueTextField.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69)));
+                editButton.setForeground(Color.white);
+                editButton.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69)));
 
             }
         });
@@ -925,7 +995,21 @@ public class MainFrame extends JFrame {
         trashButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                super.mouseClicked(e);
+
+                if(e.getButton() == MouseEvent.BUTTON1) {
+
+                    if(headerField.indexOf(field) != 0) {
+
+                        headerPanel.remove(field);
+                        headerField.remove(field);
+                        addHeaderFieldPanel(headerPanel, headerField);
+                        revalidate();
+                        repaint();
+
+                    }
+
+                }
+
             }
 
             @Override
@@ -967,13 +1051,57 @@ public class MainFrame extends JFrame {
             }
         });
 
+        JButton textType = null;
+        if(isFormData) {
+
+            JPopupMenu textTypePopup = new JPopupMenu();
+            textTypePopup.setPreferredSize(new Dimension(200, 75));
+
+            JMenuItem text = new JMenuItem("Text");
+            JMenuItem multiLineText = new JMenuItem("Text (Multi-line)");
+
+            text.addActionListener(e -> cardLayout.show(valueCardLayout, "textField"));
+            multiLineText.addActionListener(e -> cardLayout.show(valueCardLayout, "button"));
+
+            textTypePopup.add(text);
+            textTypePopup.add(multiLineText);
+
+            textType = new JButton(openMenu);
+            textType.setBackground(new Color(40, 41, 37));
+            textType.setForeground(new Color(71, 72, 69));
+            textType.setFont(new Font("Santa Fe Let", Font.PLAIN, 18));
+            textType.setContentAreaFilled(false);
+            textType.setOpaque(true);
+            final JButton finalTextType = textType;
+            textType.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+
+                    if(e.getButton() == MouseEvent.BUTTON1) {
+
+                        Component button = (Component)e.getSource();
+                        textTypePopup.show(finalTextType, -150, button.getY()+button.getHeight());
+
+                    }
+
+                }
+            });
+
+        }
+
 
 
         field.add(settingButton);
         field.add(Box.createRigidArea(new Dimension(5, 0)));
         field.add(headerTextField);
         field.add(Box.createRigidArea(new Dimension(10, 0)));
-        field.add(valueTextField);
+        field.add(valueCardLayout);
+        if(textType != null) {
+
+            field.add(Box.createRigidArea(new Dimension(5, 0)));
+            field.add(textType);
+
+        }
         field.add(Box.createRigidArea(new Dimension(10, 0)));
         field.add(headerState);
         field.add(Box.createRigidArea(new Dimension(5, 0)));
