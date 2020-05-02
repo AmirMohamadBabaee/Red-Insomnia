@@ -594,9 +594,6 @@ public class MainFrame extends JFrame {
 
         header.add(scrolledHeaderPanel, BorderLayout.CENTER);
 
-        headerField.add(headerFieldCreator(theme,headerField, headerPanel));
-        addHeaderFieldPanel(headerPanel, headerField);
-
         return centerPanel;
 
     }
@@ -655,6 +652,32 @@ public class MainFrame extends JFrame {
         field.add(Box.createRigidArea(new Dimension(20, 0)));
 
 
+
+        JPopupMenu settingPopup = new JPopupMenu();
+        settingPopup.setPreferredSize(new Dimension(200, 40));
+        JMenuItem deleteAllItem = new JMenuItem("Delete All Items");
+        deleteAllItem.addActionListener(e -> {
+            if(headerField.size() > 1) {
+
+                for(int i = 1 ; i < headerField.size() ; i++) {
+
+                    headerPanel.remove(headerField.get(i));
+
+                }
+
+                headerField.subList(1, headerField.size()).clear();
+
+                System.out.println(headerField.size());
+
+                addHeaderFieldPanel(headerPanel, headerField);
+                headerPanel.revalidate();
+                headerPanel.repaint();
+
+            }
+        });
+        settingPopup.add(deleteAllItem);
+
+
         JButton settingButton = new JButton();
         settingButton.setBackground(new Color(40, 41, 37));
         settingButton.setContentAreaFilled(false);
@@ -679,7 +702,18 @@ public class MainFrame extends JFrame {
         settingButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                super.mouseClicked(e);
+
+                if(e.getButton() == MouseEvent.BUTTON1) {
+
+                    if(headerField.contains(field) && headerField.get(headerField.size()-1) == field) {
+
+                        Component button = (Component)e.getSource();
+                        settingPopup.show(settingButton, button.getX(), button.getY()+button.getHeight());
+
+                    }
+
+                }
+
             }
 
             @Override
