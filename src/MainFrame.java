@@ -1,5 +1,6 @@
 
 import com.sun.xml.internal.messaging.saaj.soap.JpegDataContentHandler;
+import sun.plugin.services.PlatformService;
 import sun.swing.FilePane;
 import sun.text.normalizer.Trie;
 
@@ -21,6 +22,9 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.security.DomainCombiner;
 import java.sql.SQLOutput;
+import java.text.CharacterIterator;
+import java.text.StringCharacterIterator;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.List;
 import java.util.ArrayList;
@@ -459,6 +463,17 @@ public class MainFrame extends JFrame {
         JPanel formData = new JPanel(new CardLayout());
         formData.setBackground(new Color(40, 41, 37));
 
+        JPanel formPanel = new JPanel();
+        JPanel jsonPanel = new JPanel();
+        JPanel binaryFilePanel = new JPanel();
+
+        formData.add(formPanel, "form panel");
+        formData.add(jsonPanel, "json");
+        formData.add(binaryFilePanel, "binary file");
+
+        CardLayout formDataCardLayout = (CardLayout) formData.getLayout();
+        formDataCardLayout.show(formData, "form panel");
+
 
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(new Color(40, 41, 37));
@@ -487,6 +502,25 @@ public class MainFrame extends JFrame {
 
         requestSettingPanel.add(headerTab, BorderLayout.CENTER);*/
 
+        // this part is related to popup menu of form data button
+
+        JPopupMenu dataForm = new JPopupMenu();
+        dataForm.setPreferredSize(new Dimension(200, 150));
+
+        JMenuItem formDataItem = new JMenuItem("Form Data");
+        JMenuItem JSONItem = new JMenuItem("JSON");
+        JMenuItem binaryFile = new JMenuItem("Binary File");
+
+        formDataItem.addActionListener(e -> formDataCardLayout.show(formData, "form panel"));
+        JSONItem.addActionListener(e -> formDataCardLayout.show(formData, "json"));
+        binaryFile.addActionListener(e -> formDataCardLayout.show(formData, "binary file"));
+
+        dataForm.add(formDataItem);
+        dataForm.add(JSONItem);
+        dataForm.add(binaryFile);
+
+        // end of popup menu
+
         JPanel headerTab = new JPanel(new GridLayout(1, 2));
         headerTab.setBackground(new Color(40, 41, 37));
         headerTab.setBorder(BorderFactory.createLineBorder(new Color(71, 72,69)));
@@ -496,8 +530,17 @@ public class MainFrame extends JFrame {
         for(int i=0 ; i<2; i++) {
 
             headers.add(new JButton());
-            headers.get(i).setBackground(new Color(40, 41, 37));
-            headers.get(i).setForeground(new Color(153, 153, 153));
+            if(i == 0) {
+
+                headers.get(i).setBackground(new Color(71, 72, 69));
+                headers.get(i).setForeground(Color.white);
+
+            } else {
+
+                headers.get(i).setBackground(new Color(40, 41, 37));
+                headers.get(i).setForeground(new Color(153, 153, 153));
+
+            }
             headers.get(i).setFont(new Font("Santa Fe Let", Font.PLAIN, 20));
             headers.get(i).setPreferredSize(new Dimension(200, 50));
             headers.get(i).setContentAreaFilled(false);
@@ -521,6 +564,15 @@ public class MainFrame extends JFrame {
 
                             cardLayout.show(mainSettingPanel, "header");
                             changeHeaderButtonsColor(headers, index, 2);
+
+                        }
+
+                    } else if(e.getButton() == MouseEvent.BUTTON3) {
+
+                        if(index == 0) {
+
+                            Component component = (Component) e.getSource();
+                            dataForm.show(headers.get(0), component.getX(), component.getY() + component.getHeight());
 
                         }
 
@@ -602,20 +654,140 @@ public class MainFrame extends JFrame {
 
         // this part related to form data part of central panel
 
-        JPanel formPanel = new JPanel();
-        JPanel jsonPanle = new JPanel();
-        JPanel binaryFilePanel = new JPanel();
-
         formPanel.setBackground(new Color(40, 41, 37));
         formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
 
         List<JPanel> formDataField = new ArrayList<>();
         formDataField.add(headerFieldCreator(theme, formDataField, formPanel, true));
         addHeaderFieldPanel(formPanel, formDataField);
-        formData.add(formPanel);
-
 
         // end of changes to form data part of central panel
+
+        // this part related to binary file panel in central panel
+
+        binaryFilePanel.setBackground(new Color(40, 41, 37));
+        binaryFilePanel.setLayout(new BoxLayout(binaryFilePanel, BoxLayout.Y_AXIS));
+
+        JLabel selectedFile = new JLabel("SELECTED FILE");
+        selectedFile.setFont(new Font("Santa Fe Let", Font.PLAIN, 18));
+        selectedFile.setForeground(new Color(91, 92, 90));
+        selectedFile.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+
+        JTextArea filePathArea = new JTextArea("No file selected");
+        filePathArea.setBackground(new Color(40, 41, 37));
+        filePathArea.setForeground(new Color(91, 92, 90));
+        filePathArea.setFont(new Font("Santa Fe Let", Font.PLAIN, 18));
+        filePathArea.setPreferredSize(new Dimension(300, 50));
+        filePathArea.setEditable(false);
+        filePathArea.setLineWrap(true);
+        filePathArea.setBorder(BorderFactory.createDashedBorder(new Color(100, 100, 100)));
+
+        JScrollPane filePathScrollArea = new JScrollPane(filePathArea);
+        filePathScrollArea.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        filePathScrollArea.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        filePathScrollArea.setMaximumSize(new Dimension(2000, 100));
+
+
+        JButton resetFile = new JButton("Reset File");
+
+        resetFile.setBackground(new Color(40, 41, 37));
+        resetFile.setForeground(new Color(71, 72, 69));
+        resetFile.setBorder(null);
+        resetFile.setEnabled(false);
+        resetFile.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+        resetFile.setPreferredSize(new Dimension(150 , 50));
+        resetFile.setContentAreaFilled(false);
+        resetFile.setOpaque(true);
+        resetFile.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+                filePathArea.setText("No file selected");
+                filePathArea.setForeground(new Color(71, 72, 69));
+                resetFile.setBackground(new Color(40, 41, 37));
+                resetFile.setForeground(new Color(91, 92, 90));
+                resetFile.setEnabled(false);
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+                if(resetFile.isEnabled()) {
+                    resetFile.setBackground(new Color(71, 72, 69));
+                }
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+                resetFile.setBackground(new Color(40, 41, 37));
+
+            }
+        });
+
+
+
+        JButton chooseButton = new JButton("Choose File");
+        chooseButton.setBackground(new Color(40, 41, 37));
+        chooseButton.setForeground(Color.white);
+        chooseButton.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+        chooseButton.setPreferredSize(new Dimension(150, 50));
+        chooseButton.setBorder(BorderFactory.createLineBorder(new Color(91, 92, 90), 1));
+        chooseButton.setContentAreaFilled(false);
+        chooseButton.setOpaque(true);
+        chooseButton.setBounds(100, 75, 150, 50);
+
+        final JFrame mainFrame = this;
+        chooseButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+                JFileChooser fileChooser = new JFileChooser();
+                int i = fileChooser.showOpenDialog(mainFrame);
+                if(i == JFileChooser.APPROVE_OPTION) {
+
+                    File file = fileChooser.getSelectedFile();
+                    filePathArea.setText(file.getAbsolutePath());
+                    filePathArea.append(" (" + convertBytetoMegaByte(file.length()) + ")");
+                    filePathArea.setForeground(Color.white);
+                    resetFile.setForeground(Color.white);
+                    resetFile.setEnabled(true);
+
+                }
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                chooseButton.setBackground(new Color(71, 72, 69));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                chooseButton.setBackground(new Color(40, 41, 37));
+            }
+        });
+
+
+        JPanel buttonBinaryPanel = new JPanel(new FlowLayout());
+        buttonBinaryPanel.setBackground(new Color(40, 41, 37));
+        buttonBinaryPanel.add(resetFile);
+        buttonBinaryPanel.add(chooseButton);
+
+
+        binaryFilePanel.add(Box.createRigidArea(new Dimension(0, 15)));
+        binaryFilePanel.add(selectedFile);
+        binaryFilePanel.add(Box.createRigidArea(new Dimension(0, 5)));
+        binaryFilePanel.add(filePathScrollArea);
+        binaryFilePanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        binaryFilePanel.add(buttonBinaryPanel);
+
+
+
+        // end of changes to binary file panel in central panel
 
         return centerPanel;
 
@@ -939,6 +1111,20 @@ public class MainFrame extends JFrame {
         editButton.setPreferredSize(new Dimension(200, 30));
         editButton.setContentAreaFilled(false);
         editButton.setOpaque(true);
+        JFrame mainFrame = this;
+        editButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+                if(e.getButton() == MouseEvent.BUTTON1) {
+
+                    // Todo : handling concurrent problems
+                    new EditorFrame("RedInsomnia-Editor Panel", theme, mainFrame);
+
+                }
+
+            }
+        });
 
 
         valueCardLayout.add(valueTextField, "textField");
@@ -1144,6 +1330,30 @@ public class MainFrame extends JFrame {
             headerPanel.add(panel);
 
         }
+
+    }
+
+
+    /**
+     * this code taken from stackoverflow
+     * actually this method convert long byte size of a file to bigger scale
+     *
+     * @param bytes file size
+     * @return string of file size
+     *
+     * @see <a href="https://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java">StackOverFlow</a>
+     */
+    private String convertBytetoMegaByte(long bytes) {
+
+        if (-1000 < bytes && bytes < 1000) {
+            return bytes + " B";
+        }
+        CharacterIterator ci = new StringCharacterIterator("kMGTPE");
+        while (bytes <= -999_950 || bytes >= 999_950) {
+            bytes /= 1000;
+            ci.next();
+        }
+        return String.format("%.1f %cB", bytes / 1000.0, ci.current());
 
     }
 
