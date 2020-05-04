@@ -618,11 +618,24 @@ public class MainFrame extends JFrame {
         // this part related to form data part of central panel
 
         formPanel.setBackground(new Color(40, 41, 37));
-        formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
+        formPanel.setLayout(new BorderLayout());
+
+
+        JPanel coverFormPanel = new JPanel();
+        coverFormPanel.setBackground(new Color(40, 41, 37));
+        coverFormPanel.setLayout(new BoxLayout(coverFormPanel, BoxLayout.Y_AXIS));
+
+
+        JScrollPane coverFormPanelScroll = new JScrollPane(coverFormPanel);
+        coverFormPanelScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        coverFormPanelScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        formPanel.add(coverFormPanelScroll, BorderLayout.CENTER);
+
 
         List<JPanel> formDataField = new ArrayList<>();
-        formDataField.add(headerFieldCreator(theme, formDataField, formPanel, true));
-        addHeaderFieldPanel(formPanel, formDataField);
+        formDataField.add(headerFieldCreator(theme, formDataField, coverFormPanel, true));
+        addHeaderFieldPanel(coverFormPanel, formDataField);
 
         // end of changes to form data part of central panel
 
@@ -986,9 +999,20 @@ public class MainFrame extends JFrame {
         initialHeaderPanel.add(initialLabels.get(1));
         initialHeaderPanel.add(Box.createRigidArea(new Dimension(180, 0)));
 
+
+        String name = "header 1";
+        String value = "this is value of header 1";
+
+        List<JPanel> headerField = new ArrayList<>();
+        responseHeaderField(theme, headerField, name, value);
+
         headerCoverPanel.add(Box.createRigidArea(new Dimension(0, 40)));
         headerCoverPanel.add(initialHeaderPanel);
         headerCoverPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        for (JPanel panel : headerField) {
+            headerCoverPanel.add(panel);
+        }
 
 
 
@@ -1572,7 +1596,36 @@ public class MainFrame extends JFrame {
 
 
 
+    private void responseHeaderField(int theme, List<JPanel> headerField, String name, String value) {
 
+        JPanel headerFieldPanel = new JPanel();
+        headerFieldPanel.setBackground(new Color(40, 41, 37));
+        headerFieldPanel.setLayout(new BoxLayout(headerFieldPanel, BoxLayout.X_AXIS));
+
+        List<JLabel> labels = new ArrayList<>();
+
+        for(int i=0 ; i<2 ; i++) {
+
+            labels.add(new JLabel());
+            labels.get(i).setForeground(Color.white);
+            labels.get(i).setFont(new Font("Santa Fe Let", Font.PLAIN, 13));
+            labels.get(i).setPreferredSize(new Dimension(100, 50));
+
+        }
+
+        labels.get(0).setText(name);
+        labels.get(1).setText(value);
+
+        headerFieldPanel.add(Box.createRigidArea(new Dimension(20, 0)));
+        headerFieldPanel.add(labels.get(0));
+        headerFieldPanel.add(Box.createRigidArea(new Dimension(180, 0)));
+        headerFieldPanel.add(labels.get(1));
+        headerFieldPanel.add(Box.createRigidArea(new Dimension(180, 0)));
+
+
+        headerField.add(headerFieldPanel);
+
+    }
 
 
 }
