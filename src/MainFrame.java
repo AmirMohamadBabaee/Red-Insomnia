@@ -108,56 +108,8 @@ public class MainFrame extends JFrame {
 
         // right part of RedInsomnia (part3)
 
-        JPanel rightPanel = new JPanel(new BorderLayout());
-        rightPanel.setPreferredSize(new Dimension(450, 580));
-        rightPanel.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69), 1));
 
-        JPanel responseStatusPanel = new JPanel();
-        responseStatusPanel.setBackground(Color.white);
-        responseStatusPanel.setPreferredSize(new Dimension(550, 65));
-        rightPanel.add(responseStatusPanel, BorderLayout.NORTH);
-
-        BoxLayout boxLayout = new BoxLayout(responseStatusPanel, BoxLayout.X_AXIS);
-        responseStatusPanel.setLayout(boxLayout);
-
-        JButton requestStatus = new JButton("200 OK");
-        requestStatus.setBackground(new Color(117, 186, 36));
-        requestStatus.setForeground(Color.white);
-        requestStatus.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
-        requestStatus.setPreferredSize(new Dimension(50, 30));
-        requestStatus.setContentAreaFilled(false);
-        requestStatus.setOpaque(true);
-
-        JButton delayTime = new JButton("6.13 s");
-        delayTime.setBackground(new Color(224, 224, 224));
-        delayTime.setForeground(new Color(116, 116, 116));
-        delayTime.setPreferredSize(new Dimension(50, 30));
-        delayTime.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
-        delayTime.setContentAreaFilled(false);
-        delayTime.setOpaque(true);
-
-        JButton fileSize = new JButton("147");
-        fileSize.setBackground(new Color(224, 224, 224));
-        fileSize.setForeground(new Color(116, 116, 116));
-        fileSize.setPreferredSize(new Dimension(50, 30));
-        fileSize.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
-        fileSize.setContentAreaFilled(false);
-        fileSize.setOpaque(true);
-
-        responseStatusPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        responseStatusPanel.add(requestStatus);
-        responseStatusPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        responseStatusPanel.add(delayTime);
-        responseStatusPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        responseStatusPanel.add(fileSize);
-
-
-
-        JPanel responsePanel = new JPanel();
-        responsePanel.setBackground(new Color(40,41,37));
-        rightPanel.add(responsePanel, BorderLayout.CENTER);
-
-
+        JPanel rightPanel = rightPanel(theme);
 
 
 
@@ -182,7 +134,7 @@ public class MainFrame extends JFrame {
 
         JButton insomniaPart = new JButton("Insomnia           " + openMenu);
         insomniaPart.setFont(new Font("Santa Fe LET", Font.PLAIN, 25));
-        insomniaPart.setBackground(new Color(105, 94, 184));
+        insomniaPart.setBackground(new Color(255, 10, 50));
         insomniaPart.setForeground(Color.white);
         insomniaPart.setPreferredSize(new Dimension(250, 65));
         insomniaPart.setContentAreaFilled(false);
@@ -511,9 +463,7 @@ public class MainFrame extends JFrame {
         JMenuItem JSONItem = new JMenuItem("JSON");
         JMenuItem binaryFile = new JMenuItem("Binary File");
 
-        formDataItem.addActionListener(e -> formDataCardLayout.show(formData, "form panel"));
-        JSONItem.addActionListener(e -> formDataCardLayout.show(formData, "json"));
-        binaryFile.addActionListener(e -> formDataCardLayout.show(formData, "binary file"));
+        // Todo : add json panel for json menu item
 
         dataForm.add(formDataItem);
         dataForm.add(JSONItem);
@@ -622,6 +572,19 @@ public class MainFrame extends JFrame {
 
         headers.get(0).setText("Form Data   " + openMenu);
         headers.get(1).setText("Header");
+
+        formDataItem.addActionListener(e -> {
+            formDataCardLayout.show(formData, "form panel");
+            headers.get(0).setText("Form Data   "+ openMenu);
+        });
+        JSONItem.addActionListener(e -> {
+            formDataCardLayout.show(formData, "json");
+            headers.get(0).setText("JSON     " + openMenu);
+        });
+        binaryFile.addActionListener(e -> {
+            formDataCardLayout.show(formData, "binary file");
+            headers.get(0).setText("Binary File  " + openMenu);
+        });
 
         for (JButton button : headers) {
             headerTab.add(button);
@@ -792,6 +755,256 @@ public class MainFrame extends JFrame {
         return centerPanel;
 
     }
+
+
+
+    private JPanel rightPanel(int theme) {
+
+        JPanel rightPanel = new JPanel(new BorderLayout());
+        rightPanel.setPreferredSize(new Dimension(450, 580));
+        rightPanel.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69), 1));
+
+        JPanel responseStatusPanel = new JPanel();
+        responseStatusPanel.setBackground(Color.white);
+        responseStatusPanel.setPreferredSize(new Dimension(550, 65));
+        rightPanel.add(responseStatusPanel, BorderLayout.NORTH);
+
+
+        // north of right panel in RedInsomnia
+
+        BoxLayout boxLayout = new BoxLayout(responseStatusPanel, BoxLayout.X_AXIS);
+        responseStatusPanel.setLayout(boxLayout);
+
+        // response status button
+        JButton requestStatus = new JButton("200 OK");
+        requestStatus.setBackground(new Color(117, 186, 36));
+        requestStatus.setForeground(Color.white);
+        requestStatus.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+        requestStatus.setPreferredSize(new Dimension(50, 30));
+        requestStatus.setContentAreaFilled(false);
+        requestStatus.setOpaque(true);
+
+        // delay time of request
+        JButton delayTime = new JButton("6.13 s");
+        delayTime.setBackground(new Color(224, 224, 224));
+        delayTime.setForeground(new Color(116, 116, 116));
+        delayTime.setPreferredSize(new Dimension(50, 30));
+        delayTime.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+        delayTime.setContentAreaFilled(false);
+        delayTime.setOpaque(true);
+
+        // size of response file
+        JButton fileSize = new JButton("147");
+        fileSize.setBackground(new Color(224, 224, 224));
+        fileSize.setForeground(new Color(116, 116, 116));
+        fileSize.setPreferredSize(new Dimension(50, 30));
+        fileSize.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+        fileSize.setContentAreaFilled(false);
+        fileSize.setOpaque(true);
+
+        responseStatusPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        responseStatusPanel.add(requestStatus);
+        responseStatusPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        responseStatusPanel.add(delayTime);
+        responseStatusPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        responseStatusPanel.add(fileSize);
+
+        // end of response status part
+
+        // this part related to center of response part
+
+        JPanel responsePanel = new JPanel(new BorderLayout());
+        responsePanel.setBackground(new Color(40,41,37));
+        rightPanel.add(responsePanel, BorderLayout.CENTER);
+
+
+        // header panel for header button
+        JPanel headerPanel = new JPanel();
+        headerPanel.setBackground(new Color(40, 41, 37));
+
+        // response data for raw and other types of file showing
+        JPanel responseData = new JPanel();
+        responseData.setBackground(new Color(40, 41, 37));
+
+        JPanel responseCenterPanel = new JPanel(new CardLayout());
+        responseCenterPanel.setBackground(new Color(40, 41, 37));
+        responseCenterPanel.add(responseData, "response data");
+        responseCenterPanel.add(headerPanel, "header");
+
+        responsePanel.add(responseCenterPanel, BorderLayout.CENTER);
+
+        CardLayout cardLayout = (CardLayout) responseCenterPanel.getLayout();
+
+
+
+        JPanel headerTab = new JPanel(new GridLayout(1, 2));
+        headerTab.setBackground(new Color(40, 41, 37));
+        headerTab.setBorder(BorderFactory.createLineBorder(new Color(71, 72,69)));
+
+        List<JButton> headers = new ArrayList<>();
+
+        for(int i=0 ; i<2; i++) {
+
+            headers.add(new JButton());
+            if(i == 0) {
+
+                headers.get(i).setBackground(new Color(71, 72, 69));
+                headers.get(i).setForeground(Color.white);
+
+            } else {
+
+                headers.get(i).setBackground(new Color(40, 41, 37));
+                headers.get(i).setForeground(new Color(153, 153, 153));
+
+            }
+            headers.get(i).setFont(new Font("Santa Fe Let", Font.PLAIN, 16));
+            headers.get(i).setPreferredSize(new Dimension(200, 50));
+            headers.get(i).setContentAreaFilled(false);
+            headers.get(i).setOpaque(true);
+            headers.get(i).setBorder(null);
+            final int index = i;
+            headers.get(i).addMouseListener(new MouseAdapter() {
+
+
+                @Override
+                public void mouseClicked(MouseEvent e) {
+
+                    if(e.getButton() == MouseEvent.BUTTON1) {
+
+                        if(index == 0) { // response data part
+
+                            cardLayout.show(responseCenterPanel, "response data");
+                            changeHeaderButtonsColor(headers, index, 2);
+
+                        } else if(index == 1) { // header part
+
+                            cardLayout.show(responseCenterPanel, "header");
+                            changeHeaderButtonsColor(headers, index, 2);
+
+                        }
+
+                    } /*else if(e.getButton() == MouseEvent.BUTTON3) {
+
+                        if(index == 0) {
+
+                            Component component = (Component) e.getSource();
+                            dataForm.show(headers.get(0), component.getX(), component.getY() + component.getHeight());
+
+                        }
+
+                    }*/
+
+                }
+
+                @Override
+                public void mouseEntered(MouseEvent e) {
+
+                    changeHeaderButtonsColor(headers, index, 0);
+
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+
+                    if(index == 0) { // form data part
+
+                        for(Component com : responseCenterPanel.getComponents()) {
+
+                            if(com.isVisible() && com != responseData) {
+
+                                changeHeaderButtonsColor(headers, index, 1);
+
+                            }
+
+                        }
+
+                    } else if(index == 1) { // header part
+
+                        for(Component com : responseCenterPanel.getComponents()) {
+
+                            if(com.isVisible() && com != headerPanel) {
+
+                                changeHeaderButtonsColor(headers, index, 1);
+
+                            }
+
+                        }
+
+                    }
+                }
+            });
+
+        }
+
+        headers.get(0).setText("Response Data   " + openMenu);
+        headers.get(1).setText("Header");
+
+        for (JButton button : headers) {
+            headerTab.add(button);
+        }
+
+        responsePanel.add(headerTab, BorderLayout.NORTH);
+
+
+
+        JPanel headerCoverPanel = new JPanel();
+        headerCoverPanel.setBackground(new Color(40, 41, 37));
+        headerCoverPanel.setPreferredSize(new Dimension(1000, 2000));
+        headerCoverPanel.setLayout(new BoxLayout(headerCoverPanel, BoxLayout.Y_AXIS));
+
+
+        JScrollPane headerPanelScroll = new JScrollPane(headerCoverPanel);
+        headerPanelScroll.setBackground(new Color(40, 41, 37));
+        headerPanelScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        headerPanelScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+        headerPanel.add(headerPanelScroll);
+
+        JPanel initialHeaderPanel = new JPanel();
+        initialHeaderPanel.setBackground(new Color(40, 41, 37));
+        initialHeaderPanel.setLayout(new BoxLayout(initialHeaderPanel, BoxLayout.X_AXIS));
+        initialHeaderPanel.setPreferredSize(new Dimension(500, 250));
+        initialHeaderPanel.setMinimumSize(new Dimension(500 -1, 250-1));
+
+        List<JLabel> initialLabels = new ArrayList<>();
+
+        for(int i=0 ; i<2 ; i++) {
+
+            initialLabels.add(new JLabel());
+            initialLabels.get(i).setForeground(Color.white);
+            initialLabels.get(i).setFont(new Font("Times New Roman", Font.PLAIN, 14));
+            initialLabels.get(i).setPreferredSize(new Dimension(100, 50));
+
+        }
+
+        initialLabels.get(0).setText("NAME");
+        initialLabels.get(1).setText("VALUE");
+
+        initialHeaderPanel.add(Box.createRigidArea(new Dimension(20, 0)));
+        initialHeaderPanel.add(initialLabels.get(0));
+        initialHeaderPanel.add(Box.createRigidArea(new Dimension(180, 0)));
+        initialHeaderPanel.add(initialLabels.get(1));
+        initialHeaderPanel.add(Box.createRigidArea(new Dimension(180, 0)));
+
+        headerCoverPanel.add(Box.createRigidArea(new Dimension(0, 40)));
+        headerCoverPanel.add(initialHeaderPanel);
+        headerCoverPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+
+
+
+
+
+        // end of center of response part
+
+
+
+
+        return rightPanel;
+
+    }
+
+
 
 
     /**
@@ -1356,6 +1569,10 @@ public class MainFrame extends JFrame {
         return String.format("%.1f %cB", bytes / 1000.0, ci.current());
 
     }
+
+
+
+
 
 
 }
