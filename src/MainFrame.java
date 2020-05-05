@@ -832,7 +832,7 @@ public class MainFrame extends JFrame {
 
 
         // header panel for header button
-        JPanel headerPanel = new JPanel();
+        JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(new Color(40, 41, 37));
 
         // response data for raw and other types of file showing
@@ -962,22 +962,22 @@ public class MainFrame extends JFrame {
 
         JPanel headerCoverPanel = new JPanel();
         headerCoverPanel.setBackground(new Color(40, 41, 37));
-        headerCoverPanel.setPreferredSize(new Dimension(1000, 2000));
-        headerCoverPanel.setLayout(new BoxLayout(headerCoverPanel, BoxLayout.Y_AXIS));
+//        headerCoverPanel.setPreferredSize(new Dimension(200, 400));
+        headerCoverPanel.setLayout(new GridBagLayout());
 
+        GridBagConstraints constraints = new GridBagConstraints();
 
         JScrollPane headerPanelScroll = new JScrollPane(headerCoverPanel);
         headerPanelScroll.setBackground(new Color(40, 41, 37));
         headerPanelScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         headerPanelScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-        headerPanel.add(headerPanelScroll);
+        headerPanel.add(headerPanelScroll, BorderLayout.CENTER);
 
         JPanel initialHeaderPanel = new JPanel();
         initialHeaderPanel.setBackground(new Color(40, 41, 37));
         initialHeaderPanel.setLayout(new BoxLayout(initialHeaderPanel, BoxLayout.X_AXIS));
-        initialHeaderPanel.setPreferredSize(new Dimension(500, 250));
-        initialHeaderPanel.setMinimumSize(new Dimension(500 -1, 250-1));
+        initialHeaderPanel.setPreferredSize(new Dimension(500, 50));
 
         List<JLabel> initialLabels = new ArrayList<>();
 
@@ -988,6 +988,7 @@ public class MainFrame extends JFrame {
             initialLabels.get(i).setFont(new Font("Times New Roman", Font.PLAIN, 14));
             initialLabels.get(i).setPreferredSize(new Dimension(100, 50));
 
+
         }
 
         initialLabels.get(0).setText("NAME");
@@ -995,7 +996,7 @@ public class MainFrame extends JFrame {
 
         initialHeaderPanel.add(Box.createRigidArea(new Dimension(20, 0)));
         initialHeaderPanel.add(initialLabels.get(0));
-        initialHeaderPanel.add(Box.createRigidArea(new Dimension(180, 0)));
+        initialHeaderPanel.add(Box.createRigidArea(new Dimension(120, 0)));
         initialHeaderPanel.add(initialLabels.get(1));
         initialHeaderPanel.add(Box.createRigidArea(new Dimension(180, 0)));
 
@@ -1005,13 +1006,65 @@ public class MainFrame extends JFrame {
 
         List<JPanel> headerField = new ArrayList<>();
         responseHeaderField(theme, headerField, name, value);
+        responseHeaderField(theme, headerField, "ldsfjslkdjfslkajfajslkfjsdjlkfjslkjafjlksjajfjasjjasljfsdlkjf",
+                "jsldfjlksjlafjsjfjadjgjsdajf sdaljfkldjalkfdslfnvjdsfladjzzxslkfjvlkjfljasjvfanflasdjj");
+        responseHeaderField(theme, headerField, "ldsfjslkdjfslkajfajslkfjsdjlkfjslkjafjlksjajfjasjjasljfsdlkjf",
+                "jsldfjlksjlafjsadasrwejfjadjgjsdajf sdaljfkldjalkfasddslfnvjdsfladjslkfjvlkjfljasjvfanflasdjj");
+        responseHeaderField(theme, headerField, "ldsfjslkdjfslsdaskajfajslkfjsdjlkfjslkjafjlksjajfjasjjasljfsdlkjf",
+                "jsldfjlksjlafjsjfjadjgjsdajf sdaljfkldjalkfdslfnvjdsfladjslkfjvlkjfljasjvfanflasdjj");
+        responseHeaderField(theme, headerField, "ldsfjslkdjfslkajfajslkfsdafsfjsdjlkfjslkjafjlksjajfjasjjasljfsdlkjf",
+                "jsldfjlksjlafjsjfjadjgjsdajf sdaljfkldjalkfdslfnvjdzzzzzzsfladjslkfjvlkjfljasjvfanflasdjj");
+        responseHeaderField(theme, headerField, "ldsfjslkdjfslkajfajslkfsdafsfjsdjlkfjslkjafjlksjajfjasjjasljfsdlkjf",
+                "jsldfjlksjlafjsjfjadjgjsdajf sdaljfkldjalkfdslfnvjdzzzzzzsfladjslkfjvlkjfljasjvfanflasdjj");
+        responseHeaderField(theme, headerField, "ldsfjslkdjfslkajfajslkfsdafsfjsdjlkfjslkjafjlksjajfjasjjasljfsdlkjf",
+                "jsldfjlksjlafjsjfjadjgjsdajf sdaljfkldjalkfdslfnvjdzzzzzzsfladjslkfjvlkjfljasjvfanflasdjj");
+        responseHeaderField(theme, headerField, "ldsfjslkdjfslkajfajslkfsdafsfjsdjlkfjslkjafjlksjajfjasjjasljfsdlkjf",
+                "jsldfjlksjlafjsjfjadjgjsdajf sdaljfkldjalkfdslfnvjdzzzzzzsfladjslkfjvlkjfljasjvfanflasdjj");
+        responseHeaderField(theme, headerField, "ldsfjslkdjfslkajfajslkfsdafsfjsdjlkfjslkjafjlksjajfjasjjasljfsdlkjf",
+                "jsldfjlksjlafjsjfjadjgjsdajf sdaljfkldjalkfdslfnvjdzzzzzzsfladjslkfjvlkjfljasjvfanflasdjj");
+        responseHeaderField(theme, headerField, "ldsfjslkdjfslkajfajslkfsdafsfjsdjlkfjslkjafjlksjajfjasjjasljfsdlkjf",
+                "jsldfjlksjlafjsjfjadjgjsdajf sdaljfkldjalkfdslfnvjdzzzzzzsfladjslkfjvlkjfljasjvfanflasdjj");
+        responseHeaderField(theme, headerField, "ldsfjslkdjfslkajfajslkfsdafsfjsdjlkfjslkjafjlksjajfjasjjasljfsdlkjf",
+                "jsldfjlksjlafjsjfjadjgjsdajf sdaljfkldjalkfdslfnvjdzzzzzzsfladjslkfjvlkjfljasjvfanflasdjj");
 
-        headerCoverPanel.add(Box.createRigidArea(new Dimension(0, 40)));
-        headerCoverPanel.add(initialHeaderPanel);
-        headerCoverPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.insets = new Insets(5, 0, 0, 0);
+//        headerCoverPanel.add(Box.createRigidArea(new Dimension(0, 40)));
+        headerCoverPanel.add(initialHeaderPanel, constraints);
+//        headerCoverPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
+
+        System.out.println(headerField.size());
+        int number = 1;
         for (JPanel panel : headerField) {
-            headerCoverPanel.add(panel);
+
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+
+            constraints.gridx = 0;
+            constraints.gridy = number;
+
+
+
+
+            if(number >= headerField.size()) {
+
+                constraints.weightx = 1;
+                constraints.weighty = 1;
+                constraints.anchor = GridBagConstraints.PAGE_START;
+
+            }
+            headerCoverPanel.add(panel, constraints);
+            if(number % 2 == 0) {
+
+                panel.setBackground(new Color(40, 41, 37));
+
+            } else {
+                panel.setBackground(new Color(49, 50, 46));
+            }
+            number++;
+
         }
 
 
@@ -1602,25 +1655,30 @@ public class MainFrame extends JFrame {
         headerFieldPanel.setBackground(new Color(40, 41, 37));
         headerFieldPanel.setLayout(new BoxLayout(headerFieldPanel, BoxLayout.X_AXIS));
 
-        List<JLabel> labels = new ArrayList<>();
+        List<JTextArea> labels = new ArrayList<>();
 
         for(int i=0 ; i<2 ; i++) {
 
-            labels.add(new JLabel());
+            labels.add(new JTextArea());
+            labels.get(i).setLineWrap(true);
             labels.get(i).setForeground(Color.white);
             labels.get(i).setFont(new Font("Santa Fe Let", Font.PLAIN, 13));
-            labels.get(i).setPreferredSize(new Dimension(100, 50));
+//            labels.get(i).setPreferredSize(new Dimension(80, 50));
+            labels.get(i).setMaximumSize(new Dimension(200, Integer.MAX_VALUE));
+            labels.get(i).setEditable(false);
+            labels.get(i).setOpaque(false);
+            labels.get(i).setAlignmentY(Component.CENTER_ALIGNMENT);
 
         }
 
         labels.get(0).setText(name);
         labels.get(1).setText(value);
 
-        headerFieldPanel.add(Box.createRigidArea(new Dimension(20, 0)));
+        headerFieldPanel.add(Box.createRigidArea(new Dimension(10, 0)));
         headerFieldPanel.add(labels.get(0));
-        headerFieldPanel.add(Box.createRigidArea(new Dimension(180, 0)));
+        headerFieldPanel.add(Box.createRigidArea(new Dimension(10, 0)));
         headerFieldPanel.add(labels.get(1));
-        headerFieldPanel.add(Box.createRigidArea(new Dimension(180, 0)));
+        headerFieldPanel.add(Box.createRigidArea(new Dimension(10, 0)));
 
 
         headerField.add(headerFieldPanel);
