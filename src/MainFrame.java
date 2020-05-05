@@ -1,5 +1,6 @@
 
 import com.sun.xml.internal.messaging.saaj.soap.JpegDataContentHandler;
+import javafx.scene.layout.Background;
 import sun.plugin.services.PlatformService;
 import sun.swing.FilePane;
 import sun.text.normalizer.Trie;
@@ -12,6 +13,8 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
 import java.io.DataInput;
 import java.io.File;
@@ -1006,26 +1009,11 @@ public class MainFrame extends JFrame {
 
         List<JPanel> headerField = new ArrayList<>();
         responseHeaderField(theme, headerField, name, value);
-        responseHeaderField(theme, headerField, "ldsfjslkdjfslkajfajslkfjsdjlkfjslkjafjlksjajfjasjjasljfsdlkjf",
-                "jsldfjlksjlafjsjfjadjgjsdajf sdaljfkldjalkfdslfnvjdsfladjzzxslkfjvlkjfljasjvfanflasdjj");
-        responseHeaderField(theme, headerField, "ldsfjslkdjfslkajfajslkfjsdjlkfjslkjafjlksjajfjasjjasljfsdlkjf",
-                "jsldfjlksjlafjsadasrwejfjadjgjsdajf sdaljfkldjalkfasddslfnvjdsfladjslkfjvlkjfljasjvfanflasdjj");
-        responseHeaderField(theme, headerField, "ldsfjslkdjfslsdaskajfajslkfjsdjlkfjslkjafjlksjajfjasjjasljfsdlkjf",
-                "jsldfjlksjlafjsjfjadjgjsdajf sdaljfkldjalkfdslfnvjdsfladjslkfjvlkjfljasjvfanflasdjj");
-        responseHeaderField(theme, headerField, "ldsfjslkdjfslkajfajslkfsdafsfjsdjlkfjslkjafjlksjajfjasjjasljfsdlkjf",
-                "jsldfjlksjlafjsjfjadjgjsdajf sdaljfkldjalkfdslfnvjdzzzzzzsfladjslkfjvlkjfljasjvfanflasdjj");
-        responseHeaderField(theme, headerField, "ldsfjslkdjfslkajfajslkfsdafsfjsdjlkfjslkjafjlksjajfjasjjasljfsdlkjf",
-                "jsldfjlksjlafjsjfjadjgjsdajf sdaljfkldjalkfdslfnvjdzzzzzzsfladjslkfjvlkjfljasjvfanflasdjj");
-        responseHeaderField(theme, headerField, "ldsfjslkdjfslkajfajslkfsdafsfjsdjlkfjslkjafjlksjajfjasjjasljfsdlkjf",
-                "jsldfjlksjlafjsjfjadjgjsdajf sdaljfkldjalkfdslfnvjdzzzzzzsfladjslkfjvlkjfljasjvfanflasdjj");
-        responseHeaderField(theme, headerField, "ldsfjslkdjfslkajfajslkfsdafsfjsdjlkfjslkjafjlksjajfjasjjasljfsdlkjf",
-                "jsldfjlksjlafjsjfjadjgjsdajf sdaljfkldjalkfdslfnvjdzzzzzzsfladjslkfjvlkjfljasjvfanflasdjj");
-        responseHeaderField(theme, headerField, "ldsfjslkdjfslkajfajslkfsdafsfjsdjlkfjslkjafjlksjajfjasjjasljfsdlkjf",
-                "jsldfjlksjlafjsjfjadjgjsdajf sdaljfkldjalkfdslfnvjdzzzzzzsfladjslkfjvlkjfljasjvfanflasdjj");
-        responseHeaderField(theme, headerField, "ldsfjslkdjfslkajfajslkfsdafsfjsdjlkfjslkjafjlksjajfjasjjasljfsdlkjf",
-                "jsldfjlksjlafjsjfjadjgjsdajf sdaljfkldjalkfdslfnvjdzzzzzzsfladjslkfjvlkjfljasjvfanflasdjj");
-        responseHeaderField(theme, headerField, "ldsfjslkdjfslkajfajslkfsdafsfjsdjlkfjslkjafjlksjajfjasjjasljfsdlkjf",
-                "jsldfjlksjlafjsjfjadjgjsdajf sdaljfkldjalkfdslfnvjdzzzzzzsfladjslkfjvlkjfljasjvfanflasdjj");
+        responseHeaderField(theme, headerField, "header 2", "this is value of header 2");
+        responseHeaderField(theme, headerField, "header 3", "this is value of header 3");
+        responseHeaderField(theme, headerField, "header 4", "this is value of header 4");
+        responseHeaderField(theme, headerField, "header 5", "this is value of header 5");
+
 
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 0;
@@ -1067,6 +1055,69 @@ public class MainFrame extends JFrame {
 
         }
 
+
+        JButton copyButton = new JButton("Copy to Clipboard");
+        copyButton.setBackground(new Color(40, 41, 37));
+        copyButton.setForeground(Color.white);
+        copyButton.setFont(new Font("Santa Fe Let", Font.PLAIN, 20));
+        copyButton.setPreferredSize(new Dimension(200, 40));
+        copyButton.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69)));
+        copyButton.setContentAreaFilled(false);
+        copyButton.setOpaque(true);
+        copyButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+                if(e.getButton() == MouseEvent.BUTTON1) {
+
+                    String headerContents = "";
+
+                    for (JPanel panel : headerField) {
+
+                        int counter = 0;
+
+                        for (Component component : panel.getComponents()) {
+
+                            if(component instanceof JTextArea && counter == 0) {
+
+                                headerContents += ((JTextArea) component).getText() + ": ";
+                                counter++;
+
+                            }else if(component instanceof JTextArea && counter == 1) {
+
+                                headerContents += ((JTextArea) component).getText() + "\n";
+                                counter++;
+
+                            }
+
+                        }
+
+                    }
+
+                    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                    clipboard.setContents(new StringSelection(headerContents), null);
+
+                }
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+                copyButton.setBackground(new Color(71, 72, 69));
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+                copyButton.setBackground(new Color(40, 41, 37));
+
+            }
+        });
+
+
+        headerPanel.add(copyButton, BorderLayout.SOUTH);
 
 
 
