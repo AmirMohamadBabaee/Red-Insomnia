@@ -34,13 +34,7 @@ public class EditorFrame extends JFrame {
 
         try {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (UnsupportedLookAndFeelException e) {
+        } catch (ClassNotFoundException | UnsupportedLookAndFeelException | IllegalAccessException | InstantiationException e) {
             e.printStackTrace();
         }
 
@@ -77,7 +71,7 @@ public class EditorFrame extends JFrame {
         add(scrollPane);
 
         doneButton = new JButton("Done");
-        doneButton.setBackground(Color.white);
+        Color currentColor = doneButton.getBackground();
         doneButton.setPreferredSize(new Dimension(75, 50));
         doneButton.setFont(new Font("Santa Fe Let", Font.PLAIN, 25));
         doneButton.setBorder(null);
@@ -104,7 +98,7 @@ public class EditorFrame extends JFrame {
 
             @Override
             public void mouseExited(MouseEvent e) {
-                doneButton.setBackground(Color.white);
+                doneButton.setBackground(currentColor);
             }
         });
 
