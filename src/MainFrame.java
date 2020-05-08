@@ -3,6 +3,7 @@ import com.sun.jmx.mbeanserver.JmxMBeanServer;
 import com.sun.org.apache.bcel.internal.generic.JsrInstruction;
 import com.sun.xml.internal.messaging.saaj.soap.JpegDataContentHandler;
 import javafx.scene.layout.Background;
+import jdk.nashorn.internal.scripts.JO;
 import sun.plugin.services.PlatformService;
 import sun.swing.FilePane;
 import sun.text.normalizer.Trie;
@@ -28,6 +29,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.security.DomainCombiner;
+import java.security.Key;
 import java.sql.SQLOutput;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
@@ -37,10 +39,14 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
+ * MainFrame
+ *
  * This class is main Frame of insomnia app
  *
  * @author Amir01
  * @version
+ *
+ * @see JFrame
  */
 public class MainFrame extends JFrame {
 
@@ -62,13 +68,7 @@ public class MainFrame extends JFrame {
 
         try {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (UnsupportedLookAndFeelException e) {
+        } catch (ClassNotFoundException | UnsupportedLookAndFeelException | IllegalAccessException | InstantiationException e) {
             e.printStackTrace();
         }
 
@@ -95,14 +95,31 @@ public class MainFrame extends JFrame {
         JMenu view = new JMenu("View");
         JMenu help = new JMenu("Help");
 
+        application.setMnemonic(KeyEvent.VK_A);
+        view.setMnemonic(KeyEvent.VK_V);
+        help.setMnemonic(KeyEvent.VK_H);
+
         menuBar.add(application);
         menuBar.add(view);
         menuBar.add(help);
 
         // Application menu
 
-        JMenuItem options = new JMenuItem("Options");
-        JMenuItem exit = new JMenuItem("Exit");
+        JMenuItem options = new JMenuItem("Options", KeyEvent.VK_O);
+        JMenuItem exit = new JMenuItem("Exit", KeyEvent.VK_Q);
+
+        JFrame mainFrame = this;
+        options.addActionListener(e -> new OptionFrame(theme, mainFrame));
+        exit.addActionListener(e -> {
+            int dialogResult = JOptionPane.showConfirmDialog(mainFrame, "Are you sure you want to exit RedInsomnia?", "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+            if(dialogResult == JOptionPane.YES_OPTION) {
+                mainFrame.dispose();
+                System.exit(0);
+            }
+        });
+
+        options.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_MASK));
+        exit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, KeyEvent.CTRL_MASK));
 
         application.add(options);
         application.add(exit);
@@ -112,6 +129,41 @@ public class MainFrame extends JFrame {
         JMenuItem toggleFullScreen = new JMenuItem("Toggle Full Screen");
         JMenuItem toggleSideBar = new JMenuItem("Toggle Sidebar");
 
+        toggleFullScreen.addActionListener(e -> {
+            try {
+                if(mainFrame.getExtendedState() == JFrame.NORMAL) {
+                    mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                } else if(mainFrame.getExtendedState() == JFrame.MAXIMIZED_BOTH) {
+                    mainFrame.setExtendedState(JFrame.NORMAL);
+                }
+            } catch(Exception err) {
+                err.printStackTrace();
+            }
+        });
+        toggleSideBar.addActionListener(e -> {
+            for (Component component : mainFrame.getContentPane().getComponents()) {
+                try {
+
+                    if(component.getName().equals("left panel")) {
+                        if(component.isVisible()) {
+                            component.setVisible(false);
+                        } else {
+                            component.setVisible(true);
+                        }
+                    }
+
+                } catch(NullPointerException err) {
+                    err.printStackTrace();
+                }
+            }
+        });
+
+        toggleFullScreen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_MASK));
+        toggleSideBar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_MASK));
+
+        toggleFullScreen.setMnemonic(KeyEvent.VK_F);
+        toggleSideBar.setMnemonic(KeyEvent.VK_S);
+
         view.add(toggleFullScreen);
         view.add(toggleSideBar);
 
@@ -119,6 +171,12 @@ public class MainFrame extends JFrame {
 
         JMenuItem about = new JMenuItem("About");
         JMenuItem helpItem = new JMenuItem("Help");
+
+        about.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, KeyEvent.CTRL_MASK));
+        helpItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, KeyEvent.CTRL_MASK));
+
+        about.setMnemonic(KeyEvent.VK_B);
+        helpItem.setMnemonic(KeyEvent.VK_H);
 
         help.add(about);
         help.add(helpItem);
@@ -142,6 +200,7 @@ public class MainFrame extends JFrame {
 
 
         JPanel leftPanel = leftPanel(theme);
+
 
 
         // Central part of RedInsomnia (part 2)
@@ -174,6 +233,7 @@ public class MainFrame extends JFrame {
     private JPanel leftPanel(int theme) {
 
         JPanel leftPanel = new JPanel(new BorderLayout());
+        leftPanel.setName("left panel");
         leftPanel.setPreferredSize(new Dimension(250, 580));
         leftPanel.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69), 1));
 
