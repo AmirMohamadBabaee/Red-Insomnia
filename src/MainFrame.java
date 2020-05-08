@@ -1,4 +1,6 @@
 
+import com.sun.jmx.mbeanserver.JmxMBeanServer;
+import com.sun.org.apache.bcel.internal.generic.JsrInstruction;
 import com.sun.xml.internal.messaging.saaj.soap.JpegDataContentHandler;
 import javafx.scene.layout.Background;
 import sun.plugin.services.PlatformService;
@@ -6,6 +8,7 @@ import sun.swing.FilePane;
 import sun.text.normalizer.Trie;
 
 import javax.imageio.ImageIO;
+import javax.management.JMException;
 import javax.naming.spi.DirectoryManager;
 import javax.smartcardio.Card;
 import javax.swing.*;
@@ -16,6 +19,7 @@ import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.io.DataInput;
 import java.io.File;
 import java.io.IOException;
@@ -76,16 +80,54 @@ public class MainFrame extends JFrame {
         setIconImage(icon.getImage());
 
         setTitle(title);
-        setSize(1300, 600);
+        setSize(1300, 650);
         setLocationRelativeTo(null);
         setLayout(null);
         setContentPane(mainPanel(theme));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setVisible(true);
 
         lightColor = new ArrayList<>();
         darkColor = new ArrayList<>();
 
+        JMenuBar menuBar = new JMenuBar();
+
+        JMenu application = new JMenu("Application");
+        JMenu view = new JMenu("View");
+        JMenu help = new JMenu("Help");
+
+        menuBar.add(application);
+        menuBar.add(view);
+        menuBar.add(help);
+
+        // Application menu
+
+        JMenuItem options = new JMenuItem("Options");
+        JMenuItem exit = new JMenuItem("Exit");
+
+        application.add(options);
+        application.add(exit);
+
+        // view menu
+
+        JMenuItem toggleFullScreen = new JMenuItem("Toggle Full Screen");
+        JMenuItem toggleSideBar = new JMenuItem("Toggle Sidebar");
+
+        view.add(toggleFullScreen);
+        view.add(toggleSideBar);
+
+        // help menu
+
+        JMenuItem about = new JMenuItem("About");
+        JMenuItem helpItem = new JMenuItem("Help");
+
+        help.add(about);
+        help.add(helpItem);
+
+
+
+        setJMenuBar(menuBar);
+
+        setVisible(true);
     }
 
 
@@ -839,8 +881,60 @@ public class MainFrame extends JFrame {
         headerPanel.setBackground(new Color(40, 41, 37));
 
         // response data for raw and other types of file showing
-        JPanel responseData = new JPanel();
+        JPanel responseData = new JPanel(new CardLayout());
         responseData.setBackground(new Color(40, 41, 37));
+
+
+        JEditorPane rawPanel = new JEditorPane();
+        rawPanel.setBackground(new Color(40, 41, 37));
+        rawPanel.setForeground(Color.white);
+        rawPanel.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+        rawPanel.setText("Hello world!");
+
+
+        TextLineNumber tln = new TextLineNumber(rawPanel);
+        tln.setBorderGap(0);
+        tln.setDigitAlignment(TextLineNumber.CENTER);
+
+
+        JScrollPane rawScroll = new JScrollPane(rawPanel);
+        rawScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        rawScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        rawScroll.setRowHeaderView(tln);
+
+
+        responseData.add(rawScroll, "Raw");
+
+        ((CardLayout)responseData.getLayout()).show(responseData, "Raw");
+
+
+        JPanel visualPanel = new JPanel();
+//        visualPanel.setBackground(new Color(41, 42, 37));
+        BufferedImage responseImage = null;
+        JLabel pic ;
+        try {
+
+            responseImage = ImageIO.read(new File("D:\\desktop background\\573249.jpg"));
+            pic = new JLabel(new ImageIcon(responseImage));
+            visualPanel.add(pic);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        JScrollPane visualScroll = new JScrollPane(visualPanel);
+
+        responseData.add(visualScroll, "Visual");
+
+
+        JPopupMenu responseTypePopup = new JPopupMenu();
+        responseTypePopup.setPreferredSize(new Dimension(200, 100));
+
+        JMenuItem rawForm = new JMenuItem("Raw");
+        JMenuItem visualForm = new JMenuItem("Visual");
+
+        responseTypePopup.add(rawForm);
+        responseTypePopup.add(visualForm);
 
         JPanel responseCenterPanel = new JPanel(new CardLayout());
         responseCenterPanel.setBackground(new Color(40, 41, 37));
@@ -899,16 +993,16 @@ public class MainFrame extends JFrame {
 
                         }
 
-                    } /*else if(e.getButton() == MouseEvent.BUTTON3) {
+                    } else if(e.getButton() == MouseEvent.BUTTON3) {
 
                         if(index == 0) {
 
                             Component component = (Component) e.getSource();
-                            dataForm.show(headers.get(0), component.getX(), component.getY() + component.getHeight());
+                            responseTypePopup.show(headers.get(0), component.getX(), component.getY() + component.getHeight());
 
                         }
 
-                    }*/
+                    }
 
                 }
 
@@ -952,7 +1046,16 @@ public class MainFrame extends JFrame {
 
         }
 
-        headers.get(0).setText("Response Data   " + openMenu);
+        rawForm.addActionListener(e -> {
+            ((CardLayout)responseData.getLayout()).show(responseData, "Raw");
+            headers.get(0).setText("Raw         " + openMenu);
+        });
+        visualForm.addActionListener(e -> {
+            ((CardLayout)responseData.getLayout()).show(responseData, "Visual");
+            headers.get(0).setText("Visual      " + openMenu);
+        });
+
+        headers.get(0).setText("Raw         " + openMenu);
         headers.get(1).setText("Header");
 
         for (JButton button : headers) {
@@ -965,7 +1068,6 @@ public class MainFrame extends JFrame {
 
         JPanel headerCoverPanel = new JPanel();
         headerCoverPanel.setBackground(new Color(40, 41, 37));
-//        headerCoverPanel.setPreferredSize(new Dimension(200, 400));
         headerCoverPanel.setLayout(new GridBagLayout());
 
         GridBagConstraints constraints = new GridBagConstraints();
@@ -1118,6 +1220,8 @@ public class MainFrame extends JFrame {
 
 
         headerPanel.add(copyButton, BorderLayout.SOUTH);
+
+
 
 
 
