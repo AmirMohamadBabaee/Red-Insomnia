@@ -21,9 +21,7 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.io.DataInput;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -59,12 +57,16 @@ public class MainFrame extends JFrame {
     private String currentDir;
     private List<Color> lightColor;
     private List<Color> darkColor;
+    private int theme;
+    private boolean followDirect;
+    private boolean closeOperation;
 
     // Constructor
 
     public MainFrame(String title, int theme) {
 
         super();
+
 
         try {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
@@ -78,6 +80,12 @@ public class MainFrame extends JFrame {
         System.out.println(currentDir);
         icon = new ImageIcon(currentDir+"\\newIcon.png");
         setIconImage(icon.getImage());
+
+
+        this.theme = theme;
+
+        initFrame();
+
 
         setTitle(title);
         setSize(1300, 650);
@@ -109,7 +117,7 @@ public class MainFrame extends JFrame {
         JMenuItem exit = new JMenuItem("Exit", KeyEvent.VK_Q);
 
         JFrame mainFrame = this;
-        options.addActionListener(e -> new OptionFrame(theme, mainFrame));
+        options.addActionListener(e -> new OptionController(theme, mainFrame, currentDir));
         exit.addActionListener(e -> {
             int dialogResult = JOptionPane.showConfirmDialog(mainFrame, "Are you sure you want to exit RedInsomnia?", "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
             if(dialogResult == JOptionPane.YES_OPTION) {
@@ -188,6 +196,80 @@ public class MainFrame extends JFrame {
         setVisible(true);
     }
 
+    private void initFrame() {
+
+        try(FileInputStream in = new FileInputStream(currentDir + "\\data\\options")) {
+
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(in);
+            DataInputStream dataInputStream = new DataInputStream(bufferedInputStream);
+
+            int followDirectInt = dataInputStream.readByte();
+            int closeOperationInt = dataInputStream.readByte();
+            int lightThemeInt = dataInputStream.readByte();
+//            int darkThemeInt = dataInputStream.readByte();
+
+            if(followDirectInt == 0) {
+                followDirect = false;
+            } else if(followDirectInt == 1) {
+                followDirect = true;
+            }
+
+            if(closeOperationInt == 0) {
+                closeOperation = false;
+            } else if(closeOperationInt == 1) {
+                closeOperation = true;
+            }
+
+            if(lightThemeInt == 1) {
+                theme = LIGHT_THEME;
+            } else {
+                theme = DARK_THEME;
+            }
+
+            /*if(darkThemeInt == 1) {
+                theme = DARK_THEME;
+            }*/
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    public boolean isFollowDirect() {
+        return followDirect;
+    }
+
+    public void setFollowDirect(boolean followDirect) {
+        this.followDirect = followDirect;
+    }
+
+    public boolean isCloseOperation() {
+        return closeOperation;
+    }
+
+    public void setCloseOperation(boolean closeOperation) {
+        this.closeOperation = closeOperation;
+    }
+
+    /**
+     * getter of theme of this frame
+     *
+     * @return theme of this frame
+     */
+    public int getTheme() {
+        return theme;
+    }
+
+    /**
+     * setter of theme of this frame
+     *
+     * @param theme expected theme
+     */
+    public void setTheme(int theme) {
+        this.theme = theme;
+    }
 
     private JPanel mainPanel(int theme) {
 
