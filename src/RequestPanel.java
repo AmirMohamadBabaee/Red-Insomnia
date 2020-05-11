@@ -112,9 +112,8 @@ public class RequestPanel extends JButton {
             requestList.revalidate();
             requestList.repaint();
 
-            try {
+            try(FileOutputStream out = new FileOutputStream(currentDir + "\\data\\request_list")) {
 
-                FileOutputStream out = new FileOutputStream(currentDir + "\\data\\request_list");
                 ObjectOutputStream outputStream = new ObjectOutputStream(out);
                 System.out.println(requestList.getComponents().length);
                 for (Component component : requestList.getComponents()) {
