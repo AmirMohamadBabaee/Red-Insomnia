@@ -1,28 +1,7 @@
-import javax.imageio.ImageIO;
-import javax.management.JMException;
-import javax.naming.spi.DirectoryManager;
-import javax.smartcardio.Card;
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.security.DomainCombiner;
-import java.security.Key;
-import java.sql.SQLOutput;
-import java.text.CharacterIterator;
-import java.text.StringCharacterIterator;
-import java.util.Base64;
-import java.util.Calendar;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -51,7 +30,6 @@ public class MainFrame extends JFrame {
     private int theme;
     private boolean followDirect;
     private boolean closeOperation;
-    public Component[] mainComponents;
 
     // Constructor
 
@@ -322,21 +300,21 @@ public class MainFrame extends JFrame {
         // left part of RedInsomnia (part 1)
 
 
-        JPanel leftPanel = leftPanel();
+        JPanel leftPanel = leftPanel(mainPanel);
 
 
 
         // Central part of RedInsomnia (part 2)
 
 
-        JPanel centerPanel = new CenterPanel(this).getCenterPanel();
+        JPanel centerPanel = new CenterPanel(this);
 
 
 
         // right part of RedInsomnia (part3)
 
 
-        JPanel rightPanel = new RightPanel(this).getRightPanel();
+        JPanel rightPanel = new RightPanel(this);
 
 
 
@@ -346,11 +324,6 @@ public class MainFrame extends JFrame {
         mainPanel.add(centerPanel, BorderLayout.CENTER);
         mainPanel.add(rightPanel, BorderLayout.EAST);
 
-        mainComponents = new Component[3];
-        mainComponents[0] = leftPanel;
-        mainComponents[1] = centerPanel;
-        mainComponents[2] = rightPanel;
-
         mainPanel.setLocation(0, 0);
 
         return mainPanel;
@@ -358,7 +331,7 @@ public class MainFrame extends JFrame {
     }
 
 
-    private JPanel leftPanel() {
+    private JPanel leftPanel(JPanel mainPanel) {
 
         JPanel leftPanel = new JPanel(new BorderLayout());
         leftPanel.setName("left panel");
@@ -512,7 +485,36 @@ public class MainFrame extends JFrame {
 
         for (RequestPanel object : readObjects()) {
 
-            requestList.add(new RequestPanel(theme, object.getMethod(), object.getName(), requestList, currentDir));
+            RequestPanel button = new RequestPanel(this, object.getMethod(), object.getName(), requestList);
+            requestList.add(button);
+            RequestPack pack = new RequestPack(button, this);
+
+            button.addActionListener(e -> {
+
+                ((RequestPanel)e.getSource()).setSelected(true);
+                mainPanel.removeAll();
+                mainPanel.add(leftPanel, BorderLayout.WEST);
+                mainPanel.add(pack.getCenterPanel(), BorderLayout.CENTER);
+                mainPanel.add(pack.getRightPanel(), BorderLayout.EAST);
+                mainPanel.revalidate();
+                mainPanel.repaint();
+                MainFrame.this.revalidate();
+                MainFrame.this.repaint();
+
+                for (Component component : requestList.getComponents()) {
+
+                    if(component instanceof RequestPanel && component != e.getSource()) {
+
+                        ((RequestPanel)component).setSelected(false);
+                        ((RequestPanel) component).restartColor();
+
+                    }
+
+                }
+
+
+            });
+
 
         }
 
@@ -527,9 +529,11 @@ public class MainFrame extends JFrame {
 
 
     /**
-     * this method copied from stackoverflow
+     * this method copied from stackoverflow and used with some change
      *
      * @return list of readed objects
+     *
+     * @see <a href="https://stackoverflow.com/questions/27409718/java-reading-multiple-objects-from-a-file-as-they-were-in-an-array">StackOverFlow</>
      */
     public ArrayList<RequestPanel> readObjects(){
         ArrayList<RequestPanel> al = new ArrayList<>();
