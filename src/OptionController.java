@@ -67,20 +67,6 @@ public class OptionController {
 
         });
 
-        optionFrame.getSelectedTheme().get(0).addActionListener(e -> {
-
-            ((MainFrame)mainFrame).setTheme(MainFrame.LIGHT_THEME);
-            System.out.println(((MainFrame)mainFrame).getTheme());
-
-        });
-
-        optionFrame.getSelectedTheme().get(1).addActionListener(e -> {
-
-            ((MainFrame)mainFrame).setTheme(MainFrame.DARK_THEME);
-            System.out.println(((MainFrame)mainFrame).getTheme());
-
-        });
-
         Color currentColor = optionFrame.getApplyButton().getBackground();
         optionFrame.getApplyButton().addMouseListener(new MouseAdapter() {
             @Override
@@ -102,58 +88,67 @@ public class OptionController {
 
         optionFrame.getApplyButton().addActionListener(e -> {
 
-            try (FileOutputStream out = new FileOutputStream(currentDir + "\\data\\options")){
+            int result = JOptionPane.showConfirmDialog(optionFrame, "The program need to be restarted!\nAre you sure you want apply new settting?",
+                    "Warning", JOptionPane.YES_NO_OPTION);
 
-                if(optionFrame.getFollowRedirectState().isSelected()) {
+            if(result == JOptionPane.YES_OPTION) {
 
-                    out.write(1);
-                    ((MainFrame)mainFrame).setFollowDirect(true);
+                try (FileOutputStream out = new FileOutputStream(currentDir + "\\data\\options")){
 
-                } else if(!optionFrame.getFollowRedirectState().isSelected()) {
+                    if(optionFrame.getFollowRedirectState().isSelected()) {
 
-                    out.write(0);
-                    ((MainFrame)mainFrame).setFollowDirect(false);
+                        out.write(1);
+                        ((MainFrame)mainFrame).setFollowDirect(true);
 
+                    } else if(!optionFrame.getFollowRedirectState().isSelected()) {
+
+                        out.write(0);
+                        ((MainFrame)mainFrame).setFollowDirect(false);
+
+                    }
+
+                    if(optionFrame.getCloseOperationState().isSelected()) {
+
+                        out.write(1);
+                        ((MainFrame)mainFrame).setCloseOperation(true);
+
+                    } else if(!optionFrame.getCloseOperationState().isSelected()) {
+
+                        out.write(0);
+                        ((MainFrame)mainFrame).setCloseOperation(false);
+
+                    }
+
+                    if(optionFrame.getSelectedTheme().get(0).isSelected()) {
+
+                        out.write(1);
+                        ((MainFrame)mainFrame).setTheme(MainFrame.LIGHT_THEME);
+
+                    } else if(!optionFrame.getSelectedTheme().get(0).isSelected()) {
+
+                        out.write(0);
+
+                    }
+
+                    if(optionFrame.getSelectedTheme().get(1).isSelected()) {
+
+                        out.write(1);
+                        ((MainFrame)mainFrame).setTheme(MainFrame.DARK_THEME);
+
+                    } else if(!optionFrame.getSelectedTheme().get(1).isSelected()) {
+
+                        out.write(0);
+
+                    }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
                 }
 
-                if(optionFrame.getCloseOperationState().isSelected()) {
+                optionFrame.dispose();
+                Main.startAgain(((MainFrame)mainFrame).getTheme());
+                mainFrame.dispose();
 
-                    out.write(1);
-                    ((MainFrame)mainFrame).setCloseOperation(true);
-
-                } else if(!optionFrame.getCloseOperationState().isSelected()) {
-
-                    out.write(0);
-                    ((MainFrame)mainFrame).setCloseOperation(false);
-
-                }
-
-                if(optionFrame.getSelectedTheme().get(0).isSelected()) {
-
-                    out.write(1);
-                    ((MainFrame)mainFrame).setTheme(MainFrame.LIGHT_THEME);
-
-                } else if(!optionFrame.getSelectedTheme().get(0).isSelected()) {
-
-                    out.write(0);
-
-                }
-
-                if(optionFrame.getSelectedTheme().get(1).isSelected()) {
-
-                    out.write(1);
-                    ((MainFrame)mainFrame).setTheme(MainFrame.DARK_THEME);
-
-                } else if(!optionFrame.getSelectedTheme().get(1).isSelected()) {
-
-                    out.write(0);
-
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
             }
-
-            optionFrame.dispose();
 
         });
 
