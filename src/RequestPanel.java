@@ -28,16 +28,19 @@ public class RequestPanel extends JButton {
     private JPopupMenu requestPopup;
     private String openMenu = "\uD83D\uDF83";
     private int theme;
+    private String currentDir;
+    private MainFrame mainFrame;
+    private boolean select;
 
     private String method;
     private String name;
 
+    public RequestPanel(MainFrame mainFrame, String method, String name, JPanel requestList) {
 
-    public RequestPanel(int theme, String method, String name, JPanel requestList, String currentDir) {
-
-        this.theme = theme;
+        this.theme = mainFrame.getTheme();
         this.setMethod(method);
         this.setName(name);
+        this.currentDir = mainFrame.getCurrentDir();
 
 
         buttonPanel = new JPanel();
@@ -167,21 +170,9 @@ public class RequestPanel extends JButton {
             @Override
             public void mouseExited(MouseEvent e) {
 
-                if(!RequestPanel.this.isSelected()) {
+                if(!isSelect()) {
 
-                    if(theme == MainFrame.LIGHT_THEME) {
-
-                        RequestPanel.this.setBackground(new Color(234, 234, 235));
-                        RequestPanel.this.buttonPanel.setBackground(new Color(234, 234, 235));
-                        RequestPanel.this.coverPanel.setBackground(new Color(234, 234, 235));
-
-                    } else if(theme == MainFrame.DARK_THEME) {
-
-                        RequestPanel.this.setBackground(new Color(46, 47, 43));
-                        RequestPanel.this.buttonPanel.setBackground(new Color(46, 47, 43));
-                        RequestPanel.this.coverPanel.setBackground(new Color(46, 47, 43));
-
-                    }
+                    restartColor();
 
                 }
 
@@ -191,87 +182,13 @@ public class RequestPanel extends JButton {
     }
 
 
-    public void addAction(int theme) {
-
-        if(theme == MainFrame.LIGHT_THEME) {
-
-            buttonPanel.setBackground(new Color(234, 234, 235));
-
-            coverPanel.setBackground(new Color(234, 234, 235));
-
-            this.setBackground(new Color(235, 235, 235));
-
-        } else if(theme == MainFrame.DARK_THEME) {
-
-            buttonPanel.setBackground(new Color(46, 47, 43));
-
-            coverPanel.setBackground(new Color(46, 47, 43));
-
-            this.setBackground(new Color(46, 47, 43));
-
-        }
-
-        this.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-
-                if(e.getButton() == MouseEvent.BUTTON3) {
-
-                    Component component = (Component)e.getSource();
-                    requestPopup.show(RequestPanel.this, component.getX(), component.getY() + component.getHeight());
-
-                }
-
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-
-                if(theme == MainFrame.LIGHT_THEME) {
-
-                    RequestPanel.this.setBackground(new Color(222, 222, 225));
-                    RequestPanel.this.buttonPanel.setBackground(new Color(222, 222, 225));
-                    RequestPanel.this.coverPanel.setBackground(new Color(222, 222, 225));
-
-                } else if(theme == MainFrame.DARK_THEME) {
-
-                    RequestPanel.this.setBackground(new Color(54, 55, 52));
-                    RequestPanel.this.buttonPanel.setBackground(new Color(54, 55, 52));
-                    RequestPanel.this.coverPanel.setBackground(new Color(54, 55, 52));
-
-                }
+    public void setSelected(boolean selected) {
+        this.select = selected;
+    }
 
 
-
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-
-                if(!RequestPanel.this.isSelected()) {
-
-                    if(theme == MainFrame.LIGHT_THEME) {
-
-                        RequestPanel.this.setBackground(new Color(234, 234, 235));
-                        RequestPanel.this.buttonPanel.setBackground(new Color(234, 234, 235));
-                        RequestPanel.this.coverPanel.setBackground(new Color(234, 234, 235));
-
-                    } else if(theme == MainFrame.DARK_THEME) {
-
-                        RequestPanel.this.setBackground(new Color(46, 47, 43));
-                        RequestPanel.this.buttonPanel.setBackground(new Color(46, 47, 43));
-                        RequestPanel.this.coverPanel.setBackground(new Color(46, 47, 43));
-
-                    }
-
-                }
-
-            }
-        });
-
-        this.revalidate();
-        this.repaint();
-
+    public boolean isSelect() {
+        return select;
     }
 
 
@@ -291,5 +208,25 @@ public class RequestPanel extends JButton {
     @Override
     public void setName(String name) {
         this.name = name;
+    }
+
+
+
+    public void restartColor() {
+
+        if(theme == MainFrame.LIGHT_THEME) {
+
+            RequestPanel.this.setBackground(new Color(234, 234, 235));
+            RequestPanel.this.buttonPanel.setBackground(new Color(234, 234, 235));
+            RequestPanel.this.coverPanel.setBackground(new Color(234, 234, 235));
+
+        } else if(theme == MainFrame.DARK_THEME) {
+
+            RequestPanel.this.setBackground(new Color(46, 47, 43));
+            RequestPanel.this.buttonPanel.setBackground(new Color(46, 47, 43));
+            RequestPanel.this.coverPanel.setBackground(new Color(46, 47, 43));
+
+        }
+
     }
 }

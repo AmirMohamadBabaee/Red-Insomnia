@@ -34,7 +34,7 @@ public class NewRequestFrame extends JFrame {
     private String name;
     private String method = "GET";
 
-    public NewRequestFrame(JFrame mainFrame, JPanel requestList, String currentDir) {
+    public NewRequestFrame(MainFrame mainFrame, JPanel requestList, String currentDir) {
 
         super();
 
@@ -164,7 +164,7 @@ public class NewRequestFrame extends JFrame {
         createButton.addActionListener(e -> {
             dispose();
             name = requestName.getText();
-            requestList.add(new RequestPanel(((MainFrame)mainFrame).getTheme(), method, name, requestList, currentDir));
+            requestList.add(new RequestPanel(mainFrame, method, name, requestList));
             requestList.revalidate();
             requestList.repaint();
 
@@ -174,7 +174,11 @@ public class NewRequestFrame extends JFrame {
                 System.out.println(requestList.getComponents().length);
                 for (Component component : requestList.getComponents()) {
 
-                    outputStream.writeObject(component);
+                    if(component instanceof JButton) {
+
+                        outputStream.writeObject(component);
+
+                    }
 
                 }
 
