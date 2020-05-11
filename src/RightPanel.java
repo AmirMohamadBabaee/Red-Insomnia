@@ -22,10 +22,11 @@ import java.util.List;
  * @version
  *
  * @see MainFrame
+ * @see JPanel
  */
-public class RightPanel {
+public class RightPanel extends JPanel {
 
-    private JPanel rightPanel;
+    private static final long serialVersionUID = 6529685098267757690L;
 
     private MainFrame mainFrame;
     private String openMenu = "\uD83D\uDF83";
@@ -36,20 +37,22 @@ public class RightPanel {
 
     public RightPanel(MainFrame mainFrame) {
 
+        super();
+
         this.themes = mainFrame.getThemes();
         this.theme = mainFrame.getTheme();
         this.currentDir = mainFrame.getCurrentDir();
 
         this.mainFrame = mainFrame;
 
-        rightPanel = new JPanel(new BorderLayout());
-        rightPanel.setPreferredSize(new Dimension(600, 580));
-        rightPanel.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
+        this.setLayout(new BorderLayout());
+        this.setPreferredSize(new Dimension(600, 580));
+        this.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
 
         JPanel responseStatusPanel = new JPanel();
         responseStatusPanel.setBackground(Color.white);
         responseStatusPanel.setPreferredSize(new Dimension(550, 65));
-        rightPanel.add(responseStatusPanel, BorderLayout.NORTH);
+        this.add(responseStatusPanel, BorderLayout.NORTH);
 
 
         // north of right panel in RedInsomnia
@@ -97,7 +100,7 @@ public class RightPanel {
 
         JPanel responsePanel = new JPanel(new BorderLayout());
         responsePanel.setBackground(themes.get(theme).get(6));
-        rightPanel.add(responsePanel, BorderLayout.CENTER);
+        this.add(responsePanel, BorderLayout.CENTER);
 
 
         // header panel for header button
@@ -325,7 +328,7 @@ public class RightPanel {
 
         initialHeaderPanel.add(Box.createRigidArea(new Dimension(20, 0)));
         initialHeaderPanel.add(initialLabels.get(0));
-        initialHeaderPanel.add(Box.createRigidArea(new Dimension(120, 0)));
+        initialHeaderPanel.add(Box.createRigidArea(new Dimension(200, 0)));
         initialHeaderPanel.add(initialLabels.get(1));
         initialHeaderPanel.add(Box.createRigidArea(new Dimension(180, 0)));
 
@@ -449,15 +452,6 @@ public class RightPanel {
 
     }
 
-    /**
-     * this method return prepared right panel
-     *
-     * @return prepared right panel
-     */
-    public JPanel getRightPanel() {
-        return rightPanel;
-    }
-
 
     /**
      * this method create header field of this panel
@@ -493,7 +487,7 @@ public class RightPanel {
 
         headerFieldPanel.add(Box.createRigidArea(new Dimension(10, 0)));
         headerFieldPanel.add(labels.get(0));
-        headerFieldPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        headerFieldPanel.add(Box.createRigidArea(new Dimension(100, 0)));
         headerFieldPanel.add(labels.get(1));
         headerFieldPanel.add(Box.createRigidArea(new Dimension(10, 0)));
 

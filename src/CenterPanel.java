@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -19,10 +20,11 @@ import java.util.List;
  * @version
  *
  * @see MainFrame
+ * @see JPanel
  */
-public class CenterPanel {
+public class CenterPanel extends JPanel{
 
-    private JPanel centerPanel;
+    private static final long serialVersionUID = 6529685098267757690L;
 
     private MainFrame mainFrame;
     private String openMenu = "\uD83D\uDF83";
@@ -38,20 +40,22 @@ public class CenterPanel {
      */
     public CenterPanel(MainFrame mainFrame) {
 
+        super();
+
         this.themes = mainFrame.getThemes();
         this.theme = mainFrame.getTheme();
         this.currentDir = mainFrame.getCurrentDir();
 
         this.mainFrame = mainFrame;
 
-        centerPanel = new JPanel(new BorderLayout());
-        centerPanel.setPreferredSize(new Dimension(550, 580));
-        centerPanel.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
+        this.setLayout(new BorderLayout());
+        this.setPreferredSize(new Dimension(550, 580));
+        this.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
 
         JPanel urlPanel = new JPanel(new BorderLayout(5, 0));
         urlPanel.setBackground(Color.white);
         urlPanel.setPreferredSize(new Dimension(550, 65));
-        centerPanel.add(urlPanel, BorderLayout.NORTH);
+        this.add(urlPanel, BorderLayout.NORTH);
 
         JButton httpMethodButton = new JButton(" GET       " + openMenu);
         httpMethodButton.setBackground(Color.white);
@@ -150,7 +154,7 @@ public class CenterPanel {
 
         JPanel requestSettingPanel = new JPanel(new BorderLayout());
         requestSettingPanel.setBackground(themes.get(theme).get(6));
-        centerPanel.add(requestSettingPanel, BorderLayout.CENTER);
+        this.add(requestSettingPanel, BorderLayout.CENTER);
 
 
         JPanel mainSettingPanel = new JPanel(new CardLayout());
@@ -512,15 +516,6 @@ public class CenterPanel {
 
     }
 
-
-    /**
-     * this method return prepared center panel
-     *
-     * @return prepared center panel
-     */
-    public JPanel getCenterPanel() {
-        return centerPanel;
-    }
 
     /**
      * this method change color when an event happen and change color
