@@ -53,12 +53,18 @@ public class RightPanel extends JPanel {
         responseStatusPanel.setBackground(Color.white);
         responseStatusPanel.setPreferredSize(new Dimension(550, 65));
         this.add(responseStatusPanel, BorderLayout.NORTH);
+        responseStatusPanel.setLayout(new BorderLayout());
+
+        JPanel responseDetailPanel = new JPanel();
+        responseDetailPanel.setBackground(Color.white);
+        responseStatusPanel.add(responseDetailPanel, BorderLayout.CENTER);
+
 
 
         // north of right panel in RedInsomnia
 
-        BoxLayout boxLayout = new BoxLayout(responseStatusPanel, BoxLayout.X_AXIS);
-        responseStatusPanel.setLayout(boxLayout);
+        BoxLayout boxLayout = new BoxLayout(responseDetailPanel, BoxLayout.X_AXIS);
+        responseDetailPanel.setLayout(boxLayout);
 
         // response status button
         JButton requestStatus = new JButton("200 OK");
@@ -87,12 +93,40 @@ public class RightPanel extends JPanel {
         fileSize.setContentAreaFilled(false);
         fileSize.setOpaque(true);
 
-        responseStatusPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        responseStatusPanel.add(requestStatus);
-        responseStatusPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        responseStatusPanel.add(delayTime);
-        responseStatusPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        responseStatusPanel.add(fileSize);
+
+        // save request
+        JButton saveButton = new JButton("Save");
+        saveButton.setBackground(Color.white);
+        saveButton.setForeground(new Color(116, 116, 116));
+        saveButton.setPreferredSize(new Dimension(100, 65));
+        saveButton.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+        saveButton.setContentAreaFilled(false);
+        saveButton.setOpaque(true);
+        saveButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+                saveButton.setBackground(themes.get(theme).get(5));
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+                saveButton.setBackground(Color.white);
+
+            }
+        });
+
+        responseStatusPanel.add(saveButton, BorderLayout.EAST);
+
+
+        responseDetailPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        responseDetailPanel.add(requestStatus);
+        responseDetailPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        responseDetailPanel.add(delayTime);
+        responseDetailPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        responseDetailPanel.add(fileSize);
 
         // end of response status part
 
