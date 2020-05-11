@@ -1,13 +1,3 @@
-
-import com.sun.jmx.mbeanserver.JmxMBeanServer;
-import com.sun.org.apache.bcel.internal.generic.JsrInstruction;
-import com.sun.xml.internal.messaging.saaj.soap.JpegDataContentHandler;
-import javafx.scene.layout.Background;
-import jdk.nashorn.internal.scripts.JO;
-import sun.plugin.services.PlatformService;
-import sun.swing.FilePane;
-import sun.text.normalizer.Trie;
-
 import javax.imageio.ImageIO;
 import javax.management.JMException;
 import javax.naming.spi.DirectoryManager;
@@ -55,11 +45,13 @@ public class MainFrame extends JFrame {
     private ImageIcon icon;
     private String openMenu = "\uD83D\uDF83";
     private String currentDir;
+    private List<List<Color>> themes;
     private List<Color> lightColor;
     private List<Color> darkColor;
     private int theme;
     private boolean followDirect;
     private boolean closeOperation;
+    public Component[] mainComponents;
 
     // Constructor
 
@@ -84,18 +76,61 @@ public class MainFrame extends JFrame {
 
         this.theme = theme;
 
+        themes = new ArrayList<>();
+
+        lightColor = new ArrayList<>();
+        darkColor = new ArrayList<>();
+
+        themes.add(lightColor);
+        themes.add(darkColor);
+
+        // light colors
+
+        lightColor.add(new Color(255, 10, 50));
+        lightColor.add(new Color(209, 212, 215));
+        lightColor.add(new Color(234, 234, 235));
+        lightColor.add(new Color(237, 237, 239));
+        lightColor.add(new Color(119, 119, 119));
+        lightColor.add(new Color(242, 242, 242));
+        lightColor.add(new Color(250, 250, 250));
+        lightColor.add(new Color(153, 153, 153));
+        lightColor.add(new Color(222, 222, 225));
+        lightColor.add(new Color(237, 237, 239));
+        lightColor.add(new Color(225, 225, 225));
+        lightColor.add(Color.black);
+
+
+        // dark Colors
+
+        darkColor.add(new Color(255, 10, 50));
+        darkColor.add(new Color(71, 72, 69));
+        darkColor.add(new Color(46, 47, 43));
+        darkColor.add(new Color(54, 55, 52));
+        darkColor.add(new Color(119, 119, 119));
+        darkColor.add(new Color(242, 242, 242));
+        darkColor.add(new Color(40,41,37));
+        darkColor.add(new Color(153, 153, 153));
+        darkColor.add(new Color(91, 92, 90));
+        darkColor.add(new Color(49, 50, 46));
+        darkColor.add(new Color(60, 60, 60));
+        darkColor.add(Color.white);
+
+
+
         initFrame();
 
 
         setTitle(title);
-        setSize(1300, 650);
+        setSize(1500, 650);
         setLocationRelativeTo(null);
         setLayout(null);
-        setContentPane(mainPanel(theme));
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setContentPane(mainPanel());
+        if(closeOperation) {
+            setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        } else {
+            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        }
 
-        lightColor = new ArrayList<>();
-        darkColor = new ArrayList<>();
 
         JMenuBar menuBar = new JMenuBar();
 
@@ -206,7 +241,7 @@ public class MainFrame extends JFrame {
             int followDirectInt = dataInputStream.readByte();
             int closeOperationInt = dataInputStream.readByte();
             int lightThemeInt = dataInputStream.readByte();
-//            int darkThemeInt = dataInputStream.readByte();
+            int darkThemeInt = dataInputStream.readByte();
 
             if(followDirectInt == 0) {
                 followDirect = false;
@@ -221,14 +256,12 @@ public class MainFrame extends JFrame {
             }
 
             if(lightThemeInt == 1) {
-                theme = LIGHT_THEME;
-            } else {
-                theme = DARK_THEME;
+                this.theme = LIGHT_THEME;
             }
 
-            /*if(darkThemeInt == 1) {
-                theme = DARK_THEME;
-            }*/
+            if(darkThemeInt == 1) {
+                this.theme = DARK_THEME;
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -271,7 +304,12 @@ public class MainFrame extends JFrame {
         this.theme = theme;
     }
 
-    private JPanel mainPanel(int theme) {
+
+
+
+
+
+    private JPanel mainPanel() {
 
         JPanel mainPanel = new JPanel();
 
@@ -281,21 +319,21 @@ public class MainFrame extends JFrame {
         // left part of RedInsomnia (part 1)
 
 
-        JPanel leftPanel = leftPanel(theme);
+        JPanel leftPanel = leftPanel();
 
 
 
         // Central part of RedInsomnia (part 2)
 
 
-        JPanel centerPanel = centerPanel(theme);
+        JPanel centerPanel = centerPanel();
 
 
 
         // right part of RedInsomnia (part3)
 
 
-        JPanel rightPanel = rightPanel(theme);
+        JPanel rightPanel = rightPanel();
 
 
 
@@ -305,6 +343,11 @@ public class MainFrame extends JFrame {
         mainPanel.add(centerPanel, BorderLayout.CENTER);
         mainPanel.add(rightPanel, BorderLayout.EAST);
 
+        mainComponents = new Component[3];
+        mainComponents[0] = leftPanel;
+        mainComponents[1] = centerPanel;
+        mainComponents[2] = rightPanel;
+
         mainPanel.setLocation(0, 0);
 
         return mainPanel;
@@ -312,44 +355,44 @@ public class MainFrame extends JFrame {
     }
 
 
-    private JPanel leftPanel(int theme) {
+    private JPanel leftPanel() {
 
         JPanel leftPanel = new JPanel(new BorderLayout());
         leftPanel.setName("left panel");
         leftPanel.setPreferredSize(new Dimension(250, 580));
-        leftPanel.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69), 1));
+        leftPanel.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
 
         JButton insomniaPart = new JButton("Insomnia           " + openMenu);
         insomniaPart.setFont(new Font("Santa Fe LET", Font.PLAIN, 25));
-        insomniaPart.setBackground(new Color(255, 10, 50));
-        insomniaPart.setForeground(Color.white);
+        insomniaPart.setBackground(themes.get(theme).get(0));
+        insomniaPart.setForeground(themes.get(theme).get(11));
         insomniaPart.setPreferredSize(new Dimension(250, 65));
         insomniaPart.setContentAreaFilled(false);
         insomniaPart.setOpaque(true);
         leftPanel.add(insomniaPart, BorderLayout.NORTH);
 
         JPanel requestPanel = new JPanel(new BorderLayout());
-        requestPanel.setBackground(new Color(46, 47, 43));
+        requestPanel.setBackground(themes.get(theme).get(2));
         leftPanel.add(requestPanel, BorderLayout.CENTER);
 
         JPanel topRequestPanel = new JPanel();
         topRequestPanel.setPreferredSize(new Dimension(250, 50));
-        topRequestPanel.setBackground(new Color(46, 47, 43));
+        topRequestPanel.setBackground(themes.get(theme).get(2));
         topRequestPanel.setLayout(new BoxLayout(topRequestPanel, BoxLayout.X_AXIS));
 
         JTextField requestFilter = new JTextField("Filter");
-        requestFilter.setBackground(new Color(46, 47, 43));
-        requestFilter.setForeground(new Color(71, 72, 69));
+        requestFilter.setBackground(themes.get(theme).get(2));
+        requestFilter.setForeground(themes.get(theme).get(1));
         requestFilter.setFont(new Font("Santa Fe Let", Font.PLAIN, 14));
         requestFilter.setPreferredSize(new Dimension(150 , 25));
         requestFilter.setMaximumSize(new Dimension(200, 30));
         requestFilter.setAlignmentY(Component.CENTER_ALIGNMENT);
-        requestFilter.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69), 1));
+        requestFilter.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
 
 
         JButton plusButton = new JButton();
-        plusButton.setBackground(new Color(46, 47, 43));
-        plusButton.setForeground(Color.white);
+        plusButton.setBackground(themes.get(theme).get(2));
+        plusButton.setForeground(themes.get(theme).get(11));
         plusButton.setAlignmentY(Component.CENTER_ALIGNMENT);
         plusButton.setPreferredSize(new Dimension(25, 25));
         plusButton.setContentAreaFilled(false);
@@ -375,8 +418,10 @@ public class MainFrame extends JFrame {
 
         JPopupMenu plusPopupMenu = new JPopupMenu();
         plusPopupMenu.setPreferredSize(new Dimension(250, 100));
+
         JMenuItem newRequest = new JMenuItem("New Request");
         newRequest.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK));
+
         JMenuItem newFolder = new JMenuItem("New Folder");
         newFolder.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK | KeyEvent.SHIFT_MASK));
 
@@ -401,7 +446,7 @@ public class MainFrame extends JFrame {
 
             @Override
             public void mouseEntered(MouseEvent e) {
-                plusButton.setBackground(new Color(54, 55, 52));
+                plusButton.setBackground(themes.get(theme).get(3));
                 File imageCheck = new File(currentDir + "\\plus_icon_white.png");
                 if(imageCheck.exists()) {
 
@@ -424,7 +469,7 @@ public class MainFrame extends JFrame {
 
             @Override
             public void mouseExited(MouseEvent e) {
-                plusButton.setBackground(new Color(46, 47, 43));
+                plusButton.setBackground(themes.get(theme).get(2));
                 File imageCheck = new File(currentDir + "\\plus_icon_normal.png");
                 if(imageCheck.exists()) {
 
@@ -458,11 +503,18 @@ public class MainFrame extends JFrame {
         // list of requests
 
         JPanel requestList = new JPanel();
-        requestList.setBackground(new Color(46, 47, 43));
+        requestList.setBackground(themes.get(theme).get(2));
         requestList.setLayout(new BoxLayout(requestList, BoxLayout.Y_AXIS));
 
 
-        HttpURLConnection httpURLConnection = null;
+        for (RequestPanel object : readObjects()) {
+
+            requestList.add(new RequestPanel(theme, object.getMethod(), object.getName(), requestList, currentDir));
+
+        }
+
+
+        /*HttpURLConnection httpURLConnection = null;
         try {
             httpURLConnection = (HttpURLConnection) new URL("http://www.google.com/").openConnection();
             httpURLConnection.setRequestMethod("POST");
@@ -475,20 +527,25 @@ public class MainFrame extends JFrame {
         DefaultMutableTreeNode new_folder = new DefaultMutableTreeNode("New Folder");
         JTree tree = new JTree(new_folder);
         new_folder.add(d);
-        tree.setBackground(new Color(46, 47, 43));
+        tree.setBackground(themes.get(theme).get(2));
         tree.setCellRenderer(new RequestCellRendered("My request"));
-        requestPanel.add(tree);
+        requestPanel.add(tree);*/
+
+        newRequest.addActionListener(e -> new NewRequestFrame(MainFrame.this, requestList, currentDir));
+
+
+        requestPanel.add(requestList, BorderLayout.CENTER);
 
         return leftPanel;
 
     }
 
 
-    private JPanel centerPanel(int theme) {
+    private JPanel centerPanel() {
 
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.setPreferredSize(new Dimension(550, 580));
-        centerPanel.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69), 1));
+        centerPanel.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
 
         JPanel urlPanel = new JPanel(new BorderLayout(5, 0));
         urlPanel.setBackground(Color.white);
@@ -497,7 +554,7 @@ public class MainFrame extends JFrame {
 
         JButton httpMethodButton = new JButton(" GET       " + openMenu);
         httpMethodButton.setBackground(Color.white);
-        httpMethodButton.setForeground(new Color(119, 119, 119));
+        httpMethodButton.setForeground(themes.get(theme).get(4));
         httpMethodButton.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
         httpMethodButton.setBorder(null);
         httpMethodButton.setPreferredSize(new Dimension(110, 65));
@@ -542,7 +599,7 @@ public class MainFrame extends JFrame {
             @Override
             public void mouseEntered(MouseEvent e) {
 
-                httpMethodButton.setBackground(new Color(242, 242, 242));
+                httpMethodButton.setBackground(themes.get(theme).get(5));
 
             }
 
@@ -557,7 +614,7 @@ public class MainFrame extends JFrame {
 
         JTextField urlTextField = new JTextField("changelog.insomnia.rest/changelog.json");
         urlTextField.setBackground(Color.white);
-        urlTextField.setForeground(new Color(119, 119, 119));
+        urlTextField.setForeground(themes.get(theme).get(4));
         urlTextField.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
         urlTextField.setBorder(null);
         urlPanel.add(urlTextField, BorderLayout.CENTER);
@@ -565,7 +622,7 @@ public class MainFrame extends JFrame {
 
         JButton sendButton = new JButton("Send");
         sendButton.setBackground(Color.white);
-        sendButton.setForeground(new Color(119, 119, 119));
+        sendButton.setForeground(themes.get(theme).get(4));
         sendButton.setFont(new Font("Santa Fe Let", Font.PLAIN, 16));
         sendButton.setBorder(null);
         sendButton.setPreferredSize(new Dimension(80, 65));
@@ -576,7 +633,7 @@ public class MainFrame extends JFrame {
             @Override
             public void mouseEntered(MouseEvent e) {
 
-                sendButton.setBackground(new Color(242, 242, 242));
+                sendButton.setBackground(themes.get(theme).get(5));
 
             }
 
@@ -591,16 +648,16 @@ public class MainFrame extends JFrame {
 
 
         JPanel requestSettingPanel = new JPanel(new BorderLayout());
-        requestSettingPanel.setBackground(new Color(40,41,37));
+        requestSettingPanel.setBackground(themes.get(theme).get(6));
         centerPanel.add(requestSettingPanel, BorderLayout.CENTER);
 
 
         JPanel mainSettingPanel = new JPanel(new CardLayout());
-        mainSettingPanel.setBackground(new Color(40, 41, 37));
-        mainSettingPanel.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69), 1));
+        mainSettingPanel.setBackground(themes.get(theme).get(6));
+        mainSettingPanel.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
 
         JPanel formData = new JPanel(new CardLayout());
-        formData.setBackground(new Color(40, 41, 37));
+        formData.setBackground(themes.get(theme).get(6));
 
         JPanel formPanel = new JPanel();
         JPanel jsonPanel = new JPanel();
@@ -615,7 +672,7 @@ public class MainFrame extends JFrame {
 
 
         JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(new Color(40, 41, 37));
+        header.setBackground(themes.get(theme).get(6));
 
         mainSettingPanel.add(formData , "form data");
         mainSettingPanel.add(header, "header");
@@ -659,8 +716,8 @@ public class MainFrame extends JFrame {
         // end of popup menu
 
         JPanel headerTab = new JPanel(new GridLayout(1, 2));
-        headerTab.setBackground(new Color(40, 41, 37));
-        headerTab.setBorder(BorderFactory.createLineBorder(new Color(71, 72,69)));
+        headerTab.setBackground(themes.get(theme).get(6));
+        headerTab.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1)));
 
         List<JButton> headers = new ArrayList<>();
 
@@ -669,13 +726,13 @@ public class MainFrame extends JFrame {
             headers.add(new JButton());
             if(i == 0) {
 
-                headers.get(i).setBackground(new Color(71, 72, 69));
-                headers.get(i).setForeground(Color.white);
+                headers.get(i).setBackground(themes.get(theme).get(1));
+                headers.get(i).setForeground(themes.get(theme).get(11));
 
             } else {
 
-                headers.get(i).setBackground(new Color(40, 41, 37));
-                headers.get(i).setForeground(new Color(153, 153, 153));
+                headers.get(i).setBackground(themes.get(theme).get(6));
+                headers.get(i).setForeground(themes.get(theme).get(7));
 
             }
             headers.get(i).setFont(new Font("Santa Fe Let", Font.PLAIN, 20));
@@ -783,12 +840,12 @@ public class MainFrame extends JFrame {
         // this part related to header part of center panel
 
         JPanel headerPanel = new JPanel();
-        headerPanel.setBackground(new Color(40, 41, 37));
+        headerPanel.setBackground(themes.get(theme).get(6));
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
 
         List<JPanel> headerField = new ArrayList<>();
 
-        headerField.add(headerFieldCreator(theme,headerField, headerPanel, false));
+        headerField.add(headerFieldCreator(headerField, headerPanel, false));
         addHeaderFieldPanel(headerPanel, headerField);
 
         headerPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -796,7 +853,7 @@ public class MainFrame extends JFrame {
 
         JScrollPane scrolledHeaderPanel = new JScrollPane(headerPanel);
         scrolledHeaderPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrolledHeaderPanel.setBackground(new Color(40, 41, 37));
+        scrolledHeaderPanel.setBackground(themes.get(theme).get(6));
 
         header.add(scrolledHeaderPanel, BorderLayout.CENTER);
 
@@ -804,12 +861,12 @@ public class MainFrame extends JFrame {
 
         // this part related to form data part of central panel
 
-        formPanel.setBackground(new Color(40, 41, 37));
+        formPanel.setBackground(themes.get(theme).get(6));
         formPanel.setLayout(new BorderLayout());
 
 
         JPanel coverFormPanel = new JPanel();
-        coverFormPanel.setBackground(new Color(40, 41, 37));
+        coverFormPanel.setBackground(themes.get(theme).get(6));
         coverFormPanel.setLayout(new BoxLayout(coverFormPanel, BoxLayout.Y_AXIS));
 
 
@@ -821,25 +878,25 @@ public class MainFrame extends JFrame {
 
 
         List<JPanel> formDataField = new ArrayList<>();
-        formDataField.add(headerFieldCreator(theme, formDataField, coverFormPanel, true));
+        formDataField.add(headerFieldCreator(formDataField, coverFormPanel, true));
         addHeaderFieldPanel(coverFormPanel, formDataField);
 
         // end of changes to form data part of central panel
 
         // this part related to binary file panel in central panel
 
-        binaryFilePanel.setBackground(new Color(40, 41, 37));
+        binaryFilePanel.setBackground(themes.get(theme).get(6));
         binaryFilePanel.setLayout(new BoxLayout(binaryFilePanel, BoxLayout.Y_AXIS));
 
         JLabel selectedFile = new JLabel("SELECTED FILE");
         selectedFile.setFont(new Font("Santa Fe Let", Font.PLAIN, 18));
-        selectedFile.setForeground(new Color(91, 92, 90));
+        selectedFile.setForeground(themes.get(theme).get(8));
         selectedFile.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 
         JTextArea filePathArea = new JTextArea("No file selected");
-        filePathArea.setBackground(new Color(40, 41, 37));
-        filePathArea.setForeground(new Color(91, 92, 90));
+        filePathArea.setBackground(themes.get(theme).get(6));
+        filePathArea.setForeground(themes.get(theme).get(8));
         filePathArea.setFont(new Font("Santa Fe Let", Font.PLAIN, 18));
         filePathArea.setPreferredSize(new Dimension(300, 50));
         filePathArea.setEditable(false);
@@ -854,8 +911,8 @@ public class MainFrame extends JFrame {
 
         JButton resetFile = new JButton("Reset File");
 
-        resetFile.setBackground(new Color(40, 41, 37));
-        resetFile.setForeground(new Color(71, 72, 69));
+        resetFile.setBackground(themes.get(theme).get(6));
+        resetFile.setForeground(themes.get(theme).get(1));
         resetFile.setBorder(null);
         resetFile.setEnabled(false);
         resetFile.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
@@ -867,9 +924,9 @@ public class MainFrame extends JFrame {
             public void mouseClicked(MouseEvent e) {
 
                 filePathArea.setText("No file selected");
-                filePathArea.setForeground(new Color(71, 72, 69));
-                resetFile.setBackground(new Color(40, 41, 37));
-                resetFile.setForeground(new Color(91, 92, 90));
+                filePathArea.setForeground(themes.get(theme).get(1));
+                resetFile.setBackground(themes.get(theme).get(6));
+                resetFile.setForeground(themes.get(theme).get(8));
                 resetFile.setEnabled(false);
 
             }
@@ -878,7 +935,7 @@ public class MainFrame extends JFrame {
             public void mouseEntered(MouseEvent e) {
 
                 if(resetFile.isEnabled()) {
-                    resetFile.setBackground(new Color(71, 72, 69));
+                    resetFile.setBackground(themes.get(theme).get(1));
                 }
 
             }
@@ -886,7 +943,7 @@ public class MainFrame extends JFrame {
             @Override
             public void mouseExited(MouseEvent e) {
 
-                resetFile.setBackground(new Color(40, 41, 37));
+                resetFile.setBackground(themes.get(theme).get(6));
 
             }
         });
@@ -894,11 +951,11 @@ public class MainFrame extends JFrame {
 
 
         JButton chooseButton = new JButton("Choose File");
-        chooseButton.setBackground(new Color(40, 41, 37));
-        chooseButton.setForeground(Color.white);
+        chooseButton.setBackground(themes.get(theme).get(6));
+        chooseButton.setForeground(themes.get(theme).get(11));
         chooseButton.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
         chooseButton.setPreferredSize(new Dimension(150, 50));
-        chooseButton.setBorder(BorderFactory.createLineBorder(new Color(91, 92, 90), 1));
+        chooseButton.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(8), 1));
         chooseButton.setContentAreaFilled(false);
         chooseButton.setOpaque(true);
         chooseButton.setBounds(100, 75, 150, 50);
@@ -925,18 +982,18 @@ public class MainFrame extends JFrame {
 
             @Override
             public void mouseEntered(MouseEvent e) {
-                chooseButton.setBackground(new Color(71, 72, 69));
+                chooseButton.setBackground(themes.get(theme).get(1));
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-                chooseButton.setBackground(new Color(40, 41, 37));
+                chooseButton.setBackground(themes.get(theme).get(6));
             }
         });
 
 
         JPanel buttonBinaryPanel = new JPanel(new FlowLayout());
-        buttonBinaryPanel.setBackground(new Color(40, 41, 37));
+        buttonBinaryPanel.setBackground(themes.get(theme).get(6));
         buttonBinaryPanel.add(resetFile);
         buttonBinaryPanel.add(chooseButton);
 
@@ -958,11 +1015,11 @@ public class MainFrame extends JFrame {
 
 
 
-    private JPanel rightPanel(int theme) {
+    private JPanel rightPanel() {
 
         JPanel rightPanel = new JPanel(new BorderLayout());
-        rightPanel.setPreferredSize(new Dimension(450, 580));
-        rightPanel.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69), 1));
+        rightPanel.setPreferredSize(new Dimension(600, 580));
+        rightPanel.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
 
         JPanel responseStatusPanel = new JPanel();
         responseStatusPanel.setBackground(Color.white);
@@ -1014,22 +1071,22 @@ public class MainFrame extends JFrame {
         // this part related to center of response part
 
         JPanel responsePanel = new JPanel(new BorderLayout());
-        responsePanel.setBackground(new Color(40,41,37));
+        responsePanel.setBackground(themes.get(theme).get(6));
         rightPanel.add(responsePanel, BorderLayout.CENTER);
 
 
         // header panel for header button
         JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(new Color(40, 41, 37));
+        headerPanel.setBackground(themes.get(theme).get(6));
 
         // response data for raw and other types of file showing
         JPanel responseData = new JPanel(new CardLayout());
-        responseData.setBackground(new Color(40, 41, 37));
+        responseData.setBackground(themes.get(theme).get(6));
 
 
         JEditorPane rawPanel = new JEditorPane();
-        rawPanel.setBackground(new Color(40, 41, 37));
-        rawPanel.setForeground(Color.white);
+        rawPanel.setBackground(themes.get(theme).get(6));
+        rawPanel.setForeground(themes.get(theme).get(11));
         rawPanel.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
         rawPanel.setText("Hello world!");
 
@@ -1079,7 +1136,7 @@ public class MainFrame extends JFrame {
         responseTypePopup.add(visualForm);
 
         JPanel responseCenterPanel = new JPanel(new CardLayout());
-        responseCenterPanel.setBackground(new Color(40, 41, 37));
+        responseCenterPanel.setBackground(themes.get(theme).get(6));
         responseCenterPanel.add(responseData, "response data");
         responseCenterPanel.add(headerPanel, "header");
 
@@ -1090,8 +1147,8 @@ public class MainFrame extends JFrame {
 
 
         JPanel headerTab = new JPanel(new GridLayout(1, 2));
-        headerTab.setBackground(new Color(40, 41, 37));
-        headerTab.setBorder(BorderFactory.createLineBorder(new Color(71, 72,69)));
+        headerTab.setBackground(themes.get(theme).get(6));
+        headerTab.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1)));
 
         List<JButton> headers = new ArrayList<>();
 
@@ -1100,13 +1157,13 @@ public class MainFrame extends JFrame {
             headers.add(new JButton());
             if(i == 0) {
 
-                headers.get(i).setBackground(new Color(71, 72, 69));
-                headers.get(i).setForeground(Color.white);
+                headers.get(i).setBackground(themes.get(theme).get(1));
+                headers.get(i).setForeground(themes.get(theme).get(11));
 
             } else {
 
-                headers.get(i).setBackground(new Color(40, 41, 37));
-                headers.get(i).setForeground(new Color(153, 153, 153));
+                headers.get(i).setBackground(themes.get(theme).get(6));
+                headers.get(i).setForeground(themes.get(theme).get(7));
 
             }
             headers.get(i).setFont(new Font("Santa Fe Let", Font.PLAIN, 16));
@@ -1209,20 +1266,20 @@ public class MainFrame extends JFrame {
 
 
         JPanel headerCoverPanel = new JPanel();
-        headerCoverPanel.setBackground(new Color(40, 41, 37));
+        headerCoverPanel.setBackground(themes.get(theme).get(6));
         headerCoverPanel.setLayout(new GridBagLayout());
 
         GridBagConstraints constraints = new GridBagConstraints();
 
         JScrollPane headerPanelScroll = new JScrollPane(headerCoverPanel);
-        headerPanelScroll.setBackground(new Color(40, 41, 37));
+        headerPanelScroll.setBackground(themes.get(theme).get(6));
         headerPanelScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         headerPanelScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
         headerPanel.add(headerPanelScroll, BorderLayout.CENTER);
 
         JPanel initialHeaderPanel = new JPanel();
-        initialHeaderPanel.setBackground(new Color(40, 41, 37));
+        initialHeaderPanel.setBackground(themes.get(theme).get(6));
         initialHeaderPanel.setLayout(new BoxLayout(initialHeaderPanel, BoxLayout.X_AXIS));
         initialHeaderPanel.setPreferredSize(new Dimension(500, 50));
 
@@ -1231,7 +1288,7 @@ public class MainFrame extends JFrame {
         for(int i=0 ; i<2 ; i++) {
 
             initialLabels.add(new JLabel());
-            initialLabels.get(i).setForeground(Color.white);
+            initialLabels.get(i).setForeground(themes.get(theme).get(11));
             initialLabels.get(i).setFont(new Font("Times New Roman", Font.PLAIN, 14));
             initialLabels.get(i).setPreferredSize(new Dimension(100, 50));
 
@@ -1252,11 +1309,11 @@ public class MainFrame extends JFrame {
         String value = "this is value of header 1";
 
         List<JPanel> headerField = new ArrayList<>();
-        responseHeaderField(theme, headerField, name, value);
-        responseHeaderField(theme, headerField, "header 2", "this is value of header 2");
-        responseHeaderField(theme, headerField, "header 3", "this is value of header 3");
-        responseHeaderField(theme, headerField, "header 4", "this is value of header 4");
-        responseHeaderField(theme, headerField, "header 5", "this is value of header 5");
+        responseHeaderField(headerField, name, value);
+        responseHeaderField(headerField, "header 2", "this is value of header 2");
+        responseHeaderField(headerField, "header 3", "this is value of header 3");
+        responseHeaderField(headerField, "header 4", "this is value of header 4");
+        responseHeaderField(headerField, "header 5", "this is value of header 5");
 
 
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -1290,10 +1347,10 @@ public class MainFrame extends JFrame {
             headerCoverPanel.add(panel, constraints);
             if(number % 2 == 0) {
 
-                panel.setBackground(new Color(40, 41, 37));
+                panel.setBackground(themes.get(theme).get(6));
 
             } else {
-                panel.setBackground(new Color(49, 50, 46));
+                panel.setBackground(themes.get(theme).get(9));
             }
             number++;
 
@@ -1301,11 +1358,11 @@ public class MainFrame extends JFrame {
 
 
         JButton copyButton = new JButton("Copy to Clipboard");
-        copyButton.setBackground(new Color(40, 41, 37));
-        copyButton.setForeground(Color.white);
+        copyButton.setBackground(themes.get(theme).get(6));
+        copyButton.setForeground(themes.get(theme).get(11));
         copyButton.setFont(new Font("Santa Fe Let", Font.PLAIN, 20));
         copyButton.setPreferredSize(new Dimension(200, 40));
-        copyButton.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69)));
+        copyButton.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1)));
         copyButton.setContentAreaFilled(false);
         copyButton.setOpaque(true);
         copyButton.addMouseListener(new MouseAdapter() {
@@ -1348,14 +1405,14 @@ public class MainFrame extends JFrame {
             @Override
             public void mouseEntered(MouseEvent e) {
 
-                copyButton.setBackground(new Color(71, 72, 69));
+                copyButton.setBackground(themes.get(theme).get(1));
 
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
 
-                copyButton.setBackground(new Color(40, 41, 37));
+                copyButton.setBackground(themes.get(theme).get(6));
 
             }
         });
@@ -1393,14 +1450,14 @@ public class MainFrame extends JFrame {
 
         if(state == 0) { // selected form
 
-            headers.get(index).setBackground(new Color(71, 72, 69));
-            headers.get(index).setForeground(Color.white);
-            headers.get(index).setBorder(BorderFactory.createLineBorder(new Color(91, 92, 90)));
+            headers.get(index).setBackground(themes.get(theme).get(1));
+            headers.get(index).setForeground(themes.get(theme).get(11));
+            headers.get(index).setBorder(BorderFactory.createLineBorder(themes.get(theme).get(8)));
 
         } else if(state == 1) { // nonselected form
 
-            headers.get(index).setBackground(new Color(40, 41, 37));
-            headers.get(index).setForeground(new Color(71, 72, 69));
+            headers.get(index).setBackground(themes.get(theme).get(6));
+            headers.get(index).setForeground(themes.get(theme).get(1));
             headers.get(index).setBorder(null);
 
         } else if(state == 2) { // nonselect other buttons
@@ -1423,19 +1480,14 @@ public class MainFrame extends JFrame {
     /**
      * this method create header field in header tab for request body part
      *
-     * @param theme theme of these frame
      * @param headerField list of header fields
      * @param headerPanel panel of header fields
      * @return prepared header field panel
      */
-    private JPanel headerFieldCreator(int theme, List<JPanel> headerField, JPanel headerPanel, boolean isFormData) {
+    private JPanel headerFieldCreator(List<JPanel> headerField, JPanel headerPanel, boolean isFormData) {
 
         JPanel field = new JPanel();
-        if(theme == LIGHT_THEME) {
-            // TODO: after completing dark theme
-        } else if(theme == DARK_THEME) {
-            field.setBackground(new Color(40, 41, 37));
-        }
+        field.setBackground(themes.get(theme).get(6));
         field.setLayout(new BoxLayout(field, BoxLayout.X_AXIS));
         field.setPreferredSize(new Dimension(400, 50));
         field.setMaximumSize(new Dimension(2000, 50));
@@ -1469,7 +1521,7 @@ public class MainFrame extends JFrame {
 
 
         JButton settingButton = new JButton();
-        settingButton.setBackground(new Color(40, 41, 37));
+        settingButton.setBackground(themes.get(theme).get(6));
         settingButton.setContentAreaFilled(false);
         settingButton.setOpaque(true);
 
@@ -1556,14 +1608,14 @@ public class MainFrame extends JFrame {
         if(theme == LIGHT_THEME) {
             // TODO: after completing dark theme
         } else if(theme == DARK_THEME) {
-            headerTextField.setBackground(new Color(40, 41, 37));
+            headerTextField.setBackground(themes.get(theme).get(6));
         }
 
-        headerTextField.setForeground(new Color(91, 92, 90));
+        headerTextField.setForeground(themes.get(theme).get(8));
         headerTextField.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
         headerTextField.setPreferredSize(new Dimension(250, 30));
         headerTextField.setMaximumSize(new Dimension(2000, 35));
-        headerTextField.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69), 1));
+        headerTextField.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
 
         if(isFormData) {
 
@@ -1599,7 +1651,7 @@ public class MainFrame extends JFrame {
                     if(headerField.get(headerField.size()-1) == field) {
 
                         System.out.println("last field found!!!");
-                        headerField.add(headerFieldCreator(theme, headerField, headerPanel, isFormData));
+                        headerField.add(headerFieldCreator(headerField, headerPanel, isFormData));
                         addHeaderFieldPanel(headerPanel, headerField);
                         headerPanel.revalidate();
                         headerPanel.repaint();
@@ -1624,7 +1676,7 @@ public class MainFrame extends JFrame {
         headerTextField.setAlignmentY(Component.CENTER_ALIGNMENT);
 
         JPanel valueCardLayout = new JPanel(new CardLayout());
-        valueCardLayout.setBackground(new Color(40, 41, 37));
+        valueCardLayout.setBackground(themes.get(theme).get(6));
         valueCardLayout.setMaximumSize(new Dimension(2000, 35));
         valueCardLayout.setAlignmentY(Component.CENTER_ALIGNMENT);
 
@@ -1634,14 +1686,14 @@ public class MainFrame extends JFrame {
         if(theme == LIGHT_THEME) {
             // TODO: after completing dark theme
         } else if(theme == DARK_THEME) {
-            valueTextField.setBackground(new Color(40, 41, 37));
+            valueTextField.setBackground(themes.get(theme).get(6));
         }
 
-        valueTextField.setForeground(new Color(91, 92, 90));
+        valueTextField.setForeground(themes.get(theme).get(8));
         valueTextField.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
         valueTextField.setPreferredSize(new Dimension(200, 30));
         valueTextField.setMaximumSize(new Dimension(2000, 35));
-        valueTextField.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69), 1));
+        valueTextField.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
 
 
         if(headerField.isEmpty()) {
@@ -1666,7 +1718,7 @@ public class MainFrame extends JFrame {
                     if(headerField.get(headerField.size()-1) == field) {
 
                         System.out.println("last field found!!!");
-                        headerField.add(headerFieldCreator(theme, headerField, headerPanel, isFormData));
+                        headerField.add(headerFieldCreator(headerField, headerPanel, isFormData));
                         addHeaderFieldPanel(headerPanel, headerField);
                         headerPanel.revalidate();
                         headerPanel.repaint();
@@ -1691,10 +1743,10 @@ public class MainFrame extends JFrame {
         valueTextField.setAlignmentY(Component.CENTER_ALIGNMENT);
 
         JButton editButton = new JButton("\u270E Click to Edit");
-        editButton.setBackground(new Color(40, 41, 37));
-        editButton.setForeground(Color.white);
+        editButton.setBackground(themes.get(theme).get(6));
+        editButton.setForeground(themes.get(theme).get(11));
         editButton.setFont(new Font("Santa Fe Let", Font.PLAIN, 18));
-        editButton.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69), 1));
+        editButton.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
         editButton.setPreferredSize(new Dimension(200, 30));
         editButton.setContentAreaFilled(false);
         editButton.setOpaque(true);
@@ -1723,32 +1775,32 @@ public class MainFrame extends JFrame {
 
         JCheckBox headerState = new JCheckBox();
         headerState.setAlignmentY(Component.CENTER_ALIGNMENT);
-        headerState.setBackground(new Color(40, 41, 37));
-        headerState.setForeground(new Color(71, 72, 69));
+        headerState.setBackground(themes.get(theme).get(6));
+        headerState.setForeground(themes.get(theme).get(1));
         headerState.addItemListener(e -> {
             if(e.getItemSelectable() == headerState && headerState.isSelected()) {
 
-                headerTextField.setForeground(new Color(60, 60, 60));
-                headerTextField.setBorder(BorderFactory.createDashedBorder(new Color(60, 60, 60)));
-                valueTextField.setForeground(new Color(60, 60, 60));
-                valueTextField.setBorder(BorderFactory.createDashedBorder(new Color(60, 60, 60)));
-                editButton.setForeground(new Color(60, 60, 60));
-                editButton.setBorder(BorderFactory.createDashedBorder(new Color(60, 60, 60)));
+                headerTextField.setForeground(themes.get(theme).get(10));
+                headerTextField.setBorder(BorderFactory.createDashedBorder(themes.get(theme).get(10)));
+                valueTextField.setForeground(themes.get(theme).get(10));
+                valueTextField.setBorder(BorderFactory.createDashedBorder(themes.get(theme).get(10)));
+                editButton.setForeground(themes.get(theme).get(10));
+                editButton.setBorder(BorderFactory.createDashedBorder(themes.get(theme).get(10)));
 
             } else if(!headerState.isSelected()){
 
-                headerTextField.setForeground(new Color(91, 92, 90));
-                headerTextField.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69)));
-                valueTextField.setForeground(new Color(91, 92, 90));
-                valueTextField.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69)));
-                editButton.setForeground(Color.white);
-                editButton.setBorder(BorderFactory.createLineBorder(new Color(71, 72, 69)));
+                headerTextField.setForeground(themes.get(theme).get(8));
+                headerTextField.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1)));
+                valueTextField.setForeground(themes.get(theme).get(8));
+                valueTextField.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1)));
+                editButton.setForeground(themes.get(theme).get(11));
+                editButton.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1)));
 
             }
         });
 
         JButton trashButton = new JButton();
-        trashButton.setBackground(new Color(40, 41, 37));
+        trashButton.setBackground(themes.get(theme).get(6));
         trashButton.setContentAreaFilled(false);
         trashButton.setOpaque(true);
         try{
@@ -1840,8 +1892,8 @@ public class MainFrame extends JFrame {
             textTypePopup.add(multiLineText);
 
             textType = new JButton(openMenu);
-            textType.setBackground(new Color(40, 41, 37));
-            textType.setForeground(new Color(71, 72, 69));
+            textType.setBackground(themes.get(theme).get(6));
+            textType.setForeground(themes.get(theme).get(1));
             textType.setFont(new Font("Santa Fe Let", Font.PLAIN, 18));
             textType.setContentAreaFilled(false);
             textType.setOpaque(true);
@@ -1886,29 +1938,6 @@ public class MainFrame extends JFrame {
 
 
 
-
-    private Color setSpecificColor(int theme, int type) {
-
-        // define light color for LIGHT_THEME
-
-        // end of light color
-
-        // define dark color for DARK_THEME
-
-        darkColor.add(new Color(71, 72, 69)); // color of left panel
-        darkColor.add(new Color(105, 94, 184)); // color of insomnia button in left panel
-
-        // end of dark color
-
-        if(theme == LIGHT_THEME) {
-
-        } else if(theme == DARK_THEME) {
-
-        }
-
-        return Color.white;
-    }
-
     private void addHeaderFieldPanel(JPanel headerPanel, List<JPanel> headerField) {
 
         System.out.println(headerField.size());
@@ -1946,10 +1975,10 @@ public class MainFrame extends JFrame {
 
 
 
-    private void responseHeaderField(int theme, List<JPanel> headerField, String name, String value) {
+    private void responseHeaderField(List<JPanel> headerField, String name, String value) {
 
         JPanel headerFieldPanel = new JPanel();
-        headerFieldPanel.setBackground(new Color(40, 41, 37));
+        headerFieldPanel.setBackground(themes.get(theme).get(6));
         headerFieldPanel.setLayout(new BoxLayout(headerFieldPanel, BoxLayout.X_AXIS));
 
         List<JTextArea> labels = new ArrayList<>();
@@ -1958,7 +1987,7 @@ public class MainFrame extends JFrame {
 
             labels.add(new JTextArea());
             labels.get(i).setLineWrap(true);
-            labels.get(i).setForeground(Color.white);
+            labels.get(i).setForeground(themes.get(theme).get(11));
             labels.get(i).setFont(new Font("Santa Fe Let", Font.PLAIN, 13));
 //            labels.get(i).setPreferredSize(new Dimension(80, 50));
             labels.get(i).setMaximumSize(new Dimension(200, Integer.MAX_VALUE));
@@ -1980,6 +2009,37 @@ public class MainFrame extends JFrame {
 
         headerField.add(headerFieldPanel);
 
+    }
+
+
+    /**
+     * this method copied from stackoverflow
+     *
+     * @return list of readed objects
+     */
+    public ArrayList<RequestPanel> readObjects(){
+        ArrayList<RequestPanel> al = new ArrayList<>();
+        boolean cont = true;
+        try {
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(currentDir +"\\data\\request_list"));
+            while(cont){
+                RequestPanel obj=null;
+                try {
+                    obj = (RequestPanel) ois.readObject();
+
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+                if(obj != null)
+                    al.add(obj);
+                else
+                    cont = false;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return al;
     }
 
 
