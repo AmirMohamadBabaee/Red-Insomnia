@@ -50,7 +50,7 @@ public class CenterPanel extends JPanel{
         this.mainFrame = mainFrame;
 
         this.setLayout(new BorderLayout());
-        this.setPreferredSize(new Dimension(550, 580));
+        this.setPreferredSize(new Dimension(400, 580));
         this.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
 
         JPanel urlPanel = new JPanel(new BorderLayout(5, 0));

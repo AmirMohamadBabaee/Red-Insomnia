@@ -1,5 +1,7 @@
 package RedInsomnia.gui;
 
+import RedInsomnia.main.Main;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -108,7 +110,7 @@ public class MainFrame extends JFrame {
 
 
         setTitle(title);
-        setSize(1500, 650);
+        setSize(1200, 550);
         setLocationRelativeTo(null);
         setLayout(null);
         setContentPane(mainPanel());
@@ -117,6 +119,35 @@ public class MainFrame extends JFrame {
         } else {
             setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         }
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                int confirmed = JOptionPane.showConfirmDialog(MainFrame.this,
+                        "Are you sure you want to exit RedInsomnia?", "Exit",
+                        JOptionPane.YES_NO_OPTION);
+
+                System.out.println(confirmed);
+                if (confirmed == JOptionPane.YES_OPTION) {
+
+                    if(!MainFrame.this.isCloseOperation()) {
+
+                        MainFrame.this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                        MainFrame.this.dispose();
+                        System.exit(0);
+
+                    } else {
+
+                        MainFrame.this.setVisible(false);
+
+                    }
+
+                } else {
+
+                    MainFrame.this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+                }
+
+            }
+        });
 
 
         JMenuBar menuBar = new JMenuBar();
@@ -141,10 +172,20 @@ public class MainFrame extends JFrame {
         JFrame mainFrame = this;
         options.addActionListener(e -> new OptionController(theme, mainFrame, currentDir));
         exit.addActionListener(e -> {
-            int dialogResult = JOptionPane.showConfirmDialog(mainFrame, "Are you sure you want to exit RedInsomnia?", "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+            int dialogResult = JOptionPane.showConfirmDialog(mainFrame, "Are you sure you want to exit RedInsomnia?", "Exit", JOptionPane.YES_NO_OPTION);
             if(dialogResult == JOptionPane.YES_OPTION) {
-                mainFrame.dispose();
-                System.exit(0);
+
+                if(!MainFrame.this.isCloseOperation()) {
+
+                    MainFrame.this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    mainFrame.dispose();
+                    System.exit(0);
+
+                } else if(MainFrame.this.getDefaultCloseOperation() == JFrame.HIDE_ON_CLOSE) {
+
+                    mainFrame.setVisible(false);
+
+                }
             }
         });
 
@@ -207,6 +248,9 @@ public class MainFrame extends JFrame {
 
         about.setMnemonic(KeyEvent.VK_B);
         helpItem.setMnemonic(KeyEvent.VK_H);
+
+        about.addActionListener(e -> SwingUtilities.invokeLater(() -> new AboutFrame(MainFrame.this, theme)));
+        helpItem.addActionListener(e -> SwingUtilities.invokeLater(() -> new HelpFrame(MainFrame.this, theme)));
 
         help.add(about);
         help.add(helpItem);

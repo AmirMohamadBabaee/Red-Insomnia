@@ -53,7 +53,7 @@ public class RightPanel extends JPanel {
         this.mainFrame = mainFrame;
 
         this.setLayout(new BorderLayout());
-        this.setPreferredSize(new Dimension(600, 580));
+        this.setPreferredSize(new Dimension(450, 580));
         this.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
 
         JPanel responseStatusPanel = new JPanel();
