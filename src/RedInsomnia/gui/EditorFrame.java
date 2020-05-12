@@ -1,3 +1,5 @@
+package RedInsomnia.gui;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -7,9 +9,9 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 /**
- * EditorFrame
+ * RedInsomnia.gui.EditorFrame
  *
- * this frame develop to show when editButton in MainFrame pressed
+ * this frame develop to show when editButton in RedInsomnia.gui.MainFrame pressed
  * and launch a new frame that have a JEditorPane for adding multi-
  * line value in request body.
  *
@@ -22,12 +24,17 @@ import java.awt.image.BufferedImage;
 
 public class EditorFrame extends JFrame {
 
-    public static final int LIGHT_THEME = 0;
-    public static final int DARK_THEME = 1;
     private JEditorPane editorPane;
     private JButton doneButton;
     private String context;
 
+    /**
+     * Constructor of RedInsomnia.gui.EditorFrame Class in RedInsomnia
+     *
+     * @param title title of this Frame
+     * @param theme theme of this Frame
+     * @param mainFrame main frame of this program
+     */
     public EditorFrame(String title, int theme, JFrame mainFrame) {
 
         super();
@@ -109,6 +116,9 @@ public class EditorFrame extends JFrame {
     }
 
 
+    /**
+     * Implementation of MouseClicked Action in Done button
+     */
     private void doneAction() {
 
         context = editorPane.getText();

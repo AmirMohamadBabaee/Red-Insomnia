@@ -1,3 +1,5 @@
+package RedInsomnia.gui;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -14,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * RightPanel
+ * RedInsomnia.gui.RightPanel
  *
  * This class create right panel for RedInsomnia
  *
@@ -35,6 +37,11 @@ public class RightPanel extends JPanel {
     private String currentDir;
 
 
+    /**
+     * Constructor of RedInsomnia.gui.RightPanel Class in RedInsomnia
+     *
+     * @param mainFrame main frame of program
+     */
     public RightPanel(MainFrame mainFrame) {
 
         super();
@@ -162,6 +169,7 @@ public class RightPanel extends JPanel {
         rawScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         rawScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         rawScroll.setRowHeaderView(tln);
+        rawScroll.setBorder(null);
 
 
         responseData.add(rawScroll, "Raw");
@@ -184,6 +192,7 @@ public class RightPanel extends JPanel {
         }
 
         JScrollPane visualScroll = new JScrollPane(visualPanel);
+        visualScroll.setBorder(null);
 
         responseData.add(visualScroll, "Visual");
 
@@ -337,6 +346,7 @@ public class RightPanel extends JPanel {
         headerPanelScroll.setBackground(themes.get(theme).get(6));
         headerPanelScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         headerPanelScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        headerPanelScroll.setBorder(null);
 
         headerPanel.add(headerPanelScroll, BorderLayout.CENTER);
 

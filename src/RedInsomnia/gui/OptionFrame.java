@@ -1,12 +1,13 @@
+package RedInsomnia.gui;
+
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * OptionFrame
+ * RedInsomnia.gui.OptionFrame
  *
  * This class is frame of options in RedInsomnia.
  * in this frame there are 3 part; first part related to
@@ -26,6 +27,12 @@ public class OptionFrame extends JFrame {
     private List<JRadioButton> selectedTheme;
     private JButton applyButton;
 
+    /**
+     * Constructor of RedInsomnia.gui.OptionFrame in RedInsomnia
+     *
+     * @param theme theme of this frame
+     * @param mainPanel main panel of this program
+     */
     public OptionFrame(int theme, JFrame mainPanel) {
 
         super();
@@ -56,23 +63,49 @@ public class OptionFrame extends JFrame {
 
     }
 
-
+    /**
+     * getter of FollowRedirectState
+     *
+     * @return state of follow redirect
+     */
     public JCheckBox getFollowRedirectState() {
         return followRedirectState;
     }
 
+    /**
+     * getter of CloseOperationState
+     *
+     * @return state of close operation
+     */
     public JCheckBox getCloseOperationState() {
         return closeOperationState;
     }
 
+    /**
+     * getter of SelectedTheme
+     *
+     * @return selected theme
+     */
     public List<JRadioButton> getSelectedTheme() {
         return selectedTheme;
     }
 
+    /**
+     * getter of ApplyButton
+     *
+     * @return apply button
+     */
     public JButton getApplyButton() {
         return applyButton;
     }
 
+    /**
+     * this method create follow redirect panel
+     *
+     * @param theme theme of this frame
+     * @param mainFrame main frame of this program
+     * @return prepared panel of followRedirect
+     */
     private JPanel createFollowRedirectState(int theme, JFrame mainFrame) {
 
         JPanel followRedirectPanel = new JPanel();
@@ -96,6 +129,13 @@ public class OptionFrame extends JFrame {
     }
 
 
+    /**
+     * this method create closeOperation panel
+     *
+     * @param theme theme of this frame
+     * @param mainFrame main frame of this program
+     * @return prepared panel of close operation
+     */
     private JPanel createCloseOperationState(int theme, JFrame mainFrame) {
 
         JPanel closeOperationPanel = new JPanel();
@@ -118,7 +158,13 @@ public class OptionFrame extends JFrame {
 
     }
 
-
+    /**
+     * this method create select theme part in optionFrame
+     *
+     * @param theme theme of this frame
+     * @param mainFrame main frame of this program
+     * @return prepared panel of select theme part
+     */
     private JPanel createSelectedTheme(int theme, JFrame mainFrame) {
 
         JPanel selectedThemePanel = new JPanel();
@@ -158,6 +204,11 @@ public class OptionFrame extends JFrame {
     }
 
 
+    /**
+     * this method create gui of apply button
+     *
+     * @return prepared apply button
+     */
     private JButton createApplyButton() {
 
         applyButton = new JButton("Apply");

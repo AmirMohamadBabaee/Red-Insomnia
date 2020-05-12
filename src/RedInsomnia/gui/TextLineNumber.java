@@ -1,5 +1,6 @@
+package RedInsomnia.gui;
+
 import java.awt.*;
-import java.awt.event.*;
 import java.beans.*;
 import java.util.HashMap;
 import javax.swing.*;
@@ -8,16 +9,13 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 
 /**
- *
- * this class copeid from tips4java.wordpress.com
+ * this class copied from tips4java.wordpress.com
  *
  * @see <a href="https://tips4java.wordpress.com/2009/05/23/text-component-line-number/">Text Component Line Number</a>
  *
- */
-
-/**
+ *
  *  This class will display line numbers for a related text component. The text
- *  component must use the same line height for each line. TextLineNumber
+ *  component must use the same line height for each line. RedInsomnia.gui.TextLineNumber
  *  supports wrapped lines and will highlight the line number of the current
  *  line in the text component.
  *
@@ -172,9 +170,9 @@ public class TextLineNumber extends JPanel
      *  Specify the horizontal alignment of the digits within the component.
      *  Common values would be:
      *  <ul>
-     *  <li>TextLineNumber.LEFT
-     *  <li>TextLineNumber.CENTER
-     *  <li>TextLineNumber.RIGHT (default)
+     *  <li>RedInsomnia.gui.TextLineNumber.LEFT
+     *  <li>RedInsomnia.gui.TextLineNumber.CENTER
+     *  <li>RedInsomnia.gui.TextLineNumber.RIGHT (default)
      *	</ul>
      *  @param digitAlignment  the Color used to render the current line
      */

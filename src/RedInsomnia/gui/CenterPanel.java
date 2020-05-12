@@ -1,5 +1,6 @@
+package RedInsomnia.gui;
+
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * CenterPanel
+ * RedInsomnia.gui.CenterPanel
  *
  * This class create center panel for RedInsomnia
  *
@@ -34,7 +35,7 @@ public class CenterPanel extends JPanel{
 
 
     /**
-     * Constructor of CenterPanel class
+     * Constructor of RedInsomnia.gui.CenterPanel class
      *
      * @param mainFrame mainFrame of this panel
      */
@@ -187,21 +188,6 @@ public class CenterPanel extends JPanel{
         cardLayout.show(mainSettingPanel, "formData");
 
         requestSettingPanel.add(mainSettingPanel, BorderLayout.CENTER);
-
-        /*JPanel header = new JPanel();
-        header.setBackground(new Color(40, 41, 37));
-
-        JPanel formData = new JPanel();
-        formData.setBackground(new Color(40, 41, 37));
-
-        JTabbedPane headerTab = new JTabbedPane();
-        headerTab.setBackground(new Color(40, 41, 37));
-        headerTab.addTab("<html><body style =\"background-color:red;\"><h2>  Form Data  </h2></body></html>"
-                , formData);
-        headerTab.addTab("<html><body style =\"background-color:#282925;\"><h2>  Header  </h2></body></html>"
-                , header);
-
-        requestSettingPanel.add(headerTab, BorderLayout.CENTER);*/
 
         // this part is related to popup menu of form data button
 
@@ -357,8 +343,10 @@ public class CenterPanel extends JPanel{
 
 
         JScrollPane scrolledHeaderPanel = new JScrollPane(headerPanel);
-        scrolledHeaderPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrolledHeaderPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrolledHeaderPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrolledHeaderPanel.setBackground(themes.get(theme).get(6));
+        scrolledHeaderPanel.setBorder(null);
 
         header.add(scrolledHeaderPanel, BorderLayout.CENTER);
 
@@ -378,6 +366,7 @@ public class CenterPanel extends JPanel{
         JScrollPane coverFormPanelScroll = new JScrollPane(coverFormPanel);
         coverFormPanelScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         coverFormPanelScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        coverFormPanelScroll.setBorder(null);
 
         formPanel.add(coverFormPanelScroll, BorderLayout.CENTER);
 

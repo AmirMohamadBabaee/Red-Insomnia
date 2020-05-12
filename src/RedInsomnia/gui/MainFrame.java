@@ -1,3 +1,5 @@
+package RedInsomnia.gui;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -6,9 +8,9 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * MainFrame
+ * RedInsomnia.gui.MainFrame
  *
- * This class is main Frame of insomnia app
+ * This class is main Frame of RedInsomnia app
  *
  * @author Amir01
  * @version
@@ -30,9 +32,16 @@ public class MainFrame extends JFrame {
     private int theme;
     private boolean followDirect;
     private boolean closeOperation;
+    private JPanel leftPanel;
 
     // Constructor
 
+    /**
+     * Constructor of RedInsomnia.gui.MainFrame Class
+     *
+     * @param title title of this frame
+     * @param theme initial themes of this class
+     */
     public MainFrame(String title, int theme) {
 
         super();
@@ -209,6 +218,9 @@ public class MainFrame extends JFrame {
         setVisible(true);
     }
 
+    /**
+     * this method do initial load of this frame
+     */
     private void initFrame() {
 
         try(FileInputStream in = new FileInputStream(currentDir + "\\data\\options")) {
@@ -248,18 +260,38 @@ public class MainFrame extends JFrame {
     }
 
 
+    /**
+     * getter of follow direct
+     *
+     * @return state of follow direct
+     */
     public boolean isFollowDirect() {
         return followDirect;
     }
 
+    /**
+     * setter of follow direct
+     *
+     * @param followDirect state of follow direct
+     */
     public void setFollowDirect(boolean followDirect) {
         this.followDirect = followDirect;
     }
 
+    /**
+     * getter of close operation
+     *
+     * @return state of close operation
+     */
     public boolean isCloseOperation() {
         return closeOperation;
     }
 
+    /**
+     * setter of close operation
+     *
+     * @param closeOperation state of close operation
+     */
     public void setCloseOperation(boolean closeOperation) {
         this.closeOperation = closeOperation;
     }
@@ -282,14 +314,40 @@ public class MainFrame extends JFrame {
         this.theme = theme;
     }
 
+    /**
+     * getter of themes List
+     *
+     * @return list of themes
+     */
     public List<List<Color>> getThemes() {
         return themes;
     }
 
+    /**
+     * getter of current directory for project files
+     *
+     * @return path of current project directory
+     */
     public String getCurrentDir() {
         return currentDir;
     }
 
+    /**
+     * getter of left panel of this frame
+     *
+     * @return left panel of this frame
+     */
+    public JPanel getLeftPanel() {
+        return leftPanel;
+    }
+
+
+    /**
+     * this method add three panel to MainPanel
+     * that is contentPane of this frame
+     *
+     * @return mainPanel of this frame
+     */
     private JPanel mainPanel() {
 
         JPanel mainPanel = new JPanel();
@@ -331,14 +389,20 @@ public class MainFrame extends JFrame {
     }
 
 
+    /**
+     * this method define all of the property of this panel
+     *
+     * @param mainPanel contentPane of this panel
+     * @return left panel of this frame
+     */
     private JPanel leftPanel(JPanel mainPanel) {
 
-        JPanel leftPanel = new JPanel(new BorderLayout());
+        leftPanel = new JPanel(new BorderLayout());
         leftPanel.setName("left panel");
         leftPanel.setPreferredSize(new Dimension(250, 580));
         leftPanel.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
 
-        JButton insomniaPart = new JButton("Insomnia           " + openMenu);
+        JButton insomniaPart = new JButton("Insomnia               ");
         insomniaPart.setFont(new Font("Santa Fe LET", Font.PLAIN, 25));
         insomniaPart.setBackground(themes.get(theme).get(0));
         insomniaPart.setForeground(themes.get(theme).get(11));
@@ -482,10 +546,15 @@ public class MainFrame extends JFrame {
         requestList.setBackground(themes.get(theme).get(2));
         requestList.setLayout(new BoxLayout(requestList, BoxLayout.Y_AXIS));
 
+        JScrollPane requestListScroll = new JScrollPane(requestList);
+        requestListScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        requestListScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        requestListScroll.setBorder(null);
+
 
         for (RequestPanel object : readObjects()) {
 
-            RequestPanel button = new RequestPanel(this, object.getMethod(), object.getName(), requestList);
+            RequestPanel button = new RequestPanel(this, object.getRequestMethod(), object.getRequestName(), requestList);
             requestList.add(button);
             RequestPack pack = new RequestPack(button, this);
 
@@ -506,7 +575,7 @@ public class MainFrame extends JFrame {
                     if(component instanceof RequestPanel && component != e.getSource()) {
 
                         ((RequestPanel)component).setSelected(false);
-                        ((RequestPanel) component).restartColor();
+                        ((RequestPanel) component).restartColor(1);
 
                     }
 
@@ -521,7 +590,7 @@ public class MainFrame extends JFrame {
         newRequest.addActionListener(e -> new NewRequestFrame(MainFrame.this, requestList, currentDir));
 
 
-        requestPanel.add(requestList, BorderLayout.CENTER);
+        requestPanel.add(requestListScroll, BorderLayout.CENTER);
 
         return leftPanel;
 

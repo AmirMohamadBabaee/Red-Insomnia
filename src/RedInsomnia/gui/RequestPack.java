@@ -1,5 +1,7 @@
+package RedInsomnia.gui;
+
 /**
- * RequestPack
+ * RedInsomnia.gui.RequestPack
  *
  * This class define a pack of request panel and
  * its center and right panel

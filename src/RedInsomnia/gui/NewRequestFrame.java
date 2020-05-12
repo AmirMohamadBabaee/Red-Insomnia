@@ -1,16 +1,17 @@
+package RedInsomnia.gui;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.sql.DatabaseMetaData;
+
 
 /**
- * NewRequestFrame
+ * RedInsomnia.gui.NewRequestFrame
  *
  * This frame is for when you want to create
  * a new http request.
@@ -24,7 +25,6 @@ import java.sql.DatabaseMetaData;
 public class NewRequestFrame extends JFrame {
 
     private JLabel nameLabel;
-    private JPanel centerPanel;
     private JTextField requestName;
     private JButton requestMethod;
     private JButton createButton;
@@ -34,6 +34,13 @@ public class NewRequestFrame extends JFrame {
     private String name;
     private String method = "GET";
 
+    /**
+     * Constructor of RedInsomnia.gui.NewRequestFrame class in RedInsomnia
+     *
+     * @param mainFrame main frame of program
+     * @param requestList list of requestPanel
+     * @param currentDir path of project directory
+     */
     public NewRequestFrame(MainFrame mainFrame, JPanel requestList, String currentDir) {
 
         super();
@@ -164,7 +171,53 @@ public class NewRequestFrame extends JFrame {
         createButton.addActionListener(e -> {
             dispose();
             name = requestName.getText();
-            requestList.add(new RequestPanel(mainFrame, method, name, requestList));
+            RequestPanel requestPanel = new RequestPanel(mainFrame, method, name, requestList);
+            requestList.add(requestPanel);
+            RequestPack pack = new RequestPack(requestPanel, mainFrame);
+            requestPanel.setSelected(true);
+            requestPanel.restartColor(0);
+
+            mainFrame.getContentPane().removeAll();
+            mainFrame.getContentPane().add(mainFrame.getLeftPanel(), BorderLayout.WEST);
+            mainFrame.getContentPane().add(pack.getCenterPanel(), BorderLayout.CENTER);
+            mainFrame.getContentPane().add(pack.getRightPanel(), BorderLayout.EAST);
+            mainFrame.getContentPane().revalidate();
+            mainFrame.getContentPane().repaint();
+
+            for (Component component : requestList.getComponents()) {
+
+                if(component instanceof RequestPanel && ((RequestPanel)component) != requestPanel) {
+
+                    ((RequestPanel)component).setSelected(false);
+                    ((RequestPanel) component).restartColor(1);
+
+                }
+
+            }
+
+            requestPanel.addActionListener(e1 -> {
+
+                requestPanel.setSelected(true);
+                mainFrame.getContentPane().removeAll();
+                mainFrame.getContentPane().add(mainFrame.getLeftPanel(), BorderLayout.WEST);
+                mainFrame.getContentPane().add(pack.getCenterPanel(), BorderLayout.CENTER);
+                mainFrame.getContentPane().add(pack.getRightPanel(), BorderLayout.EAST);
+                mainFrame.getContentPane().revalidate();
+                mainFrame.getContentPane().repaint();
+
+                for (Component component : requestList.getComponents()) {
+
+                    if(component instanceof RequestPanel && ((RequestPanel)component) != requestPanel) {
+
+                        ((RequestPanel)component).setSelected(false);
+                        ((RequestPanel) component).restartColor(1);
+
+                    }
+
+                }
+
+            });
+
             requestList.revalidate();
             requestList.repaint();
 
@@ -188,17 +241,12 @@ public class NewRequestFrame extends JFrame {
 
         });
 
-
         add(requestName);
         add(requestMethod);
         add(createButton);
 
 
-
-
-
         setVisible(true);
-
 
     }
 

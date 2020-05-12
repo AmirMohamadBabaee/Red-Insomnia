@@ -1,3 +1,6 @@
+package RedInsomnia.gui;
+
+import RedInsomnia.main.Main;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -7,7 +10,7 @@ import java.io.IOException;
 
 
 /**
- * OptionController
+ * RedInsomnia.gui.OptionController
  *
  * This class implement listener of Option frame's components.
  *
@@ -21,6 +24,13 @@ public class OptionController {
     private OptionFrame optionFrame;
     private String currentDir;
 
+    /**
+     * Constructor of RedInsomnia.gui.OptionController in RedInsomnia
+     *
+     * @param theme theme of RedInsomnia.gui.OptionFrame
+     * @param mainPanel main frame of this program
+     * @param currentDir path of project directory
+     */
     public OptionController(int theme, JFrame mainPanel, String currentDir) {
 
         this.currentDir = currentDir;
@@ -29,7 +39,12 @@ public class OptionController {
 
     }
 
-    public void initController(JFrame mainFrame) {
+    /**
+     * this method implement all of the initial task
+     *
+     * @param mainFrame main frame of this program
+     */
+    private void initController(JFrame mainFrame) {
 
         optionFrame.getFollowRedirectState().addItemListener(e -> {
             if(e.getItemSelectable() == optionFrame.getFollowRedirectState() &&

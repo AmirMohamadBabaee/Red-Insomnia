@@ -1,3 +1,5 @@
+package RedInsomnia.gui;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -7,7 +9,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 
 /**
- * RequestPanel
+ * RedInsomnia.gui.RequestPanel
  *
  * This class is for panels of each request in request List
  * panel in leftPanel. it can be a folder or a http request.
@@ -35,11 +37,19 @@ public class RequestPanel extends JButton {
     private String method;
     private String name;
 
+    /**
+     * Constructor of RedInsomnia.gui.RequestPanel in RedInsomnia
+     *
+     * @param mainFrame main frame of this program
+     * @param method method type of this request
+     * @param name name of this request
+     * @param requestList panel of all RedInsomnia.gui.RequestPanel
+     */
     public RequestPanel(MainFrame mainFrame, String method, String name, JPanel requestList) {
 
         this.theme = mainFrame.getTheme();
-        this.setMethod(method);
-        this.setName(name);
+        this.setRequestMethod(method);
+        this.setRequestName(name);
         this.currentDir = mainFrame.getCurrentDir();
 
 
@@ -56,14 +66,14 @@ public class RequestPanel extends JButton {
         requestMethod = new JLabel();
         requestMethod.setOpaque(false);
         requestMethod.setPreferredSize(new Dimension(100, 50));
-        requestMethod.setText(this.getMethod());
+        requestMethod.setText(this.getRequestMethod());
         requestMethod.setForeground(new Color(0, 255, 0));
         requestMethod.setFont(new Font("Santa Fe Let" , Font.PLAIN, 13));
 
         requsetName = new JLabel();
         requsetName.setOpaque(false);
         requsetName.setPreferredSize(new Dimension(200, 50));
-        requsetName.setText(name);
+        requsetName.setText(this.getRequestName());
         requsetName.setForeground(new Color(91, 92, 90));
         requsetName.setFont(new Font("Santa Fe Let", Font.PLAIN, 16));
 
@@ -102,7 +112,7 @@ public class RequestPanel extends JButton {
 
         this.setAlignmentX(0.0f);
         this.setPreferredSize(new Dimension(30, 50));
-        this.setToolTipText(this.getMethod() + " - " + this.getName());
+        this.setToolTipText(this.getRequestMethod() + " - " + this.getRequestName());
         this.add(buttonPanel);
 
         requestPopup = new JPopupMenu();
@@ -137,10 +147,10 @@ public class RequestPanel extends JButton {
             @Override
             public void mouseClicked(MouseEvent e) {
 
-                if(e.getButton() == MouseEvent.BUTTON3) {
+                if(e.getButton() == MouseEvent.BUTTON3 && !isSelect()) {
 
                     Component component = (Component)e.getSource();
-                    requestPopup.show(RequestPanel.this, component.getX(), component.getY() + component.getHeight());
+                    requestPopup.show(RequestPanel.this, component.getX(), component.getY());
 
                 }
 
@@ -149,21 +159,7 @@ public class RequestPanel extends JButton {
             @Override
             public void mouseEntered(MouseEvent e) {
 
-                if(theme == MainFrame.LIGHT_THEME) {
-
-                    RequestPanel.this.setBackground(new Color(222, 222, 225));
-                    RequestPanel.this.buttonPanel.setBackground(new Color(222, 222, 225));
-                    RequestPanel.this.coverPanel.setBackground(new Color(222, 222, 225));
-
-                } else if(theme == MainFrame.DARK_THEME) {
-
-                    RequestPanel.this.setBackground(new Color(54, 55, 52));
-                    RequestPanel.this.buttonPanel.setBackground(new Color(54, 55, 52));
-                    RequestPanel.this.coverPanel.setBackground(new Color(54, 55, 52));
-
-                }
-
-
+                restartColor(0);
 
             }
 
@@ -172,7 +168,7 @@ public class RequestPanel extends JButton {
 
                 if(!isSelect()) {
 
-                    restartColor();
+                    restartColor(1);
 
                 }
 
@@ -182,51 +178,107 @@ public class RequestPanel extends JButton {
     }
 
 
+    /**
+     * setter of selected state of this button
+     *
+     * @param selected select state of this button
+     */
     public void setSelected(boolean selected) {
         this.select = selected;
     }
 
-
+    /**
+     * getter of select state of this button
+     *
+     * @return select state of this button
+     */
     public boolean isSelect() {
         return select;
     }
 
-
-    public String getMethod() {
+    /**
+     * getter of request method
+     *
+     * @return request method
+     */
+    public String getRequestMethod() {
         return method;
     }
 
-    @Override
-    public String getName() {
+    /**
+     * getter of request name
+     *
+     * @return request name
+     */
+    public String getRequestName() {
         return name;
     }
 
-    public void setMethod(String method) {
+    /**
+     * setter of request method
+     *
+     * @param method request method
+     */
+    public void setRequestMethod(String method) {
         this.method = method;
     }
 
-    @Override
-    public void setName(String name) {
+    /**
+     * setter of request name
+     *
+     * @param name request name
+     */
+    public void setRequestName(String name) {
         this.name = name;
     }
 
 
+    /**
+     * this method implement color changing in MouseAdaptor
+     * anonymous inner class. also this method used in other classes
+     * to change color when a new requestPanel object is created.
+     * if input integer number be 0, this method will call mouse entered
+     * implementation. if input integer number be 1, this method will call
+     * mouse exited implementation.
+     *
+     * @param input type of this action
+     */
+    public void restartColor(int input) {
 
-    public void restartColor() {
+        if(input == 0) { // mouse entered
 
-        if(theme == MainFrame.LIGHT_THEME) {
+            if(theme == MainFrame.LIGHT_THEME) {
 
-            RequestPanel.this.setBackground(new Color(234, 234, 235));
-            RequestPanel.this.buttonPanel.setBackground(new Color(234, 234, 235));
-            RequestPanel.this.coverPanel.setBackground(new Color(234, 234, 235));
+                RequestPanel.this.setBackground(new Color(222, 222, 225));
+                RequestPanel.this.buttonPanel.setBackground(new Color(222, 222, 225));
+                RequestPanel.this.coverPanel.setBackground(new Color(222, 222, 225));
 
-        } else if(theme == MainFrame.DARK_THEME) {
+            } else if(theme == MainFrame.DARK_THEME) {
 
-            RequestPanel.this.setBackground(new Color(46, 47, 43));
-            RequestPanel.this.buttonPanel.setBackground(new Color(46, 47, 43));
-            RequestPanel.this.coverPanel.setBackground(new Color(46, 47, 43));
+                RequestPanel.this.setBackground(new Color(54, 55, 52));
+                RequestPanel.this.buttonPanel.setBackground(new Color(54, 55, 52));
+                RequestPanel.this.coverPanel.setBackground(new Color(54, 55, 52));
+
+            }
+
+        } else if(input == 1) { // mouse exited
+
+            if(theme == MainFrame.LIGHT_THEME) {
+
+                RequestPanel.this.setBackground(new Color(234, 234, 235));
+                RequestPanel.this.buttonPanel.setBackground(new Color(234, 234, 235));
+                RequestPanel.this.coverPanel.setBackground(new Color(234, 234, 235));
+
+            } else if(theme == MainFrame.DARK_THEME) {
+
+                RequestPanel.this.setBackground(new Color(46, 47, 43));
+                RequestPanel.this.buttonPanel.setBackground(new Color(46, 47, 43));
+                RequestPanel.this.coverPanel.setBackground(new Color(46, 47, 43));
+
+            }
 
         }
+
 
     }
 }
