@@ -2,6 +2,7 @@ package RedInsomnia.gui;
 
 import RedInsomnia.main.Main;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -35,6 +36,7 @@ public class MainFrame extends JFrame {
     private boolean followDirect;
     private boolean closeOperation;
     private JPanel leftPanel;
+    private TrayIcon trayIcon;
 
     // Constructor
 
@@ -136,7 +138,8 @@ public class MainFrame extends JFrame {
 
                     } else {
 
-                        MainFrame.this.setVisible(false);
+                        hideOnSystemTray();
+                        setVisible(false);
 
                     }
 
@@ -181,9 +184,10 @@ public class MainFrame extends JFrame {
                     mainFrame.dispose();
                     System.exit(0);
 
-                } else if(MainFrame.this.getDefaultCloseOperation() == JFrame.HIDE_ON_CLOSE) {
+                } else {
 
-                    mainFrame.setVisible(false);
+                    hideOnSystemTray();
+                    setVisible(false);
 
                 }
             }
@@ -671,6 +675,72 @@ public class MainFrame extends JFrame {
         }
 
         return al;
+    }
+
+
+    /**
+     * this method handle hiding on system tray
+     */
+    private void hideOnSystemTray() {
+
+        trayIcon = null;
+        if (SystemTray.isSupported()) {
+            // get the SystemTray instance
+            SystemTray tray = SystemTray.getSystemTray();
+            // load an image
+            Image image = null;
+            try {
+                image = ImageIO.read(new File(currentDir + "\\newIcon.png"));
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
+            for (TrayIcon trayTrayIcon : tray.getTrayIcons()) {
+                if(trayTrayIcon.equals(image)) {
+                    return;
+                }
+            }
+
+            // create a popup menu
+            PopupMenu popup = new PopupMenu();
+            // create menu item for the default action
+            MenuItem defaultItem = new MenuItem("Exit              ");
+            defaultItem.setFont(new Font("Times New Roman", Font.PLAIN, 12));
+            defaultItem.addActionListener(e -> {
+
+                MainFrame.this.dispose();
+                System.exit(0);
+
+            });
+            popup.add(defaultItem);
+            /// ... add other items
+            // construct a TrayIcon
+            trayIcon = new TrayIcon(image, "RedInsomnia", popup);
+            trayIcon.setImageAutoSize(true);
+            // set the TrayIcon properties
+            trayIcon.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+
+                    if(e.getButton() == MouseEvent.BUTTON1) {
+
+                        MainFrame.this.setVisible(true);
+                        MainFrame.this.setState(Frame.NORMAL);
+                        tray.remove(trayIcon);
+
+                    }
+
+                }
+            });
+
+            try {
+                tray.add(trayIcon);
+            } catch (AWTException err) {
+                err.printStackTrace();
+            }
+
+        }
+
     }
 
 
