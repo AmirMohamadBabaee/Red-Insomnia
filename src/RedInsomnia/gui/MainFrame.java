@@ -61,7 +61,7 @@ public class MainFrame extends JFrame {
 
         currentDir = System.getProperty("user.dir");
         System.out.println(currentDir);
-        icon = new ImageIcon(currentDir+"\\newIcon.png");
+        icon = new ImageIcon(currentDir+"\\resource\\newIcon.png");
         setIconImage(icon.getImage());
 
 
@@ -485,12 +485,12 @@ public class MainFrame extends JFrame {
         plusButton.setPreferredSize(new Dimension(25, 25));
         plusButton.setContentAreaFilled(false);
         plusButton.setOpaque(true);
-        File imageCheck = new File(currentDir + "\\plus_icon_normal.png");
+        File imageCheck = new File(currentDir + "\\resource\\plus_icon_normal.png");
         if(imageCheck.exists()) {
 
             try{
 
-                ImageIcon buttonImage = new ImageIcon(currentDir + "\\plus_icon_normal.png");
+                ImageIcon buttonImage = new ImageIcon(currentDir + "\\resource\\plus_icon_normal.png");
                 plusButton.setIcon(buttonImage);
 
             } catch (Exception e) {
@@ -535,12 +535,12 @@ public class MainFrame extends JFrame {
             @Override
             public void mouseEntered(MouseEvent e) {
                 plusButton.setBackground(themes.get(theme).get(3));
-                File imageCheck = new File(currentDir + "\\plus_icon_white.png");
+                File imageCheck = new File(currentDir + "\\resource\\plus_icon_white.png");
                 if(imageCheck.exists()) {
 
                     try{
 
-                        ImageIcon buttonImage = new ImageIcon(currentDir + "\\plus_icon_white.png");
+                        ImageIcon buttonImage = new ImageIcon(currentDir + "\\resource\\plus_icon_white.png");
                         plusButton.setIcon(buttonImage);
 
                     } catch (Exception err) {
@@ -558,12 +558,12 @@ public class MainFrame extends JFrame {
             @Override
             public void mouseExited(MouseEvent e) {
                 plusButton.setBackground(themes.get(theme).get(2));
-                File imageCheck = new File(currentDir + "\\plus_icon_normal.png");
+                File imageCheck = new File(currentDir + "\\resource\\plus_icon_normal.png");
                 if(imageCheck.exists()) {
 
                     try{
 
-                        ImageIcon buttonImage = new ImageIcon(currentDir + "\\plus_icon_normal.png");
+                        ImageIcon buttonImage = new ImageIcon(currentDir + "\\resource\\plus_icon_normal.png");
                         plusButton.setIcon(buttonImage);
 
                     } catch (Exception err) {
@@ -690,7 +690,7 @@ public class MainFrame extends JFrame {
             // load an image
             Image image = null;
             try {
-                image = ImageIO.read(new File(currentDir + "\\newIcon.png"));
+                image = ImageIO.read(new File(currentDir + "\\resource\\newIcon.png"));
             } catch (IOException ex) {
                 ex.printStackTrace();
             }

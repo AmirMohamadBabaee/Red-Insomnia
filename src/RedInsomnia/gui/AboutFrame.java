@@ -46,7 +46,7 @@ public class AboutFrame extends JFrame {
 
         BufferedImage myPicture = null;
         try {
-            myPicture = ImageIO.read(new File(mainFrame.getCurrentDir() + "\\about-me.jpg"));
+            myPicture = ImageIO.read(new File(mainFrame.getCurrentDir() + "\\resource\\about-me.jpg"));
         } catch (IOException e) {
             e.printStackTrace();
         }
