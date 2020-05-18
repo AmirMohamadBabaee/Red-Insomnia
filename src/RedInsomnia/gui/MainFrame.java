@@ -22,6 +22,14 @@ import java.util.ArrayList;
  */
 public class MainFrame extends JFrame {
 
+
+    // static block
+
+    static {
+        boolean isSuccessful = new File("./data").mkdirs();
+        System.out.println("Is created data directory : " + isSuccessful);
+    }
+
     // Field
 
     public static final int LIGHT_THEME = 0;
