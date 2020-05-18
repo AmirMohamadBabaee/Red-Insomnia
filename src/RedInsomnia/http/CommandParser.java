@@ -13,11 +13,14 @@ import java.util.regex.Pattern;
  */
 public class CommandParser {
 
+    private CommandFunction commandFunction;
     private String[] validCommand;
     private String[] commands;
 
 
     public CommandParser(String enteredCommand) {
+
+        commandFunction = new CommandFunction();
 
         validCommand = new String[]{
                 "M ", "method ", "headers ", "H ",
@@ -35,7 +38,7 @@ public class CommandParser {
 
     }
 
-    
+
     private void splitCommand(String enteredCommand) {
 
         Pattern pattern = Pattern.compile("-{1,2}");
