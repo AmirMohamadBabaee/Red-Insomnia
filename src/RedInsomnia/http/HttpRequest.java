@@ -1,12 +1,10 @@
 package RedInsomnia.http;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +28,11 @@ public class HttpRequest {
     private String method;
     private HttpURLConnection connection;
     private Map<String, String> httpHeader;
+    private Map<String, String> httpData;
+    private String[] validMethod = new String[]{
+            "GET", "POST", "PUT", "PATCH", "DELETE"
+    };
+    private String responseBody;
 
 
     public HttpRequest(String url, String method) {
@@ -83,7 +86,14 @@ public class HttpRequest {
     public void setMethod(String method) {
 
         method = method.toUpperCase();
-        this.method = method;
+
+        for (String s : validMethod) {
+
+            if(s.equals(method)) {
+                this.method = s;
+            }
+
+        }
 
     }
 
@@ -97,13 +107,41 @@ public class HttpRequest {
     }
 
     /**
-     * setter of connection of this class
+     * getter of http request headers
      *
-     * @param httpHeader expected connection
+     * @return header's map
+     */
+    public Map<String, String> getHttpHeader() {
+        return httpHeader;
+    }
+
+    /**
+     * setter of http request headers
+     *
+     * @param httpHeader header's map
      */
     public void setHttpHeader(Map<String, String> httpHeader) {
         this.httpHeader = httpHeader;
     }
+
+    /**
+     * getter of http request data
+     *
+     * @return request data Map
+     */
+    public Map<String, String> getHttpData() {
+        return httpData;
+    }
+
+    /**
+     * setter of http request data
+     *
+     * @param httpData request data Map
+     */
+    public void setHttpData(Map<String, String> httpData) {
+        this.httpData = httpData;
+    }
+
 
     /**
      * add a new http header to map of this http request
@@ -117,6 +155,33 @@ public class HttpRequest {
 
     }
 
+
+    /**
+     * this method copid from www.baeldung.com
+     *
+     * @param params map of data
+     * @return perpared string to be transfered
+     * @throws UnsupportedEncodingException
+     *
+     * @see <a href="https://www.baeldung.com/java-http-request">Baeldung.com</>
+     */
+    private static String getParamsString(Map<String, String> params)
+            throws UnsupportedEncodingException{
+
+        StringBuilder result = new StringBuilder();
+
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+            result.append("&");
+        }
+
+        String resultString = result.toString();
+        return resultString.length() > 0
+                ? resultString.substring(0, resultString.length() - 1)
+                : resultString;
+    }
 
     /**
      * this method establish a connection on expected URL
@@ -138,6 +203,15 @@ public class HttpRequest {
             for (Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {
 
                 System.out.println(entry.getKey() + " : " + entry.getValue());
+
+            }
+
+            connection.setDoOutput(true);
+
+            try(DataOutputStream out = new DataOutputStream(connection.getOutputStream())) {
+
+                out.writeBytes(getParamsString(getHttpData()));
+                out.flush();
 
             }
 
@@ -174,6 +248,7 @@ public class HttpRequest {
 
             }
 
+            responseBody = stringBuffer.toString();
 
             System.out.println();
 
