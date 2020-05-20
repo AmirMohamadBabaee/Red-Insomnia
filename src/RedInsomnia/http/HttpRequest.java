@@ -24,11 +24,13 @@ import java.util.Map;
  */
 public class HttpRequest {
 
+    private boolean requestEnable;
     private URL url;
-    private String method;
+    private String method = "GET";
     private HttpURLConnection connection;
     private Map<String, String> httpHeader;
     private Map<String, String> httpData;
+    private String jsonStr;
     private String[] validMethod = new String[]{
             "GET", "POST", "PUT", "PATCH", "DELETE"
     };
@@ -39,9 +41,11 @@ public class HttpRequest {
 
         try {
 
-            setUrl(new URL(url));
+            requestEnable = setUrl(url);
             setMethod(method);
             setHttpHeader(new HashMap<>());
+            setHttpData(new HashMap<>());
+            setJsonStr("");
 
         }catch(MalformedURLException er) {
             er.printStackTrace();
@@ -65,8 +69,21 @@ public class HttpRequest {
      *
      * @param url expected url
      */
-    public void setUrl(URL url) {
-        this.url = url;
+    public boolean setUrl(String url) throws MalformedURLException {
+
+        if(url.startsWith("http://") || url.startsWith("https://")) {
+
+            this.url = new URL(url);
+            return true;
+
+        } else {
+
+            System.out.println("jurl : Your entered url should start with \"https://\" or \"http://\" protocol name");
+
+        }
+
+        return false;
+
     }
 
     /**
@@ -142,6 +159,42 @@ public class HttpRequest {
         this.httpData = httpData;
     }
 
+    /**
+     * getter of response body of this http request
+     *
+     * @return response body
+     */
+    public String getResponseBody() {
+        return responseBody;
+    }
+
+    /**
+     * this method return state of this http request to show
+     * to other classes that is enable or is not.
+     *
+     * @return state of this http request
+     */
+    public boolean isRequestEnable() {
+        return requestEnable;
+    }
+
+    /**
+     * getter of jsonStr field
+     *
+     * @return string of json content
+     */
+    public String getJsonStr() {
+        return jsonStr;
+    }
+
+    /**
+     * setter of jsonStr field
+     *
+     * @param jsonStr string of json content
+     */
+    public void setJsonStr(String jsonStr) {
+        this.jsonStr = jsonStr;
+    }
 
     /**
      * add a new http header to map of this http request
@@ -206,12 +259,25 @@ public class HttpRequest {
 
             }
 
-            connection.setDoOutput(true);
+            if(!method.equals("GET")) {
 
-            try(DataOutputStream out = new DataOutputStream(connection.getOutputStream())) {
+                connection.setDoOutput(true);
 
-                out.writeBytes(getParamsString(getHttpData()));
-                out.flush();
+                try(DataOutputStream out = new DataOutputStream(connection.getOutputStream())) {
+
+                    if(!getHttpData().isEmpty()) {
+
+                        out.writeBytes(getParamsString(getHttpData()));
+                        out.flush();
+
+                    } else if(!jsonStr.isEmpty()) {
+
+                        out.writeBytes(jsonStr);
+                        out.flush();
+
+                    }
+
+                }
 
             }
 
