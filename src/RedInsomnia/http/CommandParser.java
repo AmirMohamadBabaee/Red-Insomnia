@@ -33,6 +33,11 @@ public class CommandParser {
         if(isValidCommand(enteredCommand)) {
 
             splitCommand(enteredCommand);
+            if(commandCaller()) {
+
+                commandFunction.startConnection();
+
+            }
 
         }
 
@@ -41,19 +46,32 @@ public class CommandParser {
 
     private void splitCommand(String enteredCommand) {
 
-        Pattern pattern = Pattern.compile("-{1,2}");
+        Pattern pattern = Pattern.compile(" -{1,2}");
         commands = pattern.split(enteredCommand);
 
     }
 
 
-    private void commandCaller(String[] commands) {
+    private boolean commandCaller() {
 
         for (String command : commands) {
 
-            System.out.println(isValidArgument(command));
+            if(!isValidArgument(command)) {
+
+                System.out.println("jurl : This args is not valid!!! \nProblem < " + command + " >");
+                return false;
+
+            }
 
         }
+
+        for (String command : commands) {
+
+            callOperation(command);
+
+        }
+
+        return true;
 
     }
 
@@ -77,12 +95,13 @@ public class CommandParser {
 
         if(!command.startsWith("jurl ")) {
 
+            System.out.println("jurl : Your entered Command was INCORRECT! try \"jurl -h\" or \"jurl --help\" for more information");
             return false;
 
         }
 
         String test = command.replaceAll("--", "%%%%");
-        test = test.replaceAll("-", "@@@@");
+        test = test.replaceAll(" -", "@@@@");
 
         Pattern p = Pattern.compile("%%%%");
         Matcher m = p.matcher(test);
@@ -91,7 +110,7 @@ public class CommandParser {
 
             if((m.end() + 1 < test.length()) && (test.charAt(m.end() + 1) == ' ')) {
 
-
+                System.out.println("jurl : Your entered Command was INCORRECT! try \"jurl -h\" or \"jurl --help\" for more information");
                 return false;
 
             }
@@ -105,13 +124,84 @@ public class CommandParser {
 
             if((m.end() + 1 < test.length()) && (test.charAt(m.end() + 1) != ' ')) {
 
+                System.out.println("jurl : Your entered Command was INCORRECT! try \"jurl -h\" or \"jurl --help\" for more information");
                 return false;
 
             }
 
         }
 
+        if((test.contains("%%%%data") || test.contains("@@@@d")) &&
+                (test.contains("%%%%method") || test.contains("@@@@M"))) {
+
+            System.out.println("HTTP GET method doesn't have any data(Request Body)! \nPlease try again with POST method");
+            return false;
+
+        }
+
         return true;
+
+    }
+
+
+    private void callOperation(String args) {
+
+        if(args.startsWith("method")) {
+
+            args = args.replace("method", "").trim();
+            commandFunction.methodOperation(args);
+
+        } else if(args.startsWith("M")) {
+
+            args = args.replace("M", "").trim();
+            commandFunction.methodOperation(args);
+
+        } else if(args.startsWith("headers")) {
+
+            args = args.replace("headers", "").trim();
+            commandFunction.headersOperation(args);
+
+        } else if(args.startsWith("H")) {
+
+            args = args.replace("H", "").trim();
+            commandFunction.headersOperation(args);
+
+        } else if(args.startsWith("data")) {
+
+            args = args.replace("data", "").trim();
+            commandFunction.dataOperation(args);
+
+        } else if(args.startsWith("d")) {
+
+            args = args.replace("d", "").trim();
+            commandFunction.dataOperation(args);
+
+        } else if(args.startsWith("jurl")) { // todo : "jurl list" and "jurl fire" must locate upper than "jurl"
+
+            args = args.replace("jurl", "").trim();
+            commandFunction.jurlOperation(args);
+
+        } else if(args.startsWith("output")) {
+
+            args = args.replace("output", "").trim();
+            commandFunction.outputOperation(args);
+
+        } else if(args.startsWith("O")) {
+
+            args = args.replace("O", "").trim();
+            commandFunction.outputOperation(args);
+
+        } else if(args.startsWith("json")) {
+
+            args = args.replace("json", "").trim();
+            commandFunction.jsonOperation(args);
+
+        } else if(args.startsWith("j")) {
+
+            args = args.replace("j", "").trim();
+            commandFunction.jsonOperation(args);
+
+        }
 
     }
 
