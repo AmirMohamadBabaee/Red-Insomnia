@@ -1,5 +1,6 @@
 package RedInsomnia.http;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,6 +20,8 @@ public class CommandFunction {
 
     private final String RESPONSE_DIR = "./response/";
     private HttpRequest httpRequest;
+    private String fileName = "";
+    private boolean outputCalled;
 
 
     public void jurlOperation(String url) {
@@ -44,11 +47,9 @@ public class CommandFunction {
         boolean isSuccessful = new File(RESPONSE_DIR).mkdirs();
         System.out.println("Created response Directory : " + isSuccessful);
 
-        String fileName = "";
+        if(outputName.equals("")) {
 
-        if(outputName == null) {
-
-            fileName = "output_[" + System.currentTimeMillis() + "]";
+            fileName = "output_[" + System.currentTimeMillis() + "].txt";
 
         } else {
 
@@ -66,15 +67,23 @@ public class CommandFunction {
 
         }
 
+        outputCalled = true;
+
+    }
+
+    private void outputWriterOperation() {
+
         try(ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(RESPONSE_DIR + fileName))) {
 
-            out.writeObject(httpRequest.getResponseBody());
-            System.out.println("Successfully saved in file " + fileName);
+            out.writeBytes(httpRequest.getResponseBody());
+            System.out.println("Successfully saved in file \"" + fileName + "\"");
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            httpRequest.setRequestEnable(false);
         } catch (IOException e) {
             e.printStackTrace();
+            httpRequest.setRequestEnable(false);
         }
 
     }
@@ -87,7 +96,19 @@ public class CommandFunction {
 
     public void jsonOperation(String jsonStr) {
 
+        boolean isJsonArray = true;
+        boolean isJsonObject = true;
+
         jsonStr = jsonStr.substring(1, jsonStr.length()-1).trim();
+
+        try {
+
+            JSONArray jsonArray = new JSONArray(jsonStr);
+            httpRequest.setJsonStr(jsonStr);
+
+        } catch(JSONException err) {
+            isJsonArray = false;
+        }
 
         try {
 
@@ -95,7 +116,14 @@ public class CommandFunction {
             httpRequest.setJsonStr(jsonStr);
 
         } catch(JSONException err) {
-            err.printStackTrace();
+            isJsonObject = false;
+        }
+
+        if(!(isJsonArray || isJsonObject)) {
+
+            System.out.println("jurl : your entered JSON string is not valid!!!");
+            httpRequest.setRequestEnable(false);
+
         }
 
     }
@@ -121,6 +149,18 @@ public class CommandFunction {
     public void uploadOperation() {
 
 
+
+    }
+
+    public void followRedirectOperation() {
+
+        httpRequest.setFollowRedirect(true);
+
+    }
+
+    public void showResponseHeaderOperation() {
+
+        httpRequest.setShowResponseHeader(true);
 
     }
 
@@ -169,6 +209,8 @@ public class CommandFunction {
 
         if(httpRequest.isRequestEnable()) {
             httpRequest.establishConnection();
+            outputWriterOperation();
+            outputCalled = false;
         }
 
     }
