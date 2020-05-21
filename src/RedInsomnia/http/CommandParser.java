@@ -24,7 +24,7 @@ public class CommandParser {
 
         validCommand = new String[]{
                 "M ", "method ", "headers ", "H ",
-                "i", "h ", "help ", "f ", "output",
+                "i", "h", "help", "f", "output",
                 "O", "data ", "d ", "json ", "j " ,
                 "S", "save", "upload ", "jurl list",
                 "jurl "
@@ -103,6 +103,8 @@ public class CommandParser {
         String test = command.replaceAll("--", "%%%%");
         test = test.replaceAll(" -", "@@@@");
 
+        System.out.println(test);
+
         Pattern p = Pattern.compile("%%%%");
         Matcher m = p.matcher(test);
 
@@ -110,6 +112,9 @@ public class CommandParser {
 
             if((m.end() + 1 < test.length()) && (test.charAt(m.end() + 1) == ' ')) {
 
+                if(test.charAt(m.end() + 1) == '@' || test.charAt(m.end() + 1) == '%') {
+                    continue;
+                }
                 System.out.println("jurl : Your entered Command was INCORRECT! try \"jurl -h\" or \"jurl --help\" for more information");
                 return false;
 
@@ -124,6 +129,9 @@ public class CommandParser {
 
             if((m.end() + 1 < test.length()) && (test.charAt(m.end() + 1) != ' ')) {
 
+                if(test.charAt(m.end() + 1) == '@' || test.charAt(m.end() + 1) == '%') {
+                    continue;
+                }
                 System.out.println("jurl : Your entered Command was INCORRECT! try \"jurl -h\" or \"jurl --help\" for more information");
                 return false;
 
@@ -200,6 +208,16 @@ public class CommandParser {
 
             args = args.replace("j", "").trim();
             commandFunction.jsonOperation(args);
+
+        } else if(args.startsWith("f")) {
+
+            args = args.replace("f", "").trim();
+            commandFunction.followRedirectOperation();
+
+        } else if(args.startsWith("i")) {
+
+            args = args.replace("i", "").trim();
+            commandFunction.showResponseHeaderOperation();
 
         }
 
