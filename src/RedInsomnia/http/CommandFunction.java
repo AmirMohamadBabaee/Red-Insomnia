@@ -90,6 +90,9 @@ public class CommandFunction {
 
     public void dataOperation(String data) {
 
+        for (Map.Entry<String, String> entry : splitDatas(data).entrySet()) {
+            System.out.println(entry.getKey() + " : " + entry.getValue());
+        }
         httpRequest.setHttpData(splitDatas(data));
 
     }
@@ -209,8 +212,12 @@ public class CommandFunction {
 
         if(httpRequest.isRequestEnable()) {
             httpRequest.establishConnection();
-            outputWriterOperation();
-            outputCalled = false;
+            if(outputCalled) {
+
+                outputWriterOperation();
+                outputCalled = false;
+
+            }
         }
 
     }
