@@ -116,6 +116,7 @@ public class CommandParser {
                     continue;
                 }
                 System.out.println("jurl : Your entered Command was INCORRECT! try \"jurl -h\" or \"jurl --help\" for more information");
+                System.out.println("here");
                 return false;
 
             }
@@ -133,6 +134,7 @@ public class CommandParser {
                     continue;
                 }
                 System.out.println("jurl : Your entered Command was INCORRECT! try \"jurl -h\" or \"jurl --help\" for more information");
+                System.out.println("there");
                 return false;
 
             }
@@ -140,7 +142,8 @@ public class CommandParser {
         }
 
         if((test.contains("%%%%data") || test.contains("@@@@d")) &&
-                (test.contains("%%%%method") || test.contains("@@@@M"))) {
+                (test.toLowerCase().contains("%%%%method get") || test.toLowerCase().contains("@@@@m get")
+                || (!test.contains("%%%%method") && !test.contains("@@@@M")))) {
 
             System.out.println("HTTP GET method doesn't have any data(Request Body)! \nPlease try again with POST method");
             return false;
