@@ -1,13 +1,13 @@
 package RedInsomnia.http;
 
 import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * HttpRequest
@@ -31,6 +31,8 @@ public class HttpRequest {
     private Map<String, String> httpHeader;
     private Map<String, String> httpData;
     private String jsonStr;
+    private boolean followRedirect;
+    private boolean showResponseHeader;
     private String[] validMethod = new String[]{
             "GET", "POST", "PUT", "PATCH", "DELETE"
     };
@@ -179,6 +181,15 @@ public class HttpRequest {
     }
 
     /**
+     * setter of requset enable field
+     *
+     * @param requestEnable necessary change to request enable field
+     */
+    public void setRequestEnable(boolean requestEnable) {
+        this.requestEnable = requestEnable;
+    }
+
+    /**
      * getter of jsonStr field
      *
      * @return string of json content
@@ -194,6 +205,42 @@ public class HttpRequest {
      */
     public void setJsonStr(String jsonStr) {
         this.jsonStr = jsonStr;
+    }
+
+    /**
+     * getter of follow redirect
+     *
+     * @return state of follow redirect
+     */
+    public boolean isFollowRedirect() {
+        return followRedirect;
+    }
+
+    /**
+     * setter of follow redirect
+     *
+     * @param followRedirect state of follow redirect
+     */
+    public void setFollowRedirect(boolean followRedirect) {
+        this.followRedirect = followRedirect;
+    }
+
+    /**
+     * getter of show response header field
+     *
+     * @return state of showing response header field
+     */
+    public boolean isShowResponseHeader() {
+        return showResponseHeader;
+    }
+
+    /**
+     * setter of show response header field
+     *
+     * @param showResponseHeader state of showing response header field
+     */
+    public void setShowResponseHeader(boolean showResponseHeader) {
+        this.showResponseHeader = showResponseHeader;
     }
 
     /**
@@ -241,11 +288,17 @@ public class HttpRequest {
      */
     public void establishConnection() {
 
+        allowMethods("PATCH");
+
         try {
 
             connection = (HttpURLConnection) this.url.openConnection();
 
             connection.setRequestMethod(method);
+
+            if(isFollowRedirect()) {
+                connection.setInstanceFollowRedirects(true);
+            }
 
             for (Map.Entry<String, String> entry : httpHeader.entrySet()) {
 
@@ -282,12 +335,31 @@ public class HttpRequest {
             }
 
             // maximum time for connection
-            connection.setConnectTimeout(10000);
+            connection.setConnectTimeout(5000);
             // Maximum time for reading
-            connection.setReadTimeout(10000);
+            connection.setReadTimeout(5000);
 
             // response code of this request
             int status = connection.getResponseCode();
+
+            if(isFollowRedirect()
+                && (status == HttpURLConnection.HTTP_MOVED_TEMP
+                    || status == HttpURLConnection.HTTP_MOVED_PERM
+                        || status == HttpURLConnection.HTTP_SEE_OTHER)) {
+
+                String newUrl = connection.getHeaderField("Location");
+
+                connection = (HttpURLConnection) new URL(newUrl).openConnection();
+
+                for (Map.Entry<String, String> entry : httpHeader.entrySet()) {
+
+                    connection.setRequestProperty(entry.getKey(), entry.getValue());
+
+                }
+
+                System.out.println("Redirect to This URL : " + newUrl);
+
+            }
 
             // determine inputStream of this
             InputStream in = null;
@@ -316,17 +388,20 @@ public class HttpRequest {
 
             responseBody = stringBuffer.toString();
 
-            System.out.println();
-
+            System.out.println("Response Message : \n");
             System.out.println(stringBuffer.toString());
             System.out.println();
-            System.out.println("response code : " + connection.getResponseCode());
-            for (Map.Entry<String, List<String>> entry : connection.getHeaderFields().entrySet()) {
-                System.out.println(entry.getKey() + " : " + entry.getValue());
+
+            if(isShowResponseHeader()) {
+
+                for (Map.Entry<String, List<String>> entry : connection.getHeaderFields().entrySet()) {
+                    System.out.println((entry.getKey() != null ? entry.getKey() + " : " : "") + entry.getValue());
+                }
+                System.out.println("request method : " + connection.getRequestMethod());
+                System.out.println("using proxy : " + connection.usingProxy());
+                System.out.println();
+
             }
-            System.out.println("request method : " + connection.getRequestMethod());
-            System.out.println("message : " + connection.getResponseMessage());
-            System.out.println(connection.usingProxy());
 
             connection.disconnect();
 
@@ -336,5 +411,34 @@ public class HttpRequest {
             e.printStackTrace();
         }
 
+    }
+
+
+    /**
+     * This method copied from stackoverflow
+     * this method use reflection tools to add expected REST API
+     * method to supported method of HttpUrlConnection Array
+     *
+     * @param methods expected Http Methods
+     */
+    private void allowMethods(String... methods) {
+        try {
+            Field methodsField = HttpURLConnection.class.getDeclaredField("methods");
+
+            Field modifiersField = Field.class.getDeclaredField("modifiers");
+            modifiersField.setAccessible(true);
+            modifiersField.setInt(methodsField, methodsField.getModifiers() & ~Modifier.FINAL);
+
+            methodsField.setAccessible(true);
+
+            String[] oldMethods = (String[]) methodsField.get(null);
+            Set<String> methodsSet = new LinkedHashSet<>(Arrays.asList(oldMethods));
+            methodsSet.addAll(Arrays.asList(methods));
+            String[] newMethods = methodsSet.toArray(new String[0]);
+
+            methodsField.set(null/*static field*/, newMethods);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }
