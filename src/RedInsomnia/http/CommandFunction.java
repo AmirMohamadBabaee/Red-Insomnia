@@ -5,7 +5,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,9 +21,12 @@ import java.util.Map;
 public class CommandFunction {
 
     private final String RESPONSE_DIR = "./response/";
+    private final String REQUEST_DIR = "./request/";
     private HttpRequest httpRequest;
     private String fileName = "";
     private boolean outputCalled;
+    private boolean saveCalled;
+    private List<HttpRequest> savedRequestList;
 
 
     public void jurlOperation(String url) {
@@ -71,23 +76,6 @@ public class CommandFunction {
 
     }
 
-    private void outputWriterOperation() {
-
-        try(ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(RESPONSE_DIR + fileName))) {
-
-            out.writeBytes(httpRequest.getResponseBody());
-            System.out.println("Successfully saved in file \"" + fileName + "\"");
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            httpRequest.setRequestEnable(false);
-        } catch (IOException e) {
-            e.printStackTrace();
-            httpRequest.setRequestEnable(false);
-        }
-
-    }
-
     public void dataOperation(String data) {
 
         for (Map.Entry<String, String> entry : splitDatas(data).entrySet()) {
@@ -133,13 +121,47 @@ public class CommandFunction {
 
     public void listOperation() {
 
+        if(showSavedRequest()) {
 
+            for(int i = 0 ; i < savedRequestList.size() ; i++) {
+
+                System.out.println("[ " + (i+1) + " ] " + savedRequestList.get(i).toString());
+
+            }
+
+        }
+
+        System.exit(0);
+
+    }
+
+    public void fireOperation(String args) {
+
+        if(showSavedRequest()) {
+
+            List<Integer> index = identifyRequestIndex(args);
+
+            for (Integer i : index) {
+
+                httpRequest = savedRequestList.get(i);
+                if(httpRequest.isRequestEnable()) {
+                    httpRequest.establishConnection();
+                }
+
+            }
+
+        }
+
+        System.exit(0);
 
     }
 
     public void saveOperation() {
 
+        boolean isSuccessful = new File(REQUEST_DIR).mkdirs();
+        System.out.println("Created request Directory : " + isSuccessful);
 
+        saveCalled = true;
 
     }
 
@@ -167,6 +189,26 @@ public class CommandFunction {
 
     }
 
+    public void startConnection() {
+
+        if(httpRequest.isRequestEnable()) {
+
+            if(saveCalled) {
+
+                saveRequest();
+
+            }
+            httpRequest.establishConnection();
+            if(outputCalled) {
+
+                outputWriterOperation();
+                outputCalled = false;
+
+            }
+        }
+
+    }
+
 
 
     private Map<String, String> splitHeaders(String h) {
@@ -188,7 +230,7 @@ public class CommandFunction {
     }
 
 
-    public Map<String, String> splitDatas(String d) {
+    private Map<String, String> splitDatas(String d) {
 
         Map<String, String> datas = new HashMap<>();
 
@@ -208,17 +250,102 @@ public class CommandFunction {
     }
 
 
-    public void startConnection() {
+    private void outputWriterOperation() {
 
-        if(httpRequest.isRequestEnable()) {
-            httpRequest.establishConnection();
-            if(outputCalled) {
+        try(ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(RESPONSE_DIR + fileName))) {
 
-                outputWriterOperation();
-                outputCalled = false;
+            out.writeBytes(httpRequest.getResponseBody());
+            System.out.println("Successfully saved in file \"" + fileName + "\"");
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            httpRequest.setRequestEnable(false);
+        } catch (IOException e) {
+            e.printStackTrace();
+            httpRequest.setRequestEnable(false);
+        }
+
+    }
+
+
+    private void saveRequest() {
+
+        String fileName = "request_[" + System.currentTimeMillis() + "].bin";
+
+        try(ObjectOutputStream out = new ObjectOutputStream(
+                new FileOutputStream(REQUEST_DIR + fileName))) {
+
+            out.writeObject(httpRequest);
+            System.out.println("Successfully saved in file \"" + fileName + "\"");
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            httpRequest.setRequestEnable(false);
+        } catch (IOException e) {
+            e.printStackTrace();
+            httpRequest.setRequestEnable(false);
+        }
+
+    }
+
+    private boolean showSavedRequest() {
+
+        List<HttpRequest> requestList = new ArrayList<>();
+
+        File[] requestFile = new File(REQUEST_DIR).listFiles();
+
+        assert requestFile != null;
+        for (File file : requestFile) {
+
+            if(file.isFile()) {
+
+                try(ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
+
+                    requestList.add((HttpRequest)in.readObject());
+
+                } catch (FileNotFoundException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                    return false;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return false;
+                }
 
             }
+
         }
+
+        this.savedRequestList = requestList;
+        return true;
+
+    }
+
+
+    private List<Integer> identifyRequestIndex(String indexesStr) {
+
+        String[] str = indexesStr.split(" ");
+        List<Integer> index = new ArrayList<>();
+
+        try{
+
+            for (String s : str) {
+
+                int temp = Integer.parseInt(s) - 1;
+                if(temp >= 0 && temp < savedRequestList.size()) {
+
+                    index.add(temp);
+
+                } else {
+                    throw new NumberFormatException("This number is not valid index!!!");
+                }
+
+            }
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+
+        return index;
 
     }
 
