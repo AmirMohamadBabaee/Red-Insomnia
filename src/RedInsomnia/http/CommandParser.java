@@ -103,8 +103,6 @@ public class CommandParser {
         String test = command.replaceAll("--", "%%%%");
         test = test.replaceAll(" -", "@@@@");
 
-        System.out.println(test);
-
         Pattern p = Pattern.compile("%%%%");
         Matcher m = p.matcher(test);
 
@@ -116,7 +114,6 @@ public class CommandParser {
                     continue;
                 }
                 System.out.println("jurl : Your entered Command was INCORRECT! try \"jurl -h\" or \"jurl --help\" for more information");
-                System.out.println("here");
                 return false;
 
             }
@@ -134,7 +131,6 @@ public class CommandParser {
                     continue;
                 }
                 System.out.println("jurl : Your entered Command was INCORRECT! try \"jurl -h\" or \"jurl --help\" for more information");
-                System.out.println("there");
                 return false;
 
             }
@@ -157,40 +153,45 @@ public class CommandParser {
 
     private void callOperation(String args) {
 
-        if(args.startsWith("method")) {
+        if(args.startsWith("method ")) {
 
             args = args.replace("method", "").trim();
             commandFunction.methodOperation(args);
 
-        } else if(args.startsWith("M")) {
+        } else if(args.startsWith("M ")) {
 
             args = args.replace("M", "").trim();
             commandFunction.methodOperation(args);
 
-        } else if(args.startsWith("headers")) {
+        } else if(args.startsWith("headers ")) {
 
             args = args.replace("headers", "").trim();
             commandFunction.headersOperation(args);
 
-        } else if(args.startsWith("H")) {
+        } else if(args.startsWith("H ")) {
 
             args = args.replace("H", "").trim();
             commandFunction.headersOperation(args);
 
-        } else if(args.startsWith("data")) {
+        } else if(args.startsWith("data ")) {
 
             args = args.replace("data", "").trim();
             commandFunction.dataOperation(args);
 
-        } else if(args.startsWith("d")) {
+        } else if(args.startsWith("d ")) {
 
             args = args.replace("d", "").trim();
             commandFunction.dataOperation(args);
 
-        } else if(args.startsWith("jurl")) { // todo : "jurl list" and "jurl fire" must locate upper than "jurl"
+        } else if(args.startsWith("jurl list")) {
 
-            args = args.replace("jurl", "").trim();
-            commandFunction.jurlOperation(args);
+            args = args.replace("jurl list", "").trim();
+            commandFunction.listOperation();
+
+        } else if(args.startsWith("jurl fire")) {
+
+            args = args.replace("jurl fire", "").trim();
+            commandFunction.fireOperation(args);
 
         } else if(args.startsWith("output")) {
 
@@ -202,12 +203,12 @@ public class CommandParser {
             args = args.replace("O", "").trim();
             commandFunction.outputOperation(args);
 
-        } else if(args.startsWith("json")) {
+        } else if(args.startsWith("json ")) {
 
             args = args.replace("json", "").trim();
             commandFunction.jsonOperation(args);
 
-        } else if(args.startsWith("j")) {
+        } else if(args.startsWith("j ")) {
 
             args = args.replace("j", "").trim();
             commandFunction.jsonOperation(args);
@@ -221,6 +222,21 @@ public class CommandParser {
 
             args = args.replace("i", "").trim();
             commandFunction.showResponseHeaderOperation();
+
+        } else if(args.startsWith("S")) {
+
+            args = args.replace("S", "").trim();
+            commandFunction.saveOperation();
+
+        } else if(args.startsWith("save")) {
+
+            args = args.replace("save", "").trim();
+            commandFunction.saveOperation();
+
+        } else if(args.startsWith("jurl ")) {
+
+            args = args.replace("jurl ", "").trim();
+            commandFunction.jurlOperation(args);
 
         }
 
