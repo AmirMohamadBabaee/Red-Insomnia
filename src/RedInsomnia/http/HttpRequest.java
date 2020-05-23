@@ -22,8 +22,9 @@ import java.util.*;
  *
  * @see java.net.HttpURLConnection;
  */
-public class HttpRequest {
+public class HttpRequest implements Serializable{
 
+    private static final long serialVersionUID = 1733656072692649962L;
     private boolean requestEnable;
     private URL url;
     private String method = "GET";
@@ -417,7 +418,7 @@ public class HttpRequest {
     /**
      * This method copied from stackoverflow
      * this method use reflection tools to add expected REST API
-     * method to supported method of HttpUrlConnection Array
+     * method to supported method array of HttpUrlConnection
      *
      * @param methods expected Http Methods
      */
@@ -440,5 +441,21 @@ public class HttpRequest {
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    @Override
+    public String toString() {
+
+        String headersStr = "";
+
+        for (Map.Entry<String, String> entry : getHttpHeader().entrySet()) {
+
+            headersStr += "(" + entry.getKey() + " : " + entry.getValue() + ") ";
+
+        }
+
+        return "URL: " + url.toString() + " | "
+                + "Method: " + getMethod() + " | "
+                + "Headers: " + headersStr;
     }
 }
