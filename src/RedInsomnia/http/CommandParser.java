@@ -238,6 +238,11 @@ public class CommandParser {
             args = args.replace("jurl ", "").trim();
             commandFunction.jurlOperation(args);
 
+        } else if(args.startsWith("upload")) {
+
+            args = args.replace("upload", "").trim();
+            commandFunction.uploadOperation(args);
+
         }
 
     }
