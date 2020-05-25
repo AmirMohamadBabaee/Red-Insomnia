@@ -38,6 +38,7 @@ public class HttpRequest implements Serializable{
             "GET", "POST", "PUT", "PATCH", "DELETE"
     };
     private String responseBody;
+    private File uploadedFile;
 
 
     public HttpRequest(String url, String method) {
@@ -245,6 +246,24 @@ public class HttpRequest implements Serializable{
     }
 
     /**
+     * getter of uploaded file
+     *
+     * @return uploaded file
+     */
+    public File getUploadedFile() {
+        return uploadedFile;
+    }
+
+    /**
+     * setter of uploaded file
+     *
+     * @param uploadedFile uploaded file
+     */
+    public void setUploadedFile(File uploadedFile) {
+        this.uploadedFile = uploadedFile;
+    }
+
+    /**
      * add a new http header to map of this http request
      *
      * @param key name of this header
@@ -289,6 +308,8 @@ public class HttpRequest implements Serializable{
      */
     public void establishConnection() {
 
+        boolean headersAlreadySet = false;
+
         allowMethods("PATCH");
 
         try {
@@ -301,9 +322,46 @@ public class HttpRequest implements Serializable{
                 connection.setInstanceFollowRedirects(true);
             }
 
-            for (Map.Entry<String, String> entry : httpHeader.entrySet()) {
+            if(!method.equals("GET")) {
 
-                connection.setRequestProperty(entry.getKey(), entry.getValue());
+                connection.setDoOutput(true);
+
+                if(uploadedFile != null && httpData.isEmpty()) {
+
+                    connection.setRequestProperty("Content-Type", "application/octet-stream");
+                    for (Map.Entry<String, String> entry : httpHeader.entrySet()) {
+
+                        connection.setRequestProperty(entry.getKey(), entry.getValue());
+
+                    }
+
+                    try(BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(connection.getOutputStream())) {
+
+                        BufferedInputStream fileInputStream = new BufferedInputStream(new FileInputStream(uploadedFile));
+                        bufferedOutputStream.write(fileInputStream.read());
+                        bufferedOutputStream.flush();
+
+                    }
+
+                    headersAlreadySet = true;
+
+                } else if(uploadedFile != null){
+
+                    System.out.println("jurl : You can't add form data file and binary file simultaneously!!!");
+                    this.setRequestEnable(false);
+                    return;
+
+                }
+
+            }
+
+            if(!headersAlreadySet) {
+
+                for (Map.Entry<String, String> entry : httpHeader.entrySet()) {
+
+                    connection.setRequestProperty(entry.getKey(), entry.getValue());
+
+                }
 
             }
 
@@ -313,9 +371,7 @@ public class HttpRequest implements Serializable{
 
             }
 
-            if(!method.equals("GET")) {
-
-                connection.setDoOutput(true);
+            if(!method.equals("GET") && !method.equals("DELETE")) { // these two method has not any body!!!
 
                 try(DataOutputStream out = new DataOutputStream(connection.getOutputStream())) {
 
@@ -378,19 +434,19 @@ public class HttpRequest implements Serializable{
             BufferedReader buffer = new BufferedReader(new InputStreamReader(in));
 
             String line = null;
-            StringBuffer stringBuffer = new StringBuffer();
+            StringBuilder stringBuilder = new StringBuilder();
 
             while ((line = buffer.readLine()) != null) {
 
-                stringBuffer.append(line);
-                stringBuffer.append("\n");
+                stringBuilder.append(line);
+                stringBuilder.append("\n");
 
             }
 
-            responseBody = stringBuffer.toString();
+            responseBody = stringBuilder.toString();
 
             System.out.println("Response Message : \n");
-            System.out.println(stringBuffer.toString());
+            System.out.println(stringBuilder.toString());
             System.out.println();
 
             if(isShowResponseHeader()) {
