@@ -164,7 +164,68 @@ public class CommandFunction {
 
     public void helpOperation() {
 
+        String jurl = "\n" +
+                "                     /$$   /$$ /$$$$$$$  /$$      \n" +
+                "                    | $$  | $$| $$__  $$| $$      \n" +
+                "                 /$$| $$  | $$| $$  \\ $$| $$      \n" +
+                "                |__/| $$  | $$| $$$$$$$/| $$      \n" +
+                "                 /$$| $$  | $$| $$__  $$| $$      \n" +
+                "                | $$| $$  | $$| $$  \\ $$| $$      \n" +
+                "                | $$|  $$$$$$/| $$  | $$| $$$$$$$$\n" +
+                "                | $$ \\______/ |__/  |__/|________/\n" +
+                "           /$$  | $$                              \n" +
+                "          |  $$$$$$/                              \n" +
+                "           \\______/                               \n" +
+                "\n";
 
+        jurl += "NAME\n" +
+                "\tjurl - command line tool to make HTTP request\n" +
+                "SYNOPSIS\n" +
+                "\tjurl [ url ] [ options ]\n" +
+                "DESCRIPTION\n" +
+                "\tjurl is a command line tool to make HTTP request and transfer data\n" +
+                "\tbetween client and server. this tool, only support HTTP protocol.\n" +
+                "\tthis tool, is a project to simulate environment such as curl command\n" +
+                "\tline tool. but this version is so weaker than curl. so if you need \n" +
+                "\tmore powerful tool, curl is the best choice.\n" +
+                "URL\n" +
+                "\tin this tool your entered url should start with http:// or https:// \n" +
+                "\tto be valid in jurl. also, your entered url should be exactly after \n" +
+                "\tjurl command, in other states, it's possible to make a error message\n" +
+                "\tor disorder in tool. example of valid URL :\n" +
+                "\n\t    http://example.com\n" +
+                "\t    https://example.com\n\n" +
+                "OPTIONS\n" +
+                "\tOptions start with one or two dashes. Many of the options require\n" +
+                "\tadditional value next to them.\n" +
+                "\tThe short \"single-dash\" form of the options, -d for example, \n" +
+                "\tmay be used with or without a space between it and its value, \n" +
+                "\ta space is a recommended separator. The long \"double-dash\" \n" +
+                "\tform, -d, --data for example, requires a space between it and its \n" +
+                "\tvalue. \n\n" +
+                "\t-M, --method < method name>\n\n" +
+                "\t\t(HTTP) Specifies a custom request method to use when \n" +
+                "\t\tcommunicating with the HTTP server. The specified request \n" +
+                "\t\tmethod will be used instead of the method otherwise used \n" +
+                "\t\t(which defaults to GET). Read the HTTP 1.1 specification \n" +
+                "\t\tfor details and explanations.\n" +
+                "\t\tthis tool support [ GET, POST, PUT, PATCH, DELETE ] request \n" +
+                "\t\tmethod. Also this command is not case sensitive. You can\n" +
+                "\t\tenter your expected method in lowercase form. Example of \n" +
+                "\t\tvalid method command : \n\n" +
+                "\t\t    jurl http://example.com/ -M POST\n" +
+                "\t\t    jurl http://example.com/ -method post\n\n" +
+                "\t-H, -headers < headers >\n\n" +
+                "\t\t(HTTP) Extra header to include in the request when sending \n" +
+                "\t\tHTTP to a server. You may specify any number of extra headers.\n" +
+                "\t\tYour entered headers should be in a double quote and be in\n" +
+                "\t\tkey-value form. in this form, each key-value separate with\n" +
+                "\t\tsemicolon(;). Also key and value should be colon separated.\n" +
+                "\t\tExample of a valid headers tag : \n\n" +
+                "\t\t    jurl http://example.com/ -H \" key1 : value1 ; key2 : value2 ; key3 : value3\"\n" +
+                "\t\t    jurl http://example.com/ --headers \" key1 : value1 ; key2 : value2 ; key3 : value3\"\n\n";
+        System.out.println(jurl);
+        System.exit(0);
 
     }
 
