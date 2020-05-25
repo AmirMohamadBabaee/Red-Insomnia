@@ -78,9 +78,6 @@ public class CommandFunction {
 
     public void dataOperation(String data) {
 
-        for (Map.Entry<String, String> entry : splitDatas(data).entrySet()) {
-            System.out.println(entry.getKey() + " : " + entry.getValue());
-        }
         httpRequest.setHttpData(splitDatas(data));
 
     }
@@ -171,9 +168,15 @@ public class CommandFunction {
 
     }
 
-    public void uploadOperation() {
+    public void uploadOperation(String filePath) {
 
+        File uploadFile = new File(filePath);
 
+        if(uploadFile.isFile()) {
+
+            httpRequest.setUploadedFile(uploadFile);
+
+        }
 
     }
 
