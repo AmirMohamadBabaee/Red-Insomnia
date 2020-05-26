@@ -111,6 +111,7 @@ public class CommandFunction {
 
             System.out.println("jurl : your entered JSON string is not valid!!!");
             httpRequest.setRequestEnable(false);
+            System.exit(0);
 
         }
 
@@ -123,6 +124,12 @@ public class CommandFunction {
             for(int i = 0 ; i < savedRequestList.size() ; i++) {
 
                 System.out.println("[ " + (i+1) + " ] " + savedRequestList.get(i).toString());
+
+            }
+
+            if(savedRequestList.isEmpty()) {
+
+                System.err.println("There is no saved http request to show!!!");
 
             }
 
@@ -203,7 +210,7 @@ public class CommandFunction {
                 "\ta space is a recommended separator. The long \"double-dash\" \n" +
                 "\tform, -d, --data for example, requires a space between it and its \n" +
                 "\tvalue. \n\n" +
-                "\t-M, --method < method name>\n\n" +
+                "\t-M, --method < method name>\n" +
                 "\t\t(HTTP) Specifies a custom request method to use when \n" +
                 "\t\tcommunicating with the HTTP server. The specified request \n" +
                 "\t\tmethod will be used instead of the method otherwise used \n" +
@@ -215,7 +222,7 @@ public class CommandFunction {
                 "\t\tvalid method command : \n\n" +
                 "\t\t    jurl http://example.com/ -M POST\n" +
                 "\t\t    jurl http://example.com/ -method post\n\n" +
-                "\t-H, --headers < headers >\n\n" +
+                "\t-H, --headers < headers >\n" +
                 "\t\t(HTTP) Extra header to include in the request when sending \n" +
                 "\t\tHTTP to a server. You may specify any number of extra headers.\n" +
                 "\t\tYour entered headers should be in a double quote and be in\n" +
@@ -223,7 +230,71 @@ public class CommandFunction {
                 "\t\tsemicolon(;). Also key and value should be colon separated.\n" +
                 "\t\tExample of a valid headers tag : \n\n" +
                 "\t\t    jurl http://example.com/ -H \" key1 : value1 ; key2 : value2 ; key3 : value3\"\n" +
-                "\t\t    jurl http://example.com/ --headers \" key1 : value1 ; key2 : value2 ; key3 : value3\"\n\n";
+                "\t\t    jurl http://example.com/ --headers \" key1 : value1 ; key2 : value2 ; key3 : value3\"\n\n" +
+                "\t-d, --data < form data >\n" +
+                "\t\t(HTTP) This option is for sending form data to expected server.\n" +
+                "\t\tYour entered data should be separated with ampersand(&). This\n" +
+                "\t\tpart should be as key-value form too, but in this tag, your \n" +
+                "\t\tkey-value should be separated with '='. Also your entered \n" +
+                "\t\tform data must be in double quotation marks. Example of valid\n" +
+                "\t\tdata tag :\n\n" +
+                "\t\t    jurl http://example.com/ -d \" key1 = value1 & key2 = value2 & key3 = value3\"\n" +
+                "\t\t    jurl http://example.com/ --data \" key1 = value1 & key2 = value2 & key3 = value3 \"\n\n" +
+                "\t-O, --output < file name >\n" +
+                "\t\t(HTTP)This option, can save response body of a http request in \n" +
+                "\t\ta file in response directory. Argument of this tag is optional.\n" +
+                "\t\tIf you add a name for your expected response, file name will be\n" +
+                "\t\tit, else jurl automatically generate new name and save it in response\n" +
+                "\t\tdirectory. If you want to add a name for this response body file,\n" +
+                "\t\tNote that you should choose expected extension for your file else\n" +
+                "\t\tjurl save this request without any extesion. also generally commands \n" +
+                "\t\twith no arguments, saved in '.txt' file format. So if type of file is \n" +
+                "\t\timportant for you, it is better to explicitly choose your expected \n" +
+                "\t\tfile format in file name. Example of valid output tag :\n\n" +
+                "\t\t    jurl http://example.com/ -O \n" +
+                "\t\t    jurl http://example.com/ --output example.html\n\n" +
+                "\t--upload < file path >\n" +
+                "\t\t(HTTP) This option, can load a binary file from your system and\n" +
+                "\t\tsend it through with http request. Argument of this option is \n" +
+                "\t\tabsolute file path. this tag automatically add new header to \n" +
+                "\t\tidentify content-type and set it as 'application/octet-stream'.\n" +
+                "\t\tExample of valid upload tag : \n\n" +
+                "\t\t    jurl http://example.com/ --upload /home/myfiles/text.txt\n\n" +
+                "\t-f\n" +
+                "\t\t(HTTP) This option, enable follow redirect in this http request.\n" +
+                "\t\tThis option don't accept any argument and its location not matter\n" +
+                "\t\tAlthough it must be after url! \n\n" +
+                "\t-i\n" +
+                "\t\tThis option determine response header shown or not. If you use \n" +
+                "\t\tthis tag, response header will be shown else jurl will discard \n" +
+                "\t\tthem.\n\n" +
+                "\t-S, --save\n" +
+                "\t\t(HTTP) This option, save expected http request with all properties\n" +
+                "\t\tin request directory. These http request saved in binary form and \n" +
+                "\t\tdon't change it. extension of these file is '.bin'.\n" +
+                "\t\tYou can access to your saved http request, with 'jurl list' command.\n" +
+                "\t--help\n" +
+                "\t\tThis command, show this manual page and you can use it when you\n" +
+                "\t\twere confused about jurl. Keep in you mind best tutorial for jurl\n" +
+                "\t\tis jurl man page. :)\n\n" +
+                "OTHER COMMANDS\n" +
+                "\tlist\n" +
+                "\t\tYou can use this command to access to your saved http reqeust in\n" +
+                "\t\trequest directory. Note that this command don't need any arguments or\n" +
+                "\t\tadding url for jurl. this command is exactly without url. so don't\n" +
+                "\t\tuse this command with entering any url.\n" +
+                "\t\tAlso this command list all of the saved http request with row number\n" +
+                "\t\tand you can select them with 'jurl fire' command. Example of valid \n" +
+                "\t\tlist command : \n\n" +
+                "\t\t    jurl list\n\n" +
+                "\tfire < row number of listed http requests >\n" +
+                "\t\tYou can use 'jurl list' command, at first. then, use this command\n" +
+                "\t\tto select your expected saved http request. In this command you can \n" +
+                "\t\tenter more than one row to be fired. in this state, these http request\n" +
+                "\t\twill establish in entered order of row number.\n" +
+                "\t\tIt's good practice to use this command with 'jurl list'.\n" +
+                "\t\tExample of valid fire command : \n\n" +
+                "\t\t    jurl fire 2 4 5\n";
         System.out.println(jurl);
         System.exit(0);
 
@@ -406,7 +477,7 @@ public class CommandFunction {
             }
 
         } catch (NumberFormatException e) {
-            e.printStackTrace();
+            System.err.println("There is no item with this index!!!");
         }
 
         return index;
