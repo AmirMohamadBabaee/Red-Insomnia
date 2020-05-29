@@ -6,7 +6,6 @@ import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -15,7 +14,7 @@ import java.util.*;
  * This class receive necessary data and make a connection
  * to specified URL. also this class to establish this
  * connection use HttpURLConnection. since this class
- * can't support PATCH method, I have to use other classes
+ * can't support PATCH method, I have to use Reflection
  *
  * @author Amir01
  * @version
@@ -41,6 +40,12 @@ public class HttpRequest implements Serializable{
     private File uploadedFile;
 
 
+    /**
+     * Constructor of HttpRequest class
+     *
+     * @param url expected url
+     * @param method expected method
+     */
     public HttpRequest(String url, String method) {
 
         try {
@@ -284,7 +289,7 @@ public class HttpRequest implements Serializable{
      * @return perpared string to be transfered
      * @throws UnsupportedEncodingException
      *
-     * @see <a href="https://www.baeldung.com/java-http-request">Baeldung.com</>
+     * @see <a href="https://www.baeldung.com/java-http-request">Baeldung.com</a>
      */
     private static String getParamsString(Map<String, String> params)
             throws UnsupportedEncodingException{
@@ -500,6 +505,7 @@ public class HttpRequest implements Serializable{
      * This method copied from stackoverflow
      * this method use reflection tools to add expected REST API
      * method to supported method array of HttpUrlConnection
+     * <a href="https://stackoverflow.com/questions/25163131/httpurlconnection-invalid-http-method-patch">StackOverFlow</a>
      *
      * @param methods expected Http Methods
      */
@@ -524,6 +530,11 @@ public class HttpRequest implements Serializable{
         }
     }
 
+    /**
+     * override toString method to show object in string form
+     *
+     * @return string form of this object
+     */
     @Override
     public String toString() {
 
