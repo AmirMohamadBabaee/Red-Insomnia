@@ -17,7 +17,11 @@ public class CommandParser {
     private String[] validCommand;
     private String[] commands;
 
-
+    /**
+     * Constructor of CommandParser class
+     *
+     * @param enteredCommand entered command
+     */
     public CommandParser(String enteredCommand) {
 
         commandFunction = new CommandFunction();
@@ -44,6 +48,11 @@ public class CommandParser {
     }
 
 
+    /**
+     * this method split command to each commands
+     *
+     * @param enteredCommand entered command
+     */
     private void splitCommand(String enteredCommand) {
 
         Pattern pattern = Pattern.compile(" -{1,2}");
@@ -52,6 +61,12 @@ public class CommandParser {
     }
 
 
+    /**
+     * this method check command argument is correct and if it will
+     * be correct, pass it to callOperation method
+     *
+     * @return true if arguments be valid else false
+     */
     private boolean commandCaller() {
 
         for (String command : commands) {
@@ -76,6 +91,12 @@ public class CommandParser {
     }
 
 
+    /**
+     * this method check each argument is correct or not
+     *
+     * @param args split command
+     * @return true if be valid else false
+     */
     private boolean isValidArgument(String args) {
 
         for (String command : validCommand) {
@@ -91,6 +112,12 @@ public class CommandParser {
     }
 
 
+    /**
+     * this method check a whole command is correct and valid or not.
+     *
+     * @param command entered command
+     * @return true if be valid else false
+     */
     private boolean isValidCommand(String command) {
 
         if(!command.startsWith("jurl ")) {
@@ -157,6 +184,11 @@ public class CommandParser {
     }
 
 
+    /**
+     * this method call operation of specific command
+     *
+     * @param args command with arguments
+     */
     private void callOperation(String args) {
 
         if(args.startsWith("method ")) {
