@@ -88,3 +88,5 @@ fabric.properties
 
 # Edited by Amir01
 data
+./request
+./response

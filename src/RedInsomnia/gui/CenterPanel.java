@@ -595,10 +595,10 @@ public class CenterPanel extends JPanel{
 
         try {
 
-            File settingImage = new File(currentDir + "\\setting_icon_normal.png");
+            File settingImage = new File(currentDir + "\\resource\\setting_icon_normal.png");
             if(settingImage.exists()) {
 
-                ImageIcon settingIcon = new ImageIcon(currentDir + "\\setting_icon_normal.png");
+                ImageIcon settingIcon = new ImageIcon(currentDir + "\\resource\\setting_icon_normal.png");
                 settingButton.setIcon(settingIcon);
 
             } else {
@@ -631,10 +631,10 @@ public class CenterPanel extends JPanel{
 
                 try {
 
-                    File settingImage = new File(currentDir + "\\setting_icon_white.png");
+                    File settingImage = new File(currentDir + "\\resource\\setting_icon_white.png");
                     if(settingImage.exists()) {
 
-                        ImageIcon settingIcon = new ImageIcon(currentDir + "\\setting_icon_white.png");
+                        ImageIcon settingIcon = new ImageIcon(currentDir + "\\resource\\setting_icon_white.png");
                         settingButton.setIcon(settingIcon);
 
                     } else {
@@ -652,10 +652,10 @@ public class CenterPanel extends JPanel{
 
                 try {
 
-                    File settingImage = new File(currentDir + "\\setting_icon_normal.png");
+                    File settingImage = new File(currentDir + "\\resource\\setting_icon_normal.png");
                     if(settingImage.exists()) {
 
-                        ImageIcon settingIcon = new ImageIcon(currentDir + "\\setting_icon_normal.png");
+                        ImageIcon settingIcon = new ImageIcon(currentDir + "\\resource\\setting_icon_normal.png");
                         settingButton.setIcon(settingIcon);
 
                     } else {
@@ -871,10 +871,10 @@ public class CenterPanel extends JPanel{
         trashButton.setContentAreaFilled(false);
         trashButton.setOpaque(true);
         try{
-            File trashImage = new File(currentDir + "\\trash_icon_normal.png");
+            File trashImage = new File(currentDir + "\\resource\\trash_icon_normal.png");
             if(trashImage.exists()) {
 
-                ImageIcon trashIcon = new ImageIcon(currentDir + "\\trash_icon_normal.png");
+                ImageIcon trashIcon = new ImageIcon(currentDir + "\\resource\\trash_icon_normal.png");
                 trashButton.setIcon(trashIcon);
 
             } else {
@@ -908,10 +908,10 @@ public class CenterPanel extends JPanel{
             public void mouseEntered(MouseEvent e) {
 
                 try{
-                    File trashImage = new File(currentDir + "\\trash_icon_white.png");
+                    File trashImage = new File(currentDir + "\\resource\\trash_icon_white.png");
                     if(trashImage.exists()) {
 
-                        ImageIcon trashIcon = new ImageIcon(currentDir + "\\trash_icon_white.png");
+                        ImageIcon trashIcon = new ImageIcon(currentDir + "\\resource\\trash_icon_white.png");
                         trashButton.setIcon(trashIcon);
 
                     } else {
@@ -927,10 +927,10 @@ public class CenterPanel extends JPanel{
             public void mouseExited(MouseEvent e) {
 
                 try{
-                    File trashImage = new File(currentDir + "\\trash_icon_normal.png");
+                    File trashImage = new File(currentDir + "\\resource\\trash_icon_normal.png");
                     if(trashImage.exists()) {
 
-                        ImageIcon trashIcon = new ImageIcon(currentDir + "\\trash_icon_normal.png");
+                        ImageIcon trashIcon = new ImageIcon(currentDir + "\\resource\\trash_icon_normal.png");
                         trashButton.setIcon(trashIcon);
 
                     } else {
