@@ -1,9 +1,5 @@
 package RedInsomnia.http;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -84,34 +80,13 @@ public class CommandFunction {
 
     public void jsonOperation(String jsonStr) {
 
-        boolean isJsonArray = true;
-        boolean isJsonObject = true;
+        if(JsonUtility.isJSONValid(jsonStr)) {
 
-        jsonStr = jsonStr.substring(1, jsonStr.length()-1).trim();
+            httpRequest.setJsonStr(JsonUtility.beautifyJson(jsonStr));
 
-        try {
+        } else {
 
-            JSONArray jsonArray = new JSONArray(jsonStr);
-            httpRequest.setJsonStr(jsonStr);
-
-        } catch(JSONException err) {
-            isJsonArray = false;
-        }
-
-        try {
-
-            JSONObject jsonObject = new JSONObject(jsonStr);
-            httpRequest.setJsonStr(jsonStr);
-
-        } catch(JSONException err) {
-            isJsonObject = false;
-        }
-
-        if(!(isJsonArray || isJsonObject)) {
-
-            System.out.println("jurl : your entered JSON string is not valid!!!");
-            httpRequest.setRequestEnable(false);
-            System.exit(0);
+            System.err.println("jurl : Your entered String is not valid JSON!!!");
 
         }
 
@@ -240,6 +215,13 @@ public class CommandFunction {
                 "\t\tdata tag :\n\n" +
                 "\t\t    jurl http://example.com/ -d \" key1 = value1 & key2 = value2 & key3 = value3\"\n" +
                 "\t\t    jurl http://example.com/ --data \" key1 = value1 & key2 = value2 & key3 = value3 \"\n\n" +
+                "\t-j, --json < json text >\n" +
+                "\t\t(HTTP) This option allow you to pass a json string to http reqeust\n" +
+                "\t\tinstead of form data. In this program you can pass at most one of \n" +
+                "\t\tthe data format. Your entered json string most be in double quotation.\n" +
+                "\t\tExample of valid json tag : \n\n" +
+                "\t\t    jurl http://example.com/ -j \" { \"key1\" : \"value1\", \"key2\" : \"value2\", \"key3\" : \"value3\" } \"\n" +
+                "\t\t    jurl http://example.com/ --json \" { \"key1\" : \"value1\", \"key2\" : \"value2\", \"key3\" : \"value3\" } \" \n\n" +
                 "\t-O, --output < file name >\n" +
                 "\t\t(HTTP)This option, can save response body of a http request in \n" +
                 "\t\ta file in response directory. Argument of this tag is optional.\n" +
@@ -273,7 +255,7 @@ public class CommandFunction {
                 "\t\tin request directory. These http request saved in binary form and \n" +
                 "\t\tdon't change it. extension of these file is '.bin'.\n" +
                 "\t\tYou can access to your saved http request, with 'jurl list' command.\n" +
-                "\t--help\n" +
+                "\t-h, --help\n" +
                 "\t\tThis command, show this manual page and you can use it when you\n" +
                 "\t\twere confused about jurl. Keep in you mind best tutorial for jurl\n" +
                 "\t\tis jurl man page. :)\n\n" +
