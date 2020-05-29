@@ -25,24 +25,45 @@ public class CommandFunction {
     private List<HttpRequest> savedRequestList;
 
 
+    /**
+     * this method called to create a new HttpRequest with default
+     * configuration.
+     *
+     * @param url url entered after jurl command
+     */
     public void jurlOperation(String url) {
 
         httpRequest = new HttpRequest(url, "GET");
 
     }
 
+    /**
+     * this method called to change http method of current request
+     *
+     * @param method expected http method
+     */
     public void methodOperation(String method) {
 
         httpRequest.setMethod(method);
 
     }
 
+    /**
+     * this method called to set http header map of current request
+     *
+     * @param head string of headers
+     */
     public void headersOperation(String head) {
 
         httpRequest.setHttpHeader(splitHeaders(head));
 
     }
 
+    /**
+     * this method save response body in response directory
+     *
+     * @param outputName entered file name
+     */
     public void outputOperation(String outputName) {
 
         boolean isSuccessful = new File(RESPONSE_DIR).mkdirs();
@@ -72,12 +93,23 @@ public class CommandFunction {
 
     }
 
+    /**
+     * this method set form data map of current request
+     *
+     * @param data string of form data
+     */
     public void dataOperation(String data) {
 
         httpRequest.setHttpData(splitDatas(data));
 
     }
 
+    /**
+     * this method check an entered json string is valid and
+     * set it for reqeust body in current request
+     *
+     * @param jsonStr entered json string
+     */
     public void jsonOperation(String jsonStr) {
 
         if(JsonUtility.isJSONValid(jsonStr)) {
@@ -92,6 +124,9 @@ public class CommandFunction {
 
     }
 
+    /**
+     * this method print list of saved request in request directory
+     */
     public void listOperation() {
 
         if(showSavedRequest()) {
@@ -114,6 +149,12 @@ public class CommandFunction {
 
     }
 
+    /**
+     * this method take expected requests indexes and
+     * and establish connection of them in entered order
+     *
+     * @param args indexes of requests
+     */
     public void fireOperation(String args) {
 
         if(showSavedRequest()) {
@@ -135,6 +176,9 @@ public class CommandFunction {
 
     }
 
+    /**
+     * this method save a request in request directory
+     */
     public void saveOperation() {
 
         boolean isSuccessful = new File(REQUEST_DIR).mkdirs();
@@ -144,6 +188,9 @@ public class CommandFunction {
 
     }
 
+    /**
+     * this method show help message of jurl program
+     */
     public void helpOperation() {
 
         String jurl = "\n" +
@@ -282,6 +329,11 @@ public class CommandFunction {
 
     }
 
+    /**
+     * this method set a file in current request
+     *
+     * @param filePath absolute path of this file
+     */
     public void uploadOperation(String filePath) {
 
         File uploadFile = new File(filePath);
@@ -294,18 +346,27 @@ public class CommandFunction {
 
     }
 
+    /**
+     * this method enable follow redirect in current request
+     */
     public void followRedirectOperation() {
 
         httpRequest.setFollowRedirect(true);
 
     }
 
+    /**
+     * this method enable showing response header
+     */
     public void showResponseHeaderOperation() {
 
         httpRequest.setShowResponseHeader(true);
 
     }
 
+    /**
+     * this method establish connection of current request
+     */
     public void startConnection() {
 
         if(httpRequest.isRequestEnable()) {
@@ -326,8 +387,12 @@ public class CommandFunction {
 
     }
 
-
-
+    /**
+     * this method convert header string to map
+     *
+     * @param h headers string
+     * @return map of these headers
+     */
     private Map<String, String> splitHeaders(String h) {
 
         Map<String, String> headers = new HashMap<>();
@@ -347,6 +412,12 @@ public class CommandFunction {
     }
 
 
+    /**
+     * this method convert data string to map
+     *
+     * @param d data string
+     * @return map of data
+     */
     private Map<String, String> splitDatas(String d) {
 
         Map<String, String> datas = new HashMap<>();
@@ -367,6 +438,10 @@ public class CommandFunction {
     }
 
 
+    /**
+     * this method complete operation of outputOperation to
+     * write response body to file
+     */
     private void outputWriterOperation() {
 
         try(ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(RESPONSE_DIR + fileName))) {
@@ -385,6 +460,9 @@ public class CommandFunction {
     }
 
 
+    /**
+     * this method complete saveOperation
+     */
     private void saveRequest() {
 
         String fileName = "request_[" + System.currentTimeMillis() + "].bin";
@@ -405,6 +483,11 @@ public class CommandFunction {
 
     }
 
+    /**
+     * this method complete list and fire operation
+     *
+     * @return true if be ok else false
+     */
     private boolean showSavedRequest() {
 
         List<HttpRequest> requestList = new ArrayList<>();
@@ -438,6 +521,12 @@ public class CommandFunction {
     }
 
 
+    /**
+     * this method convert string indexes to list of integers
+     *
+     * @param indexesStr string of indexes
+     * @return Integer list of these indexes
+     */
     private List<Integer> identifyRequestIndex(String indexesStr) {
 
         String[] str = indexesStr.split(" ");
