@@ -1,7 +1,5 @@
 package RedInsomnia.http;
 
-import java.util.Scanner;
-
 /**
  * JURL
  *
@@ -13,8 +11,12 @@ import java.util.Scanner;
 public class JURL {
 
     private CommandParser commandParser;
-    private Scanner scan;
 
+    /**
+     * Constructor of JURL class
+     *
+     * @param args array of program arguments
+     */
     public JURL(String[] args) {
 
         String commandArgs = "";
