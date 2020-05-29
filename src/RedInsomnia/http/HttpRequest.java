@@ -53,6 +53,7 @@ public class HttpRequest implements Serializable{
 
         }catch(MalformedURLException er) {
             er.printStackTrace();
+            setRequestEnable(false);
         }
 
 
@@ -290,12 +291,24 @@ public class HttpRequest implements Serializable{
 
         StringBuilder result = new StringBuilder();
 
-        for (Map.Entry<String, String> entry : params.entrySet()) {
+        // this is form url encoded form of request body
+        /*for (Map.Entry<String, String> entry : params.entrySet()) {
             result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
             result.append("=");
             result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
             result.append("&");
+        }*/
+
+        // this is multipart form of request body
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+
+            result.append("--" + System.currentTimeMillis() + "-X-REDINSOMNIA-BOUNDARY\r\n");
+            result.append("Content-Disposition: form-data; name=\"" + entry.getKey() + "\"\r\n\r\n");
+            result.append(entry.getValue() + "\r\n");
+
         }
+        result.append("--" + System.currentTimeMillis() + "-X-REDINSOMNIA-BOUNDARY\r\n");
+
 
         String resultString = result.toString();
         return resultString.length() > 0
@@ -307,8 +320,6 @@ public class HttpRequest implements Serializable{
      * this method establish a connection on expected URL
      */
     public void establishConnection() {
-
-        boolean headersAlreadySet = false;
 
         allowMethods("PATCH");
 
@@ -326,14 +337,7 @@ public class HttpRequest implements Serializable{
 
                 connection.setDoOutput(true);
 
-                if(uploadedFile != null && httpData.isEmpty()) {
-
-                    connection.setRequestProperty("Content-Type", "application/octet-stream");
-                    for (Map.Entry<String, String> entry : httpHeader.entrySet()) {
-
-                        connection.setRequestProperty(entry.getKey(), entry.getValue());
-
-                    }
+                if(uploadedFile != null && httpData.isEmpty() && jsonStr.isEmpty()) {
 
                     try(BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(connection.getOutputStream())) {
 
@@ -342,8 +346,6 @@ public class HttpRequest implements Serializable{
                         bufferedOutputStream.flush();
 
                     }
-
-                    headersAlreadySet = true;
 
                 } else if(uploadedFile != null){
 
@@ -355,16 +357,29 @@ public class HttpRequest implements Serializable{
 
             }
 
-            if(!headersAlreadySet) {
+            if(!jsonStr.isEmpty() && httpData.isEmpty() && uploadedFile == null) {
 
-                for (Map.Entry<String, String> entry : httpHeader.entrySet()) {
+                connection.setRequestProperty("Content-Type", "application/json; utf-8");
+                connection.setRequestProperty("Accept", "application/json");
 
-                    connection.setRequestProperty(entry.getKey(), entry.getValue());
+            } else if(jsonStr.isEmpty() && !httpData.isEmpty() && uploadedFile == null) {
 
-                }
+                connection.setRequestProperty("Content-Type", "multipart/form-data; utf-8");
+
+            } else if(jsonStr.isEmpty() && httpData.isEmpty() && uploadedFile != null) {
+
+                connection.setRequestProperty("Content-Type", "application/octet-stream");
 
             }
 
+            for (Map.Entry<String, String> entry : httpHeader.entrySet()) {
+
+                connection.setRequestProperty(entry.getKey(), entry.getValue());
+
+            }
+
+
+            System.out.println("Headers : ");
             for (Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {
 
                 System.out.println(entry.getKey() + " : " + entry.getValue());
@@ -375,12 +390,12 @@ public class HttpRequest implements Serializable{
 
                 try(DataOutputStream out = new DataOutputStream(connection.getOutputStream())) {
 
-                    if(!getHttpData().isEmpty()) {
+                    if(!getHttpData().isEmpty() && jsonStr.isEmpty() && uploadedFile == null) {
 
                         out.writeBytes(getParamsString(getHttpData()));
                         out.flush();
 
-                    } else if(!jsonStr.isEmpty()) {
+                    } else if(!jsonStr.isEmpty() && getHttpData().isEmpty() && uploadedFile == null) {
 
                         out.writeBytes(jsonStr);
                         out.flush();
@@ -446,8 +461,18 @@ public class HttpRequest implements Serializable{
             responseBody = stringBuilder.toString();
 
             System.out.println("Response Message : \n");
-            System.out.println(stringBuilder.toString());
-            System.out.println();
+
+            if(JsonUtility.isJSONValid(responseBody)) {
+
+                System.out.println(JsonUtility.beautifyJson(responseBody));
+                System.out.println();
+
+            } else {
+
+                System.out.println(stringBuilder.toString());
+                System.out.println();
+
+            }
 
             if(isShowResponseHeader()) {
 
