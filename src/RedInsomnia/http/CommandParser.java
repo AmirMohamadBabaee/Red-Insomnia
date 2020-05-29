@@ -27,7 +27,7 @@ public class CommandParser {
                 "i", "h", "help", "f", "output",
                 "O", "data ", "d ", "json ", "j " ,
                 "S", "save", "upload ", "jurl list",
-                "jurl "
+                "jurl fire", "jurl"
         };
 
         if(isValidCommand(enteredCommand)) {
@@ -144,6 +144,12 @@ public class CommandParser {
             System.out.println("HTTP GET method doesn't have any data(Request Body)! \nPlease try again with POST method");
             return false;
 
+        } else if((test.contains("%%%%data") || test.contains("@@@@d")) &&
+                (test.toLowerCase().contains("%%%%method delete") || test.toLowerCase().contains("@@@@m delete"))) {
+
+            System.out.println("HTTP DELETE method doesn't have any data(Request Body)! \nPlease try again with POST method");
+            return false;
+
         }
 
         return true;
@@ -193,6 +199,11 @@ public class CommandParser {
             args = args.replace("jurl fire", "").trim();
             commandFunction.fireOperation(args);
 
+        } else if(args.startsWith("jurl ")) {
+
+            args = args.replace("jurl ", "").trim();
+            commandFunction.jurlOperation(args);
+
         } else if(args.startsWith("output")) {
 
             args = args.replace("output", "").trim();
@@ -233,15 +244,20 @@ public class CommandParser {
             args = args.replace("save", "").trim();
             commandFunction.saveOperation();
 
-        } else if(args.startsWith("jurl ")) {
-
-            args = args.replace("jurl ", "").trim();
-            commandFunction.jurlOperation(args);
-
         } else if(args.startsWith("upload")) {
 
             args = args.replace("upload", "").trim();
             commandFunction.uploadOperation(args);
+
+        } else if(args.startsWith("help")) {
+
+            args = args.replace("help", "").trim();
+            commandFunction.helpOperation();
+
+        } else if(args.startsWith("h")) {
+
+            args = args.replace("h", "").trim();
+            commandFunction.helpOperation();
 
         }
 
