@@ -5,7 +5,8 @@ import com.google.gson.*;
 /**
  * JsonUtility
  *
- * this class defined to do operation related to json files
+ * This class defined to do operation related to json files
+ * In this class, I used Gson library to handle json.
  *
  * @author Amir01
  * @version
