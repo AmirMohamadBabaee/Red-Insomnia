@@ -503,6 +503,31 @@ public class CenterPanel extends JPanel{
 
         // end of changes to binary file panel in central panel
 
+        // start of json panel
+
+        jsonPanel.setLayout(new BorderLayout());
+
+        JEditorPane rawPanel = new JEditorPane();
+        rawPanel.setBackground(themes.get(theme).get(6));
+        rawPanel.setForeground(themes.get(theme).get(11));
+        rawPanel.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+        rawPanel.setText("");
+
+
+        TextLineNumber tln = new TextLineNumber(rawPanel);
+        tln.setBorderGap(0);
+        tln.setDigitAlignment(TextLineNumber.CENTER);
+
+
+        JScrollPane rawScroll = new JScrollPane(rawPanel);
+        rawScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        rawScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        rawScroll.setRowHeaderView(tln);
+        rawScroll.setBorder(null);
+
+
+        jsonPanel.add(rawScroll, BorderLayout.CENTER);
+
     }
 
 

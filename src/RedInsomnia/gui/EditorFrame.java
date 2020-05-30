@@ -71,9 +71,14 @@ public class EditorFrame extends JFrame {
             }
         });
 
+        TextLineNumber tln = new TextLineNumber(editorPane);
+        tln.setBorderGap(0);
+        tln.setDigitAlignment(TextLineNumber.CENTER);
+
         JScrollPane scrollPane = new JScrollPane(editorPane);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setRowHeaderView(tln);
         scrollPane.setBounds(10, 10, 780, 400);
         add(scrollPane);
 
