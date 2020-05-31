@@ -1,5 +1,8 @@
 package RedInsomnia.http;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -324,7 +327,7 @@ public class HttpRequest implements Serializable{
     /**
      * this method establish a connection on expected URL
      */
-    public void establishConnection() {
+    public synchronized void establishConnection() {
 
         allowMethods("PATCH");
 
@@ -377,17 +380,31 @@ public class HttpRequest implements Serializable{
 
             }
 
-            for (Map.Entry<String, String> entry : httpHeader.entrySet()) {
+            if(!httpHeader.isEmpty()) {
 
-                connection.setRequestProperty(entry.getKey(), entry.getValue());
+                for (Map.Entry<String, String> entry : httpHeader.entrySet()) {
+
+                    connection.setRequestProperty(entry.getKey(), entry.getValue());
+
+                }
 
             }
 
 
             System.out.println("Headers : ");
-            for (Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {
+            if(!getHttpHeader().isEmpty()) {
 
-                System.out.println(entry.getKey() + " : " + entry.getValue());
+                for (Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {
+
+                    System.out.println(entry.getKey() + " : " + entry.getValue());
+                    System.out.println();
+
+                }
+
+            } else {
+
+                System.out.println("It's Empty!!!");
+                System.out.println();
 
             }
 
@@ -441,7 +458,7 @@ public class HttpRequest implements Serializable{
             // determine inputStream of this
             InputStream in = null;
 
-            if(status > 299) {
+            if(status > 399) {
 
                 in = connection.getErrorStream();
 
@@ -451,6 +468,7 @@ public class HttpRequest implements Serializable{
 
             }
 
+            assert in != null;
             BufferedReader buffer = new BufferedReader(new InputStreamReader(in));
 
             String line = null;
@@ -467,14 +485,30 @@ public class HttpRequest implements Serializable{
 
             System.out.println("Response Message : \n");
 
-            if(JsonUtility.isJSONValid(responseBody)) {
+            if(!responseBody.isEmpty()) {
 
-                System.out.println(JsonUtility.beautifyJson(responseBody));
-                System.out.println();
+                if(JsonUtility.isJSONValid(responseBody)) {
+
+                    System.out.println(JsonUtility.beautifyJson(responseBody));
+                    System.out.println();
+
+                } else if(connection.getHeaderField("Content-Type").contains("text/html")) {
+
+                    Document doc = Jsoup.parseBodyFragment(responseBody);
+                    doc.outputSettings().indentAmount(4);
+                    System.out.println(doc.html());
+                    System.out.println();
+
+                } else {
+
+                    System.out.println(stringBuilder.toString());
+                    System.out.println();
+
+                }
 
             } else {
 
-                System.out.println(stringBuilder.toString());
+                System.out.println("There is no Response!!!");
                 System.out.println();
 
             }
