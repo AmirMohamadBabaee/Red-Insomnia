@@ -55,7 +55,9 @@ public class CommandFunction {
      */
     public void headersOperation(String head) {
 
-        httpRequest.setHttpHeader(splitHeaders(head));
+        if(!head.isEmpty()) {
+            httpRequest.setHttpHeader(splitHeaders(head));
+        }
 
     }
 
@@ -100,7 +102,9 @@ public class CommandFunction {
      */
     public void dataOperation(String data) {
 
-        httpRequest.setHttpData(splitDatas(data));
+        if(!data.isEmpty()) {
+            httpRequest.setHttpData(splitDatas(data));
+        }
 
     }
 
