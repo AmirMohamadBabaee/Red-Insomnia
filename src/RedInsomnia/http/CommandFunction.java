@@ -448,10 +448,19 @@ public class CommandFunction {
      */
     private void outputWriterOperation() {
 
-        try(ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(RESPONSE_DIR + fileName))) {
+        try(DataOutputStream out = new DataOutputStream(new FileOutputStream(RESPONSE_DIR + fileName))) {
 
-            out.writeBytes(httpRequest.getResponseBody());
-            System.out.println("Successfully saved in file \"" + fileName + "\"");
+            if(httpRequest.getImageBytes() == null) {
+
+                out.writeBytes(httpRequest.getResponseBody());
+                System.out.println("Successfully saved in file \"" + fileName + "\"");
+
+            } else {
+
+                out.write(httpRequest.getImageBytes());
+                out.flush();
+
+            }
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
