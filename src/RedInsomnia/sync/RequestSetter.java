@@ -4,14 +4,23 @@ import RedInsomnia.http.CommandFunction;
 
 import java.util.Map;
 
+/**
+ * RequestSetter
+ *
+ * Goal of this class is synchronize RedInsomnia input for
+ * use in jurl functioning
+ *
+ * @author Amir01
+ * @version 
+ */
 public class RequestSetter {
 
-    private String url;
-    private String method;
-    private String header;
-    private String formData;
-    private String jsonData;
-    private String filePath;
+    private String url = "";
+    private String method = "";
+    private String header = "";
+    private String formData = "";
+    private String jsonData = "";
+    private String filePath = "";
     private boolean followRedirect;
     private CommandFunction commandFunction;
 
@@ -66,7 +75,9 @@ public class RequestSetter {
      * @param method expected method
      */
     public void setMethod(String method) {
-        this.method = method;
+        if(!method.isEmpty()) {
+            this.method = method.substring(0, method.length()-1).trim();
+        }
     }
 
     /**
@@ -75,7 +86,9 @@ public class RequestSetter {
      * @param header string of headers
      */
     public void setHeader(String header) {
-        this.header = header;
+        if(!header.isEmpty()) {
+            this.header = header;
+        }
     }
 
     /**
@@ -85,7 +98,9 @@ public class RequestSetter {
      */
     public void setHeader(Map<String, String> header) {
 
-        this.header = convertMapToString(header, ":", ";") ;
+        if(!header.isEmpty()) {
+            this.header = convertMapToString(header, ":", ";");
+        }
 
     }
 
@@ -95,7 +110,9 @@ public class RequestSetter {
      * @param formData string of form data
      */
     public void setFormData(String formData) {
-        this.formData = formData;
+        if(!formData.isEmpty()) {
+            this.formData = formData;
+        }
     }
 
     /**
@@ -105,7 +122,9 @@ public class RequestSetter {
      */
     public void setFormData(Map<String, String> formData) {
 
-        this.formData = convertMapToString(formData, "=", "&");
+        if(!formData.isEmpty()) {
+            this.formData = convertMapToString(formData, "=", "&");
+        }
 
     }
 
@@ -115,7 +134,9 @@ public class RequestSetter {
      * @param jsonData string of json data
      */
     public void setJsonData(String jsonData) {
-        this.jsonData = jsonData;
+        if(!jsonData.isEmpty()) {
+            this.jsonData = jsonData;
+        }
     }
 
     /**
@@ -124,7 +145,9 @@ public class RequestSetter {
      * @param filePath string of file path
      */
     public void setFilePath(String filePath) {
-        this.filePath = filePath;
+        if(!filePath.isEmpty()) {
+            this.filePath = filePath;
+        }
     }
 
     /**
@@ -137,10 +160,45 @@ public class RequestSetter {
 
     public void callStartConnection() {
 
+        requestSetting();
         commandFunction.startConnection();
 
     }
 
+
+    private void requestSetting() {
+
+        if(!url.isEmpty()) {
+            commandFunction.jurlOperation(url);
+            commandFunction.showResponseHeaderOperation();
+        }
+
+        if(!method.isEmpty()) {
+            commandFunction.methodOperation(method);
+        }
+
+        if(!header.isEmpty()) {
+            commandFunction.headersOperation(header);
+        }
+
+        if(!formData.isEmpty()) {
+            commandFunction.dataOperation(formData);
+        }
+
+        assert jsonData != null;
+        if(!jsonData.isEmpty()) {
+            commandFunction.jsonOperation(jsonData);
+        }
+
+        if(followRedirect) {
+            commandFunction.followRedirectOperation();
+        }
+
+        if(!filePath.isEmpty()) {
+            commandFunction.uploadOperation(filePath);
+        }
+
+    }
 
     /**
      * this method take a map as an argument and convert to
