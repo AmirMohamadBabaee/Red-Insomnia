@@ -11,7 +11,7 @@ import java.util.Map;
  * use in jurl functioning
  *
  * @author Amir01
- * @version 
+ * @version
  */
 public class RequestSetter {
 
@@ -23,6 +23,7 @@ public class RequestSetter {
     private String filePath = "";
     private boolean followRedirect;
     private CommandFunction commandFunction;
+    private ResponseSetter responseSetter;
 
     /**
      * Default Constructor of RequestSetter
@@ -76,7 +77,8 @@ public class RequestSetter {
      */
     public void setMethod(String method) {
         if(!method.isEmpty()) {
-            this.method = method.substring(0, method.length()-1).trim();
+            this.method = method.substring(0, method.length()-3).trim();
+            System.out.println("Request setter method : " + this.method);
         }
     }
 
@@ -157,6 +159,24 @@ public class RequestSetter {
         this.followRedirect = true;
     }
 
+    /**
+     * getter of response setter object
+     *
+     * @return response setter object
+     */
+    public ResponseSetter getResponseSetter() {
+        return responseSetter;
+    }
+
+    /**
+     * setter of response setter object
+     *
+     * @param responseSetter response setter object
+     */
+    public void setResponseSetter(ResponseSetter responseSetter) {
+        this.responseSetter = responseSetter;
+    }
+
 
     public void callStartConnection() {
 
@@ -167,6 +187,8 @@ public class RequestSetter {
 
 
     private void requestSetting() {
+
+        commandFunction.setResponseSetter(getResponseSetter());
 
         if(!url.isEmpty()) {
             commandFunction.jurlOperation(url);
