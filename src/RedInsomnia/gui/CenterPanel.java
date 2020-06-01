@@ -1,5 +1,8 @@
 package RedInsomnia.gui;
 
+import RedInsomnia.sync.RequestSetter;
+import RedInsomnia.sync.ResponseSetter;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
@@ -9,7 +12,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -33,6 +36,17 @@ public class CenterPanel extends JPanel{
     private int theme;
     private String currentDir;
 
+    private JButton httpMethodButton;
+    private JTextField urlTextField;
+    private List<JPanel> headerField;
+    private List<JPanel> formDataField;
+    private JTextArea filePathArea;
+    private JEditorPane jsonPane;
+    private boolean multiTextHeaderShown;
+    private String multiLineContext;
+    private RequestSetter requestSetter;
+    private ResponseSetter responseSetter;
+
 
     /**
      * Constructor of RedInsomnia.gui.CenterPanel class
@@ -42,6 +56,9 @@ public class CenterPanel extends JPanel{
     public CenterPanel(MainFrame mainFrame) {
 
         super();
+
+        responseSetter = new ResponseSetter();
+        requestSetter = new RequestSetter();
 
         this.themes = mainFrame.getThemes();
         this.theme = mainFrame.getTheme();
@@ -58,7 +75,7 @@ public class CenterPanel extends JPanel{
         urlPanel.setPreferredSize(new Dimension(550, 65));
         this.add(urlPanel, BorderLayout.NORTH);
 
-        JButton httpMethodButton = new JButton(" GET       " + openMenu);
+        httpMethodButton = new JButton(" GET       " + openMenu);
         httpMethodButton.setBackground(Color.white);
         httpMethodButton.setForeground(themes.get(theme).get(4));
         httpMethodButton.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
@@ -118,7 +135,7 @@ public class CenterPanel extends JPanel{
         });
 
 
-        JTextField urlTextField = new JTextField("changelog.insomnia.rest/changelog.json");
+        urlTextField = new JTextField("https://api.myproduct.com/v1/users");
         urlTextField.setBackground(Color.white);
         urlTextField.setForeground(themes.get(theme).get(4));
         urlTextField.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
@@ -147,6 +164,13 @@ public class CenterPanel extends JPanel{
             public void mouseExited(MouseEvent e) {
 
                 sendButton.setBackground(Color.white);
+
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+                sendTrigger();
 
             }
         });
@@ -334,7 +358,7 @@ public class CenterPanel extends JPanel{
         headerPanel.setBackground(themes.get(theme).get(6));
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
 
-        java.util.List<JPanel> headerField = new ArrayList<>();
+        headerField = new ArrayList<>();
 
         headerField.add(headerFieldCreator(headerField, headerPanel, false));
         addHeaderFieldPanel(headerPanel, headerField);
@@ -371,7 +395,7 @@ public class CenterPanel extends JPanel{
         formPanel.add(coverFormPanelScroll, BorderLayout.CENTER);
 
 
-        List<JPanel> formDataField = new ArrayList<>();
+        formDataField = new ArrayList<>();
         formDataField.add(headerFieldCreator(formDataField, coverFormPanel, true));
         addHeaderFieldPanel(coverFormPanel, formDataField);
 
@@ -388,7 +412,7 @@ public class CenterPanel extends JPanel{
         selectedFile.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 
-        JTextArea filePathArea = new JTextArea("No file selected");
+        filePathArea = new JTextArea("No file selected");
         filePathArea.setBackground(themes.get(theme).get(6));
         filePathArea.setForeground(themes.get(theme).get(8));
         filePathArea.setFont(new Font("Santa Fe Let", Font.PLAIN, 18));
@@ -507,19 +531,19 @@ public class CenterPanel extends JPanel{
 
         jsonPanel.setLayout(new BorderLayout());
 
-        JEditorPane rawPanel = new JEditorPane();
-        rawPanel.setBackground(themes.get(theme).get(6));
-        rawPanel.setForeground(themes.get(theme).get(11));
-        rawPanel.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
-        rawPanel.setText("");
+        jsonPane = new JEditorPane();
+        jsonPane.setBackground(themes.get(theme).get(6));
+        jsonPane.setForeground(themes.get(theme).get(11));
+        jsonPane.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+        jsonPane.setText("");
 
 
-        TextLineNumber tln = new TextLineNumber(rawPanel);
+        TextLineNumber tln = new TextLineNumber(jsonPane);
         tln.setBorderGap(0);
         tln.setDigitAlignment(TextLineNumber.CENTER);
 
 
-        JScrollPane rawScroll = new JScrollPane(rawPanel);
+        JScrollPane rawScroll = new JScrollPane(jsonPane);
         rawScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         rawScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         rawScroll.setRowHeaderView(tln);
@@ -527,9 +551,28 @@ public class CenterPanel extends JPanel{
 
 
         jsonPanel.add(rawScroll, BorderLayout.CENTER);
+        // end of json changing
 
     }
 
+
+    /**
+     * setter of multiTextLine context
+     *
+     * @param multiLineContext multi text line context
+     */
+    public void setMultiLineContext(String multiLineContext) {
+        this.multiLineContext = multiLineContext;
+    }
+
+    /**
+     * getter of response setter
+     *
+     * @return response setter object
+     */
+    public ResponseSetter getResponseSetter() {
+        return responseSetter;
+    }
 
     /**
      * this method change color when an event happen and change color
@@ -713,7 +756,7 @@ public class CenterPanel extends JPanel{
         if(isFormData) {
 
             if(headerField.isEmpty()) {
-                headerTextField.setText("name");
+                headerTextField.setText("Name");
             } else {
                 headerTextField.setText("New name");
             }
@@ -721,7 +764,7 @@ public class CenterPanel extends JPanel{
         } else {
 
             if(headerField.isEmpty()) {
-                headerTextField.setText("header");
+                headerTextField.setText("Header");
             } else {
                 headerTextField.setText("New header");
             }
@@ -734,8 +777,8 @@ public class CenterPanel extends JPanel{
             @Override
             public void focusGained(FocusEvent e) {
 
-                if(headerTextField.getText().equals("header") || headerTextField.getText().equals("New header")
-                        || headerTextField.getText().equals("name") || headerTextField.getText().equals("New name")) {
+                if(headerTextField.getText().equals("Header") || headerTextField.getText().equals("New header")
+                        || headerTextField.getText().equals("Name") || headerTextField.getText().equals("New name")) {
 
                     headerTextField.setText("");
 
@@ -790,9 +833,9 @@ public class CenterPanel extends JPanel{
 
 
         if(headerField.isEmpty()) {
-            valueTextField.setText("value");
+            valueTextField.setText("Value");
         } else {
-            valueTextField.setText("new value");
+            valueTextField.setText("New value");
         }
 
         String initialName1 = valueTextField.getText();
@@ -802,7 +845,7 @@ public class CenterPanel extends JPanel{
             @Override
             public void focusGained(FocusEvent e) {
 
-                if(valueTextField.getText().equals("value") || valueTextField.getText().equals("new value")) {
+                if(valueTextField.getText().equals("Value") || valueTextField.getText().equals("New value")) {
 
                     valueTextField.setText("");
 
@@ -849,8 +892,12 @@ public class CenterPanel extends JPanel{
 
                 if(e.getButton() == MouseEvent.BUTTON1) {
 
-                    // Todo : handling concurrent problems
-                    new EditorFrame("RedInsomnia-Editor Panel", theme, mainFrame);
+                    new Thread(() -> {
+
+                        EditorFrame editorFrame = new EditorFrame("RedInsomnia-Editor Panel", theme, mainFrame, CenterPanel.this);
+
+                    }, "editor thread")
+                    .start();
 
                 }
 
@@ -977,8 +1024,14 @@ public class CenterPanel extends JPanel{
             JMenuItem text = new JMenuItem("Text");
             JMenuItem multiLineText = new JMenuItem("Text (Multi-line)");
 
-            text.addActionListener(e -> cardLayout.show(valueCardLayout, "textField"));
-            multiLineText.addActionListener(e -> cardLayout.show(valueCardLayout, "button"));
+            text.addActionListener(e -> {
+                cardLayout.show(valueCardLayout, "textField");
+                multiTextHeaderShown = false;
+            });
+            multiLineText.addActionListener(e -> {
+                cardLayout.show(valueCardLayout, "button");
+                multiTextHeaderShown = true;
+            });
 
             textTypePopup.add(text);
             textTypePopup.add(multiLineText);
@@ -1063,6 +1116,100 @@ public class CenterPanel extends JPanel{
         }
         return String.format("%.1f %cB", bytes / 1000.0, ci.current());
 
+    }
+
+
+    private void sendTrigger() {
+
+        assert urlTextField != null;
+        requestSetter.setUrl(urlTextField.getText());
+        requestSetter.setMethod(httpMethodButton.getText());
+        requestSetter.setHeader(convertListToMap(headerField));
+        requestSetter.setFormData(convertListToMap(formDataField));
+        requestSetter.setFilePath(filePathArea.getText());
+        requestSetter.setJsonData(jsonPane.getText().isEmpty()? "" : jsonPane.getText());
+        if(mainFrame.isFollowDirect()) {
+            requestSetter.setFollowRedirect();
+        }
+        requestSetter.setResponseSetter(responseSetter);
+
+//        new Thread(requestSetter::callStartConnection).start();
+        new Thread(() -> requestSetter.callStartConnection()).start();
+
+    }
+
+
+    private Map<String, String> convertListToMap(List<JPanel> list) {
+
+        Map<String, String> map = new LinkedHashMap<>();
+
+        for (JPanel panel : list) {
+
+            boolean headerState = false;
+
+            String[] pair = new String[2];
+
+            for (Component component : panel.getComponents()) {
+
+                if(component instanceof JTextField) {
+
+                    String val = ((JTextField)component).getText();
+                    if(!(val.equals("New header") || val.equals("Header")
+                            || val.equals("New name") || val.equals("Name"))) {
+
+                        pair[0] = val;
+
+                    }
+
+                }
+
+                if(component instanceof JCheckBox) {
+
+                    headerState = ((JCheckBox)component).isSelected();
+
+                }
+
+                if(component instanceof JPanel) {
+
+                    for (Component component1 : ((JPanel) component).getComponents()) {
+
+                        /*if(multiTextHeaderShown) {
+
+                            pair[1] = multiLineContext;
+
+                        } else {
+
+
+
+                        }*/
+
+                        if(component1 instanceof JTextField) {
+
+                            String val = ((JTextField)component1).getText();
+                            if(!(val.equals("New value") || val.equals("Value"))) {
+
+                                pair[1] = val;
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+            if(!headerState) {
+                if(pair[0] != null && pair[1] != null) {
+
+                    map.put(pair[0], pair[1]);
+
+                }
+            }
+        }
+
+        return map;
     }
 
 }
