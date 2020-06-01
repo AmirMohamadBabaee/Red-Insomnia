@@ -1,5 +1,7 @@
 package RedInsomnia.http;
 
+import RedInsomnia.sync.ResponseSetter;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +25,7 @@ public class CommandFunction {
     private boolean outputCalled;
     private boolean saveCalled;
     private List<HttpRequest> savedRequestList;
+    private ResponseSetter responseSetter;
 
 
     /**
@@ -380,6 +383,7 @@ public class CommandFunction {
                 saveRequest();
 
             }
+            httpRequest.setResponseSetter(responseSetter);
             httpRequest.establishConnection();
             if(outputCalled) {
 
@@ -568,4 +572,21 @@ public class CommandFunction {
 
     }
 
+    /**
+     * getter of response setter object
+     *
+     * @return response setter object
+     */
+    public ResponseSetter getResponseSetter() {
+        return responseSetter;
+    }
+
+    /**
+     * setter of response setter object
+     *
+     * @param responseSetter response setter object
+     */
+    public void setResponseSetter(ResponseSetter responseSetter) {
+        this.responseSetter = responseSetter;
+    }
 }
