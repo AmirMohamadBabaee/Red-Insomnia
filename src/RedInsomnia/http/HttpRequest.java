@@ -1,5 +1,6 @@
 package RedInsomnia.http;
 
+import RedInsomnia.sync.ResponseSetter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -9,6 +10,8 @@ import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -41,6 +44,9 @@ public class HttpRequest implements Serializable{
     };
     private String responseBody;
     private File uploadedFile;
+    private byte[] imageBytes;
+    private long delayTime;
+    private ResponseSetter responseSetter;
 
 
     /**
@@ -273,6 +279,43 @@ public class HttpRequest implements Serializable{
     }
 
     /**
+     * getter of image bytes list
+     *
+     * @return list of image bytes
+     */
+    public byte[] getImageBytes() {
+        return imageBytes;
+    }
+
+    /**
+     * getter of delay time of this http request
+     *
+     * @return delay time of http request in (ms) in long
+     * format.
+     */
+    public long getDelayTime() {
+        return delayTime;
+    }
+
+    /**
+     * getter of response setter object
+     *
+     * @return response setter object
+     */
+    public ResponseSetter getResponseSetter() {
+        return responseSetter;
+    }
+
+    /**
+     * setter of response setter object
+     *
+     * @param responseSetter response setter object
+     */
+    public void setResponseSetter(ResponseSetter responseSetter) {
+        this.responseSetter = responseSetter;
+    }
+
+    /**
      * add a new http header to map of this http request
      *
      * @param key name of this header
@@ -428,6 +471,8 @@ public class HttpRequest implements Serializable{
 
             }
 
+            Instant firstTime = Instant.now();
+
             // maximum time for connection
             connection.setConnectTimeout(5000);
             // Maximum time for reading
@@ -435,6 +480,8 @@ public class HttpRequest implements Serializable{
 
             // response code of this request
             int status = connection.getResponseCode();
+
+
 
             if(isFollowRedirect()
                 && (status == HttpURLConnection.HTTP_MOVED_TEMP
@@ -451,9 +498,20 @@ public class HttpRequest implements Serializable{
 
                 }
 
+                status = connection.getResponseCode();
+
                 System.out.println("Redirect to This URL : " + newUrl);
 
             }
+
+            Instant secondTime = Instant.now();
+
+            Duration interval = Duration.between(firstTime, secondTime);
+
+            this.delayTime = interval.getNano()/1_000_000;
+
+            System.out.println("Delay Time : " + delayTime + " ms");
+            System.out.println();
 
             // determine inputStream of this
             InputStream in = null;
@@ -468,50 +526,172 @@ public class HttpRequest implements Serializable{
 
             }
 
-            assert in != null;
-            BufferedReader buffer = new BufferedReader(new InputStreamReader(in));
+            responseBody = "";
 
-            String line = null;
-            StringBuilder stringBuilder = new StringBuilder();
+            boolean isSuccessful = new File("./cache/").mkdirs();
 
-            while ((line = buffer.readLine()) != null) {
+            if(connection.getHeaderField("Content-Type").contains("image")) {
 
-                stringBuilder.append(line);
-                stringBuilder.append("\n");
+
+                DataInputStream input = new DataInputStream(new BufferedInputStream(in));
+
+                /*
+                 * if content-length header had set in server, we use that as
+                 * file size else we initialize a default value. this default
+                 * value is 1 000 000 bytes or 1 MB.
+                 */
+                if(connection.getContentLength() == -1) {
+
+                    imageBytes = new byte[1_000_000];
+
+                } else {
+
+                    imageBytes = new byte[connection.getContentLength()];
+
+                }
+
+                input.read(imageBytes);
+
+                input.close();
+
+                String fileName = "./cache/I" + System.currentTimeMillis() + ".png";
+
+                DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(new File(fileName))));
+
+                out.write(imageBytes);
+                out.flush();
+
+                responseSetter.setImagePath(fileName);
+                responseSetter.setResponseSize(new File(fileName).length());
+
+            } else {
+
+                assert in != null;
+                BufferedReader buffer = new BufferedReader(new InputStreamReader(in));
+
+                String line = null;
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ((line = buffer.readLine()) != null) {
+
+                    stringBuilder.append(line);
+                    stringBuilder.append("\n");
+
+                }
+
+                responseBody = stringBuilder.toString();
 
             }
 
-            responseBody = stringBuilder.toString();
 
             System.out.println("Response Message : \n");
 
             if(!responseBody.isEmpty()) {
 
+
+
                 if(JsonUtility.isJSONValid(responseBody)) {
 
-                    System.out.println(JsonUtility.beautifyJson(responseBody));
+                    String beautyString = JsonUtility.beautifyJson(responseBody);
+
+                    System.out.println(beautyString);
                     System.out.println();
+
+                    String fileName = "./cache/J" + System.currentTimeMillis() + ".json";
+
+                    DataOutputStream output = new DataOutputStream(new FileOutputStream(new File(fileName)));
+
+                    output.writeBytes(beautyString);
+                    output.flush();
+
+                    output.close();
+
+                    responseSetter.setResponseBody(beautyString);
+
+                    responseSetter.setResponseSize(new File(fileName).length());
 
                 } else if(connection.getHeaderField("Content-Type").contains("text/html")) {
 
                     Document doc = Jsoup.parseBodyFragment(responseBody);
                     doc.outputSettings().indentAmount(4);
-                    System.out.println(doc.html());
+
+                    String beautyHtml = doc.html();
+
+                    System.out.println(beautyHtml);
                     System.out.println();
+
+                    String fileName = "./cache/H" + System.currentTimeMillis() + ".html";
+
+                    DataOutputStream output = new DataOutputStream(new FileOutputStream(new File(fileName)));
+
+                    output.writeBytes(beautyHtml);
+                    output.flush();
+
+                    output.close();
+
+                    responseSetter.setResponseBody(beautyHtml);
+
+                    responseSetter.setResponseSize(new File(fileName).length());
 
                 } else {
 
-                    System.out.println(stringBuilder.toString());
+                    System.out.println(responseBody);
                     System.out.println();
+
+                    String fileName = "./cache/T" + System.currentTimeMillis() + ".txt";
+
+                    DataOutputStream output = new DataOutputStream(new FileOutputStream(new File(fileName)));
+
+                    output.writeBytes(responseBody);
+                    output.flush();
+
+                    output.close();
+
+                    responseSetter.setResponseBody(responseBody);
+
+                    responseSetter.setResponseSize(new File(fileName).length());
 
                 }
 
             } else {
 
-                System.out.println("There is no Response!!!");
-                System.out.println();
+                if(connection.getContentType().contains("image")) {
+
+                    try(BufferedReader bf = new BufferedReader(new InputStreamReader(url.openStream()))) {
+
+                        String line = "";
+                        StringBuilder stringBuilder = new StringBuilder();
+
+                        while ((line = bf.readLine()) != null) {
+
+                            stringBuilder.append(line);
+                            stringBuilder.append("\n");
+
+                        }
+
+                        System.out.println(stringBuilder);
+                        System.out.println();
+
+                        responseSetter.setResponseBody(stringBuilder.toString());
+
+                    }
+
+                } else {
+
+                    System.out.println("There is no Response!!!");
+                    System.out.println();
+
+                    responseSetter.setResponseBody("There is no Response!!!");
+
+                }
 
             }
+
+            responseSetter.setHeaderMap(connection.getHeaderFields());
+            responseSetter.setDelayTime(getDelayTime());
+            responseSetter.setStatusCode(connection.getResponseCode());
+            responseSetter.setStatusMessage(connection.getResponseMessage());
+            responseSetter.updateRightPanel();
 
             if(isShowResponseHeader()) {
 
