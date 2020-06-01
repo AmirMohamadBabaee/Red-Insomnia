@@ -29,6 +29,7 @@ public class RequestPack {
         this.requestPanel = requestPanel;
         this.centerPanel = new CenterPanel(mainFrame);
         this.rightPanel = new RightPanel(mainFrame);
+        this.centerPanel.getResponseSetter().setRightPanel(this.rightPanel);
 
     }
 
