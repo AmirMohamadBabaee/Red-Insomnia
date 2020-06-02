@@ -380,34 +380,6 @@ public class HttpRequest implements Serializable{
 
             connection.setRequestMethod(method);
 
-            if(isFollowRedirect()) {
-                connection.setInstanceFollowRedirects(true);
-            }
-
-            if(!method.equals("GET")) {
-
-                connection.setDoOutput(true);
-
-                if(uploadedFile != null && httpData.isEmpty() && jsonStr.isEmpty()) {
-
-                    try(BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(connection.getOutputStream())) {
-
-                        BufferedInputStream fileInputStream = new BufferedInputStream(new FileInputStream(uploadedFile));
-                        bufferedOutputStream.write(fileInputStream.read());
-                        bufferedOutputStream.flush();
-
-                    }
-
-                } else if(uploadedFile != null){
-
-                    System.out.println("jurl : You can't add form data file and binary file simultaneously!!!");
-                    this.setRequestEnable(false);
-                    return;
-
-                }
-
-            }
-
             if(!jsonStr.isEmpty() && httpData.isEmpty() && uploadedFile == null) {
 
                 connection.setRequestProperty("Content-Type", "application/json; utf-8");
@@ -433,7 +405,6 @@ public class HttpRequest implements Serializable{
 
             }
 
-
             System.out.println("Headers : ");
             if(!getHttpHeader().isEmpty()) {
 
@@ -448,6 +419,40 @@ public class HttpRequest implements Serializable{
 
                 System.out.println("It's Empty!!!");
                 System.out.println();
+
+            }
+
+            if(isFollowRedirect()) {
+                connection.setInstanceFollowRedirects(true);
+            }
+
+            if(!method.equals("GET")) {
+
+                connection.setDoOutput(true);
+
+                if(uploadedFile != null && httpData.isEmpty() && jsonStr.isEmpty()) {
+
+                    try(BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(connection.getOutputStream())) {
+
+                        BufferedInputStream fileInputStream = new BufferedInputStream(new FileInputStream(uploadedFile));
+                        int byteInt;
+                        while ((byteInt = fileInputStream.read()) != -1) {
+
+                            bufferedOutputStream.write(byteInt);
+                            bufferedOutputStream.flush();
+
+                        }
+                        System.out.println("file uploaded!!!");
+
+                    }
+
+                } else if(uploadedFile != null){
+
+                    System.out.println("jurl : You can't add form data file and binary file simultaneously!!!");
+                    this.setRequestEnable(false);
+                    return;
+
+                }
 
             }
 
