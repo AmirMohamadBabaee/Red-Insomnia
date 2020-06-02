@@ -97,11 +97,10 @@ public class HttpRequest implements Serializable{
 
         } else {
 
-            System.out.println("jurl : Your entered url should start with \"https://\" or \"http://\" protocol name");
+            this.url = new URL("http://" + url);
+            return true;
 
         }
-
-        return false;
 
     }
 
@@ -696,7 +695,7 @@ public class HttpRequest implements Serializable{
             responseSetter.setDelayTime(getDelayTime());
             responseSetter.setStatusCode(connection.getResponseCode());
             responseSetter.setStatusMessage(connection.getResponseMessage());
-            responseSetter.updateRightPanel();
+
 
             if(isShowResponseHeader()) {
 
@@ -708,6 +707,8 @@ public class HttpRequest implements Serializable{
                 System.out.println();
 
             }
+
+            responseSetter.updateRightPanel();
 
             connection.disconnect();
 
