@@ -182,33 +182,50 @@ public class ResponseSetter {
     public void updateRightPanel() {
 
         rightPanel.getRequestStatus().setText(getStatusCode() + " " + getStatusMessage());
+        rightPanel.getRequestStatus().setToolTipText(getStatusCode() + " " + getStatusMessage());
+
         rightPanel.getDelayTime().setText(getDelayTime() + " ms");
+        rightPanel.getDelayTime().setToolTipText(getDelayTime() + " ms");
+
         rightPanel.getFileSize().setText(convertBytetoMegaByte(getResponseSize()));
+        rightPanel.getFileSize().setToolTipText(convertBytetoMegaByte(getResponseSize()));
+
         rightPanel.getRawPanel().setText(getResponseBody());
 
+        // response headers
+        rightPanel.setHeaderField(new ArrayList<>());
+        for (Map.Entry<String, String> entry : getHeaderMap().entrySet()) {
+
+            if(entry.getKey() != null) {
+
+                rightPanel.responseHeaderField(rightPanel.getHeaderField(), entry.getKey(), entry.getValue());
+
+            }
+
+        }
+        rightPanel.headerArrangement();
+
+        // visual setting
         BufferedImage responseImage = null;
         JLabel pic ;
         try {
 
-            assert getImagePath() != null;
-            File image = new File(getImagePath());
-            if(image.isFile() && image.canRead()) {
+            if(getImagePath() != null) {
 
-                responseImage = ImageIO.read(image);
-                pic = new JLabel(new ImageIcon(responseImage));
-                rightPanel.getVisualPanel().add(pic, BorderLayout.CENTER);
+                File image = new File(getImagePath());
+                if(image.isFile() && image.canRead()) {
+
+                    responseImage = ImageIO.read(image);
+                    pic = new JLabel(new ImageIcon(responseImage));
+                    rightPanel.getVisualPanel().add(pic, BorderLayout.CENTER);
+
+                }
 
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        rightPanel.setHeaderField(new ArrayList<>());
-        for (Map.Entry<String, String> entry : getHeaderMap().entrySet()) {
-            rightPanel.responseHeaderField(rightPanel.getHeaderField(), entry.getKey(), entry.getValue());
-        }
-        rightPanel.headerArrangement();
 
         System.out.println("update right panel");
 
