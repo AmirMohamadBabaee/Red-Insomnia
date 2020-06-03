@@ -10,10 +10,10 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.text.CharacterIterator;
-import java.text.StringCharacterIterator;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * RedInsomnia.gui.RightPanel
@@ -35,6 +35,28 @@ public class RightPanel extends JPanel {
     private List<List<Color>> themes;
     private int theme;
     private String currentDir;
+
+    private String statusCodeStr = "";
+    private String delayTimeStr = "";
+    private String responseSizeStr = "";
+    private String rawResponseStr = "Your Expected Response Body Will Show Here!";
+    private String imagePathStr = "";
+    private Map<String, String> headerMap = new LinkedHashMap<>();
+
+    private JButton requestStatus;
+    private JButton delayTime;
+    private JButton fileSize;
+    private JPanel visualPanel;
+    private JEditorPane rawPanel;
+
+    private List<JPanel> headerField;
+    private GridBagConstraints constraints;
+    private JPanel headerCoverPanel;
+    private JPanel initialHeaderPanel;
+    private JScrollPane headerPanelScroll;
+
+
+
 
 
     /**
@@ -74,31 +96,31 @@ public class RightPanel extends JPanel {
         responseDetailPanel.setLayout(boxLayout);
 
         // response status button
-        JButton requestStatus = new JButton("200 OK");
-        requestStatus.setBackground(new Color(117, 186, 36));
-        requestStatus.setForeground(Color.white);
-        requestStatus.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
-        requestStatus.setPreferredSize(new Dimension(50, 30));
-        requestStatus.setContentAreaFilled(false);
-        requestStatus.setOpaque(true);
+        requestStatus = new JButton(this.statusCodeStr);
+        getRequestStatus().setBackground(new Color(117, 186, 36));
+        getRequestStatus().setForeground(Color.white);
+        getRequestStatus().setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+        getRequestStatus().setPreferredSize(new Dimension(50, 30));
+        getRequestStatus().setContentAreaFilled(false);
+        getRequestStatus().setOpaque(true);
 
         // delay time of request
-        JButton delayTime = new JButton("6.13 s");
-        delayTime.setBackground(new Color(224, 224, 224));
-        delayTime.setForeground(new Color(116, 116, 116));
-        delayTime.setPreferredSize(new Dimension(50, 30));
-        delayTime.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
-        delayTime.setContentAreaFilled(false);
-        delayTime.setOpaque(true);
+        delayTime = new JButton(this.delayTimeStr);
+        getDelayTime().setBackground(new Color(224, 224, 224));
+        getDelayTime().setForeground(new Color(116, 116, 116));
+        getDelayTime().setPreferredSize(new Dimension(50, 30));
+        getDelayTime().setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+        getDelayTime().setContentAreaFilled(false);
+        getDelayTime().setOpaque(true);
 
         // size of response file
-        JButton fileSize = new JButton("147");
-        fileSize.setBackground(new Color(224, 224, 224));
-        fileSize.setForeground(new Color(116, 116, 116));
-        fileSize.setPreferredSize(new Dimension(50, 30));
-        fileSize.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
-        fileSize.setContentAreaFilled(false);
-        fileSize.setOpaque(true);
+        fileSize = new JButton(this.responseSizeStr);
+        getFileSize().setBackground(new Color(224, 224, 224));
+        getFileSize().setForeground(new Color(116, 116, 116));
+        getFileSize().setPreferredSize(new Dimension(50, 30));
+        getFileSize().setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+        getFileSize().setContentAreaFilled(false);
+        getFileSize().setOpaque(true);
 
 
         // save request
@@ -129,11 +151,11 @@ public class RightPanel extends JPanel {
 
 
         responseDetailPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        responseDetailPanel.add(requestStatus);
+        responseDetailPanel.add(getRequestStatus());
         responseDetailPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        responseDetailPanel.add(delayTime);
+        responseDetailPanel.add(getDelayTime());
         responseDetailPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        responseDetailPanel.add(fileSize);
+        responseDetailPanel.add(getFileSize());
 
         // end of response status part
 
@@ -153,19 +175,20 @@ public class RightPanel extends JPanel {
         responseData.setBackground(themes.get(theme).get(6));
 
 
-        JEditorPane rawPanel = new JEditorPane();
-        rawPanel.setBackground(themes.get(theme).get(6));
-        rawPanel.setForeground(themes.get(theme).get(11));
-        rawPanel.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
-        rawPanel.setText("Hello world!");
+        rawPanel = new JEditorPane();
+        getRawPanel().setBackground(themes.get(theme).get(6));
+        getRawPanel().setForeground(themes.get(theme).get(11));
+        getRawPanel().setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+        getRawPanel().setText(rawResponseStr);
+        getRawPanel().setEnabled(false);
 
 
-        TextLineNumber tln = new TextLineNumber(rawPanel);
+        TextLineNumber tln = new TextLineNumber(getRawPanel());
         tln.setBorderGap(0);
         tln.setDigitAlignment(TextLineNumber.CENTER);
 
 
-        JScrollPane rawScroll = new JScrollPane(rawPanel);
+        JScrollPane rawScroll = new JScrollPane(getRawPanel());
         rawScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         rawScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         rawScroll.setRowHeaderView(tln);
@@ -177,21 +200,28 @@ public class RightPanel extends JPanel {
         ((CardLayout)responseData.getLayout()).show(responseData, "Raw");
 
 
-        JPanel visualPanel = new JPanel();
+        visualPanel = new JPanel();
+        visualPanel.setBackground(themes.get(theme).get(6));
+        visualPanel.setLayout(new BorderLayout());
 //        visualPanel.setBackground(new Color(41, 42, 37));
         BufferedImage responseImage = null;
         JLabel pic ;
         try {
 
-            responseImage = ImageIO.read(new File("D:\\desktop background\\573249.jpg"));
-            pic = new JLabel(new ImageIcon(responseImage));
-            visualPanel.add(pic);
+            File image = new File(imagePathStr);
+            if(image.isFile() && image.canRead()) {
+
+                responseImage = ImageIO.read(image);
+                pic = new JLabel(new ImageIcon(responseImage));
+                getVisualPanel().add(pic, BorderLayout.CENTER);
+
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        JScrollPane visualScroll = new JScrollPane(visualPanel);
+        JScrollPane visualScroll = new JScrollPane(getVisualPanel());
         visualScroll.setBorder(null);
 
         responseData.add(visualScroll, "Visual");
@@ -336,21 +366,21 @@ public class RightPanel extends JPanel {
 
 
 
-        JPanel headerCoverPanel = new JPanel();
+        headerCoverPanel = new JPanel();
         headerCoverPanel.setBackground(themes.get(theme).get(6));
         headerCoverPanel.setLayout(new GridBagLayout());
 
-        GridBagConstraints constraints = new GridBagConstraints();
+        setConstraints(new GridBagConstraints());
 
-        JScrollPane headerPanelScroll = new JScrollPane(headerCoverPanel);
+        headerPanelScroll = new JScrollPane(headerCoverPanel);
         headerPanelScroll.setBackground(themes.get(theme).get(6));
-        headerPanelScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        headerPanelScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         headerPanelScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         headerPanelScroll.setBorder(null);
 
         headerPanel.add(headerPanelScroll, BorderLayout.CENTER);
 
-        JPanel initialHeaderPanel = new JPanel();
+        initialHeaderPanel = new JPanel();
         initialHeaderPanel.setBackground(themes.get(theme).get(6));
         initialHeaderPanel.setLayout(new BoxLayout(initialHeaderPanel, BoxLayout.X_AXIS));
         initialHeaderPanel.setPreferredSize(new Dimension(500, 50));
@@ -377,56 +407,17 @@ public class RightPanel extends JPanel {
         initialHeaderPanel.add(Box.createRigidArea(new Dimension(180, 0)));
 
 
-        String name = "header 1";
-        String value = "this is value of header 1";
+        setHeaderField(new ArrayList<>());
+        for (Map.Entry<String, String> entry : getHeaderMap().entrySet()) {
 
-        List<JPanel> headerField = new ArrayList<>();
-        responseHeaderField(headerField, name, value);
-        responseHeaderField(headerField, "header 2", "this is value of header 2");
-        responseHeaderField(headerField, "header 3", "this is value of header 3");
-        responseHeaderField(headerField, "header 4", "this is value of header 4");
-        responseHeaderField(headerField, "header 5", "this is value of header 5");
-
-
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.insets = new Insets(5, 0, 0, 0);
-//        headerCoverPanel.add(Box.createRigidArea(new Dimension(0, 40)));
-        headerCoverPanel.add(initialHeaderPanel, constraints);
-//        headerCoverPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-
-
-        System.out.println(headerField.size());
-        int number = 1;
-        for (JPanel panel : headerField) {
-
-            constraints.fill = GridBagConstraints.HORIZONTAL;
-
-            constraints.gridx = 0;
-            constraints.gridy = number;
-
-
-
-
-            if(number >= headerField.size()) {
-
-                constraints.weightx = 1;
-                constraints.weighty = 1;
-                constraints.anchor = GridBagConstraints.PAGE_START;
-
-            }
-            headerCoverPanel.add(panel, constraints);
-            if(number % 2 == 0) {
-
-                panel.setBackground(themes.get(theme).get(6));
-
-            } else {
-                panel.setBackground(themes.get(theme).get(9));
-            }
-            number++;
+            responseHeaderField(headerField, entry.getKey(), entry.getValue());
 
         }
+//        headerCoverPanel.add(Box.createRigidArea(new Dimension(0, 40)));
+
+//        headerCoverPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        headerArrangement();
 
 
         JButton copyButton = new JButton("Copy to Clipboard");
@@ -494,8 +485,9 @@ public class RightPanel extends JPanel {
 
         // end of center of response part
 
-    }
 
+
+    }
 
     /**
      * this method create header field of this panel
@@ -504,7 +496,7 @@ public class RightPanel extends JPanel {
      * @param name name of this header field
      * @param value value of this header field
      */
-    private void responseHeaderField(List<JPanel> headerField, String name, String value) {
+    public void responseHeaderField(List<JPanel> headerField, String name, String value) {
 
         JPanel headerFieldPanel = new JPanel();
         headerFieldPanel.setBackground(themes.get(theme).get(6));
@@ -531,12 +523,18 @@ public class RightPanel extends JPanel {
 
         headerFieldPanel.add(Box.createRigidArea(new Dimension(10, 0)));
         headerFieldPanel.add(labels.get(0));
-        headerFieldPanel.add(Box.createRigidArea(new Dimension(100, 0)));
+        headerFieldPanel.add(Box.createRigidArea(new Dimension(75, 0)));
         headerFieldPanel.add(labels.get(1));
         headerFieldPanel.add(Box.createRigidArea(new Dimension(10, 0)));
 
 
         headerField.add(headerFieldPanel);
+
+        this.revalidate();
+        this.repaint();
+        mainFrame.revalidate();
+        mainFrame.repaint();
+        System.out.println(name + " : " + value);
 
     }
 
@@ -579,27 +577,193 @@ public class RightPanel extends JPanel {
 
     }
 
+    /**
+     * getter of status code of request
+     *
+     * @return status code
+     */
+    public String getStatusCodeStr() {
+        return statusCodeStr;
+    }
 
     /**
-     * this code taken from stackoverflow
-     * actually this method convert long byte size of a file to bigger scale
+     * setter of status code of request
      *
-     * @param bytes file size
-     * @return string of file size
-     *
-     * @see <a href="https://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java">StackOverFlow</a>
+     * @param statusCodeStr status code
      */
-    private String convertBytetoMegaByte(long bytes) {
+    public void setStatusCodeStr(String statusCodeStr) {
+        this.statusCodeStr = statusCodeStr;
+    }
 
-        if (-1000 < bytes && bytes < 1000) {
-            return bytes + " B";
-        }
-        CharacterIterator ci = new StringCharacterIterator("kMGTPE");
-        while (bytes <= -999_950 || bytes >= 999_950) {
-            bytes /= 1000;
-            ci.next();
-        }
-        return String.format("%.1f %cB", bytes / 1000.0, ci.current());
+    /**
+     * getter of request delay time
+     *
+     * @return delay time
+     */
+    public String getDelayTimeStr() {
+        return delayTimeStr;
+    }
 
+    /**
+     * setter of request delay time
+     *
+     * @param delayTimeStr delay time
+     */
+    public void setDelayTimeStr(String delayTimeStr) {
+        this.delayTimeStr = delayTimeStr;
+    }
+
+    /**
+     * getter of response size
+     *
+     * @return response size
+     */
+    public String getResponseSizeStr() {
+        return responseSizeStr;
+    }
+
+    /**
+     * setter of response size
+     *
+     * @param responseSizeStr response size
+     */
+    public void setResponseSizeStr(String responseSizeStr) {
+        this.responseSizeStr = responseSizeStr;
+    }
+
+    /**
+     * getter of raw form of response body
+     *
+     * @return response body
+     */
+    public String getRawResponseStr() {
+        return rawResponseStr;
+    }
+
+    /**
+     * setter of raw form of response body
+     *
+     * @param rawResponseStr response body
+     */
+    public void setRawResponseStr(String rawResponseStr) {
+        this.rawResponseStr = rawResponseStr;
+    }
+
+    /**
+     * getter of response image path
+     *
+     * @return response image path
+     */
+    public String getImagePathStr() {
+        return imagePathStr;
+    }
+
+    /**
+     * setter of response image path
+     *
+     * @param imagePathStr response image path
+     */
+    public void setImagePathStr(String imagePathStr) {
+        this.imagePathStr = imagePathStr;
+    }
+
+    /**
+     * getter of header map of key-value form of
+     * response header
+     *
+     * @return map of response header
+     */
+    public Map<String, String> getHeaderMap() {
+        return headerMap;
+    }
+
+    /**
+     * setter of header map of key-value form of
+     * response header
+     * @param headerMap map of response header
+     */
+    public void setHeaderMap(Map<String, String> headerMap) {
+        this.headerMap = headerMap;
+    }
+
+    public JButton getRequestStatus() {
+        return requestStatus;
+    }
+
+    public JButton getDelayTime() {
+        return delayTime;
+    }
+
+    public JButton getFileSize() {
+        return fileSize;
+    }
+
+    public JPanel getVisualPanel() {
+        return visualPanel;
+    }
+
+    public JEditorPane getRawPanel() {
+        return rawPanel;
+    }
+
+    public List<JPanel> getHeaderField() {
+        return headerField;
+    }
+
+    public void headerArrangement() {
+
+        headerCoverPanel = new JPanel();
+        headerCoverPanel.setBackground(themes.get(theme).get(6));
+        headerCoverPanel.setLayout(new GridBagLayout());
+
+        setConstraints(new GridBagConstraints());
+
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.insets = new Insets(5, 0, 0, 0);
+
+        headerCoverPanel.add(initialHeaderPanel, constraints);
+
+        headerPanelScroll.setViewportView(headerCoverPanel);
+
+        int number = 1;
+        for (JPanel panel : headerField) {
+
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+
+            constraints.gridx = 0;
+            constraints.gridy = number;
+
+
+
+
+            if(number >= headerField.size()) {
+
+                constraints.weightx = 1;
+                constraints.weighty = 1;
+                constraints.anchor = GridBagConstraints.PAGE_START;
+
+            }
+            headerCoverPanel.add(panel, constraints);
+            if(number % 2 == 0) {
+
+                panel.setBackground(themes.get(theme).get(6));
+
+            } else {
+                panel.setBackground(themes.get(theme).get(9));
+            }
+            number++;
+
+        }
+
+    }
+
+    public void setHeaderField(List<JPanel> headerField) {
+        this.headerField = headerField;
+    }
+
+    public void setConstraints(GridBagConstraints constraints) {
+        this.constraints = constraints;
     }
 }
