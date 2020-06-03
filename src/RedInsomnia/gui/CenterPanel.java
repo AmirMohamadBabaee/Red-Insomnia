@@ -46,6 +46,8 @@ public class CenterPanel extends JPanel{
     private String multiLineContext;
     private RequestSetter requestSetter;
     private ResponseSetter responseSetter;
+    private EditorFrame editorFrame;
+    private List<String> editorContexts;
 
 
     /**
@@ -59,6 +61,7 @@ public class CenterPanel extends JPanel{
 
         responseSetter = new ResponseSetter();
         requestSetter = new RequestSetter();
+        editorContexts = new ArrayList<>();
 
         this.themes = mainFrame.getThemes();
         this.theme = mainFrame.getTheme();
@@ -76,14 +79,14 @@ public class CenterPanel extends JPanel{
         this.add(urlPanel, BorderLayout.NORTH);
 
         httpMethodButton = new JButton(" GET       " + openMenu);
-        httpMethodButton.setBackground(Color.white);
-        httpMethodButton.setForeground(themes.get(theme).get(4));
-        httpMethodButton.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
-        httpMethodButton.setBorder(null);
-        httpMethodButton.setPreferredSize(new Dimension(110, 65));
-        httpMethodButton.setContentAreaFilled(false);
-        httpMethodButton.setOpaque(true);
-        urlPanel.add(httpMethodButton, BorderLayout.WEST);
+        getHttpMethodButton().setBackground(Color.white);
+        getHttpMethodButton().setForeground(themes.get(theme).get(4));
+        getHttpMethodButton().setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+        getHttpMethodButton().setBorder(null);
+        getHttpMethodButton().setPreferredSize(new Dimension(110, 65));
+        getHttpMethodButton().setContentAreaFilled(false);
+        getHttpMethodButton().setOpaque(true);
+        urlPanel.add(getHttpMethodButton(), BorderLayout.WEST);
 
 
         JPopupMenu popupMenu = new JPopupMenu();
@@ -100,20 +103,38 @@ public class CenterPanel extends JPanel{
         popupMenu.add(patch);
         popupMenu.add(delete);
 
-        get.addActionListener(e -> httpMethodButton.setText(" GET       " + openMenu));
-        post.addActionListener(e -> httpMethodButton.setText(" POST     " + openMenu));
-        put.addActionListener(e -> httpMethodButton.setText(" PUT       " + openMenu));
-        patch.addActionListener(e -> httpMethodButton.setText(" PATCH    " + openMenu));
-        delete.addActionListener(e -> httpMethodButton.setText(" DELETE   " + openMenu));
+        MessageBean bean = mainFrame.getBean();
 
-        httpMethodButton.addMouseListener(new MouseAdapter() {
+        get.addActionListener(e -> {
+            getHttpMethodButton().setText(" GET       " + openMenu);
+            bean.setValue("GET");
+        });
+        post.addActionListener(e -> {
+            getHttpMethodButton().setText(" POST     " + openMenu);
+            bean.setValue("POST");
+        });
+        put.addActionListener(e -> {
+            getHttpMethodButton().setText(" PUT       " + openMenu);
+            bean.setValue("PUT");
+        });
+        patch.addActionListener(e -> {
+            getHttpMethodButton().setText(" PATCH    " + openMenu);
+            bean.setValue("PATCH");
+        });
+        delete.addActionListener(e -> {
+            getHttpMethodButton().setText(" DELETE   " + openMenu);
+            bean.setValue("DELETE");
+        });
+
+
+        getHttpMethodButton().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
 
                 if(e.getButton() == MouseEvent.BUTTON1) {
 
                     Component button = (Component)e.getSource();
-                    popupMenu.show(httpMethodButton, button.getX(), button.getY()+button.getHeight());
+                    popupMenu.show(getHttpMethodButton(), button.getX(), button.getY()+button.getHeight());
 
                 }
 
@@ -122,14 +143,14 @@ public class CenterPanel extends JPanel{
             @Override
             public void mouseEntered(MouseEvent e) {
 
-                httpMethodButton.setBackground(themes.get(theme).get(5));
+                getHttpMethodButton().setBackground(themes.get(theme).get(5));
 
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
 
-                httpMethodButton.setBackground(Color.white);
+                getHttpMethodButton().setBackground(Color.white);
 
             }
         });
@@ -886,18 +907,20 @@ public class CenterPanel extends JPanel{
         editButton.setPreferredSize(new Dimension(200, 30));
         editButton.setContentAreaFilled(false);
         editButton.setOpaque(true);
+        MessageBean editorBean = new MessageBean();
         editButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
 
                 if(e.getButton() == MouseEvent.BUTTON1) {
 
-                    new Thread(() -> {
+                    Thread editorFrameThread = new Thread(() -> {
 
-                        EditorFrame editorFrame = new EditorFrame("RedInsomnia-Editor Panel", theme, mainFrame, CenterPanel.this);
+                        editorFrame = new EditorFrame("RedInsomnia-Editor Panel", theme, mainFrame, editButton);
 
-                    }, "editor thread")
-                    .start();
+                    }, "editor thread");
+
+                    editorFrameThread.start();
 
                 }
 
@@ -1123,7 +1146,7 @@ public class CenterPanel extends JPanel{
 
         assert urlTextField != null;
         requestSetter.setUrl(urlTextField.getText());
-        requestSetter.setMethod(httpMethodButton.getText());
+        requestSetter.setMethod(getHttpMethodButton().getText());
         requestSetter.setHeader(convertListToMap(headerField));
         requestSetter.setFormData(convertListToMap(formDataField));
         requestSetter.setFilePath(filePathArea.getText());
@@ -1142,6 +1165,8 @@ public class CenterPanel extends JPanel{
     private Map<String, String> convertListToMap(List<JPanel> list) {
 
         Map<String, String> map = new LinkedHashMap<>();
+
+        Iterator<String> iterator = editorContexts.iterator();
 
         for (JPanel panel : list) {
 
@@ -1173,22 +1198,24 @@ public class CenterPanel extends JPanel{
 
                     for (Component component1 : ((JPanel) component).getComponents()) {
 
-                        /*if(multiTextHeaderShown) {
+                        if(component1 instanceof JButton) {
 
-                            pair[1] = multiLineContext;
+                            if(EditorFrame.contextsList.containsKey((JButton)component1)) {
+                                if(((JButton) component1).isVisible()) {
+                                    pair[1] = EditorFrame.contextsList.get((JButton)component1);
+                                }
+                            }
 
-                        } else {
-
-
-
-                        }*/
+                        }
 
                         if(component1 instanceof JTextField) {
 
                             String val = ((JTextField)component1).getText();
                             if(!(val.equals("New value") || val.equals("Value"))) {
 
-                                pair[1] = val;
+                                if(((JTextField)component1).isVisible()) {
+                                    pair[1] = val;
+                                }
 
                             }
 
@@ -1212,4 +1239,7 @@ public class CenterPanel extends JPanel{
         return map;
     }
 
+    public JButton getHttpMethodButton() {
+        return httpMethodButton;
+    }
 }
