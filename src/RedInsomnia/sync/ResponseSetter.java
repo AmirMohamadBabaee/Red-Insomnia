@@ -183,6 +183,17 @@ public class ResponseSetter {
 
         rightPanel.getRequestStatus().setText(getStatusCode() + " " + getStatusMessage());
         rightPanel.getRequestStatus().setToolTipText(getStatusCode() + " " + getStatusMessage());
+        if(getStatusCode() > 499) {
+            rightPanel.getRequestStatus().setBackground(new Color(249, 31, 60));
+        } else if(getStatusCode() > 399) {
+            rightPanel.getRequestStatus().setBackground(new Color(252, 140, 29));
+        } else if(getStatusCode() > 299) {
+            rightPanel.getRequestStatus().setBackground(new Color(92, 118, 214));
+        } else if(getStatusCode() > 199){
+            rightPanel.getRequestStatus().setBackground(new Color(204, 204, 0));
+        } else {
+            rightPanel.getRequestStatus().setBackground(Color.RED);
+        }
 
         rightPanel.getDelayTime().setText(getDelayTime() + " ms");
         rightPanel.getDelayTime().setToolTipText(getDelayTime() + " ms");
@@ -194,6 +205,7 @@ public class ResponseSetter {
 
         // response headers
         rightPanel.setHeaderField(new ArrayList<>());
+//        rightPanel.setConstraints(new GridBagConstraints());
         for (Map.Entry<String, String> entry : getHeaderMap().entrySet()) {
 
             if(entry.getKey() != null) {
