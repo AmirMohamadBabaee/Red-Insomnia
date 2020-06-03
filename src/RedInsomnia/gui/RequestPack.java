@@ -34,6 +34,21 @@ public class RequestPack {
     }
 
     /**
+     * Constructor of RequestPack
+     *
+     * @param requestPanel request panel object
+     * @param centerPanel expected center panel
+     * @param rightPanel expected right panel
+     */
+    public RequestPack(RequestPanel requestPanel, CenterPanel centerPanel, RightPanel rightPanel) {
+
+        this.requestPanel = requestPanel;
+        this.centerPanel = centerPanel;
+        this.rightPanel = rightPanel;
+
+    }
+
+    /**
      * getter of requestPanel
      *
      * @return request panel of this pack object
