@@ -126,6 +126,18 @@ public class CenterPanel extends JPanel{
             bean.setValue("DELETE");
         });
 
+        bean.addPropertyChangeListener(e -> {
+            String str = " " + e.getNewValue();
+            for(int i = 0 ; i < 10 - str.length() ; i++) {
+
+                str += " ";
+
+            }
+            str += openMenu;
+
+            getHttpMethodButton().setText(str);
+        });
+
 
         getHttpMethodButton().addMouseListener(new MouseAdapter() {
             @Override
