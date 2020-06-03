@@ -1,14 +1,15 @@
 package RedInsomnia.gui;
 
-import RedInsomnia.main.Main;
+import RedInsomnia.sync.RequestSetter;
+import RedInsomnia.sync.ResponseSetter;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * RedInsomnia.gui.MainFrame
@@ -45,6 +46,14 @@ public class MainFrame extends JFrame {
     private boolean closeOperation;
     private JPanel leftPanel;
     private TrayIcon trayIcon;
+    private RequestSetter requestSetter;
+    private ResponseSetter responseSetter;
+
+    private MessageBean bean;
+    private MessageBean saveBean;
+
+    private CenterPanel centerPanel;
+    private RightPanel rightPanel;
 
     // Constructor
 
@@ -72,6 +81,8 @@ public class MainFrame extends JFrame {
         icon = new ImageIcon(currentDir+"\\resource\\newIcon.png");
         setIconImage(icon.getImage());
 
+        bean = new MessageBean();
+        saveBean = new MessageBean();
 
         this.theme = theme;
 
@@ -272,6 +283,9 @@ public class MainFrame extends JFrame {
         setJMenuBar(menuBar);
 
         setVisible(true);
+
+        responseSetter = new ResponseSetter();
+        requestSetter = new RequestSetter();
     }
 
     /**
@@ -397,6 +411,23 @@ public class MainFrame extends JFrame {
         return leftPanel;
     }
 
+    /**
+     * getter of message bean object
+     *
+     * @return message bean object
+     */
+    public MessageBean getBean() {
+        return bean;
+    }
+
+    /**
+     * getter of requestSetter object
+     *
+     * @return request setter object
+     */
+    public RequestSetter getRequestSetter() {
+        return requestSetter;
+    }
 
     /**
      * this method add three panel to MainPanel
@@ -421,14 +452,17 @@ public class MainFrame extends JFrame {
         // Central part of RedInsomnia (part 2)
 
 
-        JPanel centerPanel = new CenterPanel(this);
+        centerPanel = new CenterPanel(this);
 
 
 
         // right part of RedInsomnia (part3)
 
 
-        JPanel rightPanel = new RightPanel(this);
+        rightPanel = new RightPanel(this);
+
+
+        centerPanel.getResponseSetter().setRightPanel(rightPanel);
 
 
 
@@ -460,6 +494,7 @@ public class MainFrame extends JFrame {
 
         JButton insomniaPart = new JButton("Insomnia               ");
         insomniaPart.setFont(new Font("Santa Fe LET", Font.PLAIN, 25));
+        insomniaPart.setEnabled(false);
         insomniaPart.setBackground(themes.get(theme).get(0));
         insomniaPart.setForeground(themes.get(theme).get(11));
         insomniaPart.setPreferredSize(new Dimension(250, 65));
@@ -513,16 +548,12 @@ public class MainFrame extends JFrame {
         }
 
         JPopupMenu plusPopupMenu = new JPopupMenu();
-        plusPopupMenu.setPreferredSize(new Dimension(250, 100));
+        plusPopupMenu.setPreferredSize(new Dimension(200, 40));
 
         JMenuItem newRequest = new JMenuItem("New Request");
         newRequest.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK));
 
-        JMenuItem newFolder = new JMenuItem("New Folder");
-        newFolder.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK | KeyEvent.SHIFT_MASK));
-
         plusPopupMenu.add(newRequest);
-        plusPopupMenu.add(newFolder);
 
         /*newRequest.addActionListener();
         newFolder.addActionListener();*/
@@ -645,6 +676,16 @@ public class MainFrame extends JFrame {
 
         newRequest.addActionListener(e -> new NewRequestFrame(MainFrame.this, requestList, currentDir));
 
+        getSaveBean().addPropertyChangeListener(evt -> {
+
+            if(((String)evt.getNewValue()).equals("true")) {
+
+                new Thread(() -> new NewRequestFrame(MainFrame.this, requestList, centerPanel, rightPanel)).start();
+
+            }
+
+        });
+
 
         requestPanel.add(requestListScroll, BorderLayout.CENTER);
 
@@ -751,5 +792,7 @@ public class MainFrame extends JFrame {
 
     }
 
-
+    public MessageBean getSaveBean() {
+        return saveBean;
+    }
 }
