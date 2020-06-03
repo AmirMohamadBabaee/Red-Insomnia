@@ -534,7 +534,7 @@ public class HttpRequest implements Serializable{
 
             boolean isSuccessful = new File("./cache/").mkdirs();
 
-            if(connection.getHeaderField("Content-Type").contains("image")) {
+            if(connection.getContentType() != null && connection.getContentType().contains("image")) {
 
 
                 DataInputStream input = new DataInputStream(new BufferedInputStream(in));
@@ -659,7 +659,7 @@ public class HttpRequest implements Serializable{
 
             } else {
 
-                if(connection.getContentType().contains("image")) {
+                if(connection.getContentType() != null && connection.getContentType().contains("image")) {
 
                     try(BufferedReader bf = new BufferedReader(new InputStreamReader(url.openStream()))) {
 
@@ -699,6 +699,7 @@ public class HttpRequest implements Serializable{
 
             if(isShowResponseHeader()) {
 
+                System.out.println(connection.getHeaderFields());
                 for (Map.Entry<String, List<String>> entry : connection.getHeaderFields().entrySet()) {
                     System.out.println((entry.getKey() != null ? entry.getKey() + " : " : "") + entry.getValue());
                 }
