@@ -69,6 +69,13 @@ public class RequestPanel extends JButton {
         requestMethod.setText(this.getRequestMethod());
         requestMethod.setForeground(new Color(0, 255, 0));
         requestMethod.setFont(new Font("Santa Fe Let" , Font.PLAIN, 13));
+        MessageBean bean = mainFrame.getBean();
+
+        bean.addPropertyChangeListener(e -> {
+            if (isSelect()) {
+                requestMethod.setText((String)e.getNewValue());
+            }
+        });
 
         requsetName = new JLabel();
         requsetName.setOpaque(false);
