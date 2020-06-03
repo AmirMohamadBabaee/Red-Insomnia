@@ -149,7 +149,11 @@ public class RequestSetter {
     public void setFilePath(String filePath) {
         if(!filePath.isEmpty()) {
             int sizeIndex = filePath.indexOf("(");
-            this.filePath = filePath.substring(0, sizeIndex);
+            if(sizeIndex >= 0) {
+
+                this.filePath = filePath.substring(0, sizeIndex);
+
+            }
         }
     }
 
