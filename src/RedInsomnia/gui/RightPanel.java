@@ -131,7 +131,14 @@ public class RightPanel extends JPanel {
         saveButton.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
         saveButton.setContentAreaFilled(false);
         saveButton.setOpaque(true);
+        MessageBean bean = mainFrame.getSaveBean();
         saveButton.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                bean.setValue("true");
+            }
+
             @Override
             public void mouseEntered(MouseEvent e) {
 
