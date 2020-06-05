@@ -61,8 +61,11 @@ public class RequestPack {
      */
     public RequestPack(RequestPanel requestPanel, CenterPanel centerPanel, RightPanel rightPanel) {
 
+        CenterPanelData centerPanelData = new CenterPanelData();
         this.requestPanel = requestPanel;
+        centerPanelData.setRequestPanel(this.requestPanel);
         this.centerPanel = centerPanel;
+        this.centerPanel.setCenterPanelData(centerPanelData);
         this.rightPanel = rightPanel;
 
     }
