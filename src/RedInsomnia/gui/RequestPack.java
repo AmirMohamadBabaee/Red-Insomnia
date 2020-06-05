@@ -26,8 +26,27 @@ public class RequestPack {
      */
     public RequestPack(RequestPanel requestPanel, MainFrame mainFrame) {
 
+        CenterPanelData centerPanelData = new CenterPanelData();
         this.requestPanel = requestPanel;
-        this.centerPanel = new CenterPanel(mainFrame);
+        centerPanelData.setRequestPanel(this.requestPanel);
+        this.centerPanel = new CenterPanel(mainFrame, centerPanelData);
+        this.rightPanel = new RightPanel(mainFrame);
+        this.centerPanel.getResponseSetter().setRightPanel(this.rightPanel);
+
+    }
+
+    /**
+     * Constructor of Request pack class
+     *
+     * @param requestPanel requestPanel object
+     * @param mainFrame main Frame of RedInsomnia
+     * @param centerPanelData data class of center panel
+     */
+    public RequestPack(RequestPanel requestPanel, MainFrame mainFrame, CenterPanelData centerPanelData) {
+
+        this.requestPanel = requestPanel;
+        centerPanelData.setRequestPanel(this.requestPanel);
+        this.centerPanel = new CenterPanel(mainFrame, centerPanelData);
         this.rightPanel = new RightPanel(mainFrame);
         this.centerPanel.getResponseSetter().setRightPanel(this.rightPanel);
 
