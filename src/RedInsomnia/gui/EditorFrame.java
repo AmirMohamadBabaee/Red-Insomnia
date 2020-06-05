@@ -1,7 +1,5 @@
 package RedInsomnia.gui;
 
-import RedInsomnia.http.HttpRequest;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -31,9 +29,6 @@ public class EditorFrame extends JFrame {
     private JEditorPane editorPane;
     private JButton doneButton;
     private String context;
-    private CenterPanel centerPanel;
-    private HttpRequest httpRequest;
-    private MessageBean bean;
     private JButton editorButton;
     static Map<JButton, String> contextsList = new LinkedHashMap<>();
 
@@ -143,45 +138,6 @@ public class EditorFrame extends JFrame {
 
         add(doneButton);
 
-        this.centerPanel = centerPanel;
-        this.bean = bean;
-
-    }
-
-    /**
-     * getter of context field
-     *
-     * @return context of this frame
-     */
-    public String getContext() {
-        return context;
-    }
-
-    /**
-     * setter of context field
-     *
-     * @param context context of this frame
-     */
-    public void setContext(String context) {
-        this.context = context;
-    }
-
-    /**
-     * getter of http request
-     *
-     * @return http request
-     */
-    public HttpRequest getHttpRequest() {
-        return httpRequest;
-    }
-
-    /**
-     * setter of http request in this class
-     *
-     * @param httpRequest http request of this request
-     */
-    public void setHttpRequest(HttpRequest httpRequest) {
-        this.httpRequest = httpRequest;
     }
 
     /**
