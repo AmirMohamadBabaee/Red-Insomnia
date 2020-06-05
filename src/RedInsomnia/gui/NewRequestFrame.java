@@ -177,6 +177,8 @@ public class NewRequestFrame extends JFrame {
             requestPanel.setSelected(true);
             requestPanel.restartColor(0);
 
+            mainFrame.getBean().setValue(method);
+
             mainFrame.getContentPane().removeAll();
             mainFrame.getContentPane().add(mainFrame.getLeftPanel(), BorderLayout.WEST);
             mainFrame.getContentPane().add(pack.getCenterPanel(), BorderLayout.CENTER);
