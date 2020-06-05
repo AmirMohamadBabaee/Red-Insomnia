@@ -9,7 +9,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * RedInsomnia.gui.MainFrame
@@ -452,7 +454,7 @@ public class MainFrame extends JFrame {
         // Central part of RedInsomnia (part 2)
 
 
-        centerPanel = new CenterPanel(this);
+        centerPanel = new CenterPanel(this, null);
 
 
 
@@ -638,8 +640,44 @@ public class MainFrame extends JFrame {
         requestListScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         requestListScroll.setBorder(null);
 
+        Map<RequestPanel, CenterPanelData> map = readCenterData();
 
-        for (RequestPanel object : readObjects()) {
+        for (Map.Entry<RequestPanel, CenterPanelData> entry : map.entrySet()) {
+
+            RequestPanel button = new RequestPanel(this, entry.getKey().getRequestMethod(), entry.getKey().getRequestName(), requestList);
+            requestList.add(button);
+            RequestPack pack = new RequestPack(button, this, entry.getValue());
+
+
+            button.addActionListener(e -> {
+
+                ((RequestPanel)e.getSource()).setSelected(true);
+                mainPanel.removeAll();
+                mainPanel.add(leftPanel, BorderLayout.WEST);
+                mainPanel.add(pack.getCenterPanel(), BorderLayout.CENTER);
+                mainPanel.add(pack.getRightPanel(), BorderLayout.EAST);
+                mainPanel.revalidate();
+                mainPanel.repaint();
+                MainFrame.this.revalidate();
+                MainFrame.this.repaint();
+
+                for (Component component : requestList.getComponents()) {
+
+                    if(component instanceof RequestPanel && component != e.getSource()) {
+
+                        ((RequestPanel)component).setSelected(false);
+                        ((RequestPanel) component).restartColor(1);
+
+                    }
+
+                }
+
+
+            });
+
+        }
+
+        /*for (RequestPanel object : readObjects()) {
 
             RequestPanel button = new RequestPanel(this, object.getRequestMethod(), object.getRequestName(), requestList);
             requestList.add(button);
@@ -672,15 +710,30 @@ public class MainFrame extends JFrame {
             });
 
 
-        }
+        }*/
 
-        newRequest.addActionListener(e -> new NewRequestFrame(MainFrame.this, requestList, currentDir));
+        newRequest.addActionListener(e -> new Thread(() -> new NewRequestFrame(MainFrame.this, requestList, currentDir)).start());
 
         getSaveBean().addPropertyChangeListener(evt -> {
 
             if(((String)evt.getNewValue()).equals("true")) {
 
-                new Thread(() -> new NewRequestFrame(MainFrame.this, requestList, centerPanel, rightPanel)).start();
+                boolean anyRequestSelected = false;
+
+                for (Component component : requestList.getComponents()) {
+
+                    if(((RequestPanel)component).isSelect()) {
+                        anyRequestSelected = true;
+                        break;
+                    }
+
+                }
+
+                if(!anyRequestSelected) {
+
+                    new Thread(() -> new NewRequestFrame(MainFrame.this, requestList, centerPanel, rightPanel)).start();
+
+                }
 
             }
 
@@ -701,7 +754,7 @@ public class MainFrame extends JFrame {
      *
      * @see <a href="https://stackoverflow.com/questions/27409718/java-reading-multiple-objects-from-a-file-as-they-were-in-an-array">StackOverFlow</>
      */
-    public ArrayList<RequestPanel> readObjects(){
+    public ArrayList<RequestPanel> readObjects() {
         ArrayList<RequestPanel> al = new ArrayList<>();
         boolean cont = true;
         try {
@@ -724,6 +777,50 @@ public class MainFrame extends JFrame {
         }
 
         return al;
+    }
+
+
+    public Map<RequestPanel, CenterPanelData> readCenterData() {
+
+        new File("./data/center_panel_data").mkdirs();
+
+        Map<RequestPanel, CenterPanelData> map = new LinkedHashMap<>();
+        boolean cont = true;
+
+        File[] files = new File("./data/center_panel_data/").listFiles();
+
+        for (File file : files) {
+
+            if(file != null && file.isFile() && file.canRead() && file.getName().endsWith(".cpdata")) {
+
+                try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+
+                    while(cont){
+                        RequestPanel obj = null;
+                        CenterPanelData cen = null;
+                        try {
+                            obj = (RequestPanel) ois.readObject();
+                            cen = (CenterPanelData) ois.readObject();
+
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        if(obj != null && cen != null)
+                            map.put(obj, cen);
+                        else
+                            cont = false;
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        }
+
+        return map;
+
     }
 
 
