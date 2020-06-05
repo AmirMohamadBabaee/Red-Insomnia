@@ -103,6 +103,7 @@ public class RightPanel extends JPanel {
         getRequestStatus().setPreferredSize(new Dimension(50, 30));
         getRequestStatus().setContentAreaFilled(false);
         getRequestStatus().setOpaque(true);
+        getRequestStatus().setEnabled(false);
 
         // delay time of request
         delayTime = new JButton(this.delayTimeStr);
@@ -112,6 +113,7 @@ public class RightPanel extends JPanel {
         getDelayTime().setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
         getDelayTime().setContentAreaFilled(false);
         getDelayTime().setOpaque(true);
+        getDelayTime().setEnabled(false);
 
         // size of response file
         fileSize = new JButton(this.responseSizeStr);
@@ -121,6 +123,7 @@ public class RightPanel extends JPanel {
         getFileSize().setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
         getFileSize().setContentAreaFilled(false);
         getFileSize().setOpaque(true);
+        getFileSize().setEnabled(false);
 
 
         // save request
