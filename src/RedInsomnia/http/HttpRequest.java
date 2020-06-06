@@ -10,6 +10,7 @@ import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -68,6 +69,7 @@ public class HttpRequest implements Serializable{
         }catch(MalformedURLException er) {
             er.printStackTrace();
             setRequestEnable(false);
+            responseSetter.launchMalformedUrlError(er.getMessage());
         }
 
 
@@ -614,7 +616,7 @@ public class HttpRequest implements Serializable{
 
                     responseSetter.setResponseSize(new File(fileName).length());
 
-                } else if(connection.getHeaderField("Content-Type").contains("text/html")) {
+                } else if(connection.getContentType() != null && connection.getHeaderField("Content-Type").contains("text/html")) {
 
                     Document doc = Jsoup.parseBodyFragment(responseBody);
                     doc.outputSettings().indentAmount(4);
@@ -715,8 +717,13 @@ public class HttpRequest implements Serializable{
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
+            responseSetter.launchMalformedUrlError(e.getMessage());
+        } catch(UnknownHostException e) {
+            e.printStackTrace();
+            responseSetter.launchUnknownHostError(e.getMessage());
         } catch (IOException e) {
             e.printStackTrace();
+            responseSetter.launchIOError(e.getMessage());
         }
 
     }

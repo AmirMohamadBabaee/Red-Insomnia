@@ -179,6 +179,35 @@ public class ResponseSetter {
         this.rightPanel = rightPanel;
     }
 
+    /**
+     * setter of malformed url exception
+     *
+     * @param malformedUrlError exception message
+     */
+    public void launchMalformedUrlError(String malformedUrlError) {
+
+        JOptionPane.showMessageDialog(rightPanel, "Your Entered URL : " + malformedUrlError, "Malformed URL Error", JOptionPane.ERROR_MESSAGE);
+
+    }
+
+    /**
+     * setter of i/o exception
+     *
+     * @param IOError exception message
+     */
+    public void launchIOError(String IOError) {
+
+        JOptionPane.showMessageDialog(rightPanel, IOError, "I/O Error", JOptionPane.ERROR_MESSAGE);
+
+    }
+
+    public void launchUnknownHostError(String unknownHostError) {
+
+        JOptionPane.showMessageDialog(rightPanel, "Your Entered URL : " + unknownHostError, "Unknown Host Error", JOptionPane.ERROR_MESSAGE);
+
+    }
+
+
     public void updateRightPanel() {
 
         rightPanel.getRequestStatus().setText(getStatusCode() + " " + getStatusMessage());

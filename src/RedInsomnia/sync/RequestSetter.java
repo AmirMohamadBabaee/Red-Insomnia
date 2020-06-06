@@ -28,7 +28,8 @@ public class RequestSetter {
     /**
      * Default Constructor of RequestSetter
      */
-    public RequestSetter() {
+    public RequestSetter(ResponseSetter responseSetter) {
+        setResponseSetter(responseSetter);
         commandFunction = new CommandFunction();
     }
 
@@ -38,9 +39,9 @@ public class RequestSetter {
      * @param url expected url
      * @param method expected method
      */
-    public RequestSetter(String url, String method) {
+    public RequestSetter(String url, String method, ResponseSetter responseSetter) {
 
-        this();
+        this(responseSetter);
         setUrl(url);
         setMethod(method);
 
@@ -53,9 +54,9 @@ public class RequestSetter {
      * @param method expected method
      * @param header expected header
      */
-    public RequestSetter(String url, String method, String header) {
+    public RequestSetter(String url, String method, String header, ResponseSetter responseSetter) {
 
-        this(url, method);
+        this(url, method, responseSetter);
         setHeader(header);
 
     }

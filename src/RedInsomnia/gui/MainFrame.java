@@ -287,7 +287,7 @@ public class MainFrame extends JFrame {
         setVisible(true);
 
         responseSetter = new ResponseSetter();
-        requestSetter = new RequestSetter();
+        requestSetter = new RequestSetter(responseSetter);
     }
 
     /**

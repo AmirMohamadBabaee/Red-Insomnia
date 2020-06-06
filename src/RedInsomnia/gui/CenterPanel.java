@@ -62,7 +62,7 @@ public class CenterPanel extends JPanel{
         this.setCenterPanelData(centerPanelData);
 
         responseSetter = new ResponseSetter();
-        requestSetter = new RequestSetter();
+        requestSetter = new RequestSetter(responseSetter);
         editorContexts = new ArrayList<>();
 
         this.themes = mainFrame.getThemes();
@@ -1774,6 +1774,7 @@ public class CenterPanel extends JPanel{
 
     private void sendTrigger() {
 
+        requestSetter.setResponseSetter(responseSetter);
         assert urlTextField != null;
         requestSetter.setUrl(urlTextField.getText());
         requestSetter.setMethod(getHttpMethodButton().getText());
@@ -1784,7 +1785,6 @@ public class CenterPanel extends JPanel{
         if(mainFrame.isFollowDirect()) {
             requestSetter.setFollowRedirect();
         }
-        requestSetter.setResponseSetter(responseSetter);
 
 //        new Thread(requestSetter::callStartConnection).start();
         new Thread(() -> requestSetter.callStartConnection()).start();
