@@ -1,14 +1,12 @@
 package RedInsomnia.gui;
 
+import RedInsomnia.http.JsonUtility;
 import RedInsomnia.sync.RequestSetter;
 import RedInsomnia.sync.ResponseSetter;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
@@ -639,6 +637,32 @@ public class CenterPanel extends JPanel{
 
         jsonPanel.setLayout(new BorderLayout());
 
+
+        JButton jsonStatus = new JButton("Text is not JSON!");
+        jsonStatus.setBackground(themes.get(theme).get(6));
+        jsonStatus.setForeground(themes.get(theme).get(11));
+        jsonStatus.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+        jsonStatus.setPreferredSize(new Dimension(150, 50));
+        jsonStatus.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(8), 1));
+        jsonStatus.setContentAreaFilled(false);
+        jsonStatus.setOpaque(true);
+        jsonStatus.setEnabled(false);
+        jsonStatus.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                if(jsonStatus.isEnabled()) {
+                    jsonStatus.setBackground(themes.get(theme).get(1));
+                }
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                jsonStatus.setBackground(themes.get(theme).get(6));
+            }
+        });
+
+
         jsonPane = new JEditorPane();
         jsonPane.setBackground(themes.get(theme).get(6));
         jsonPane.setForeground(themes.get(theme).get(11));
@@ -654,6 +678,46 @@ public class CenterPanel extends JPanel{
 
         }
 
+        jsonPane.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+                if(JsonUtility.isJSONValid(jsonPane.getText())) {
+
+                    jsonStatus.setText("Beautify JSON");
+                    jsonStatus.setEnabled(true);
+
+                } else {
+
+                    jsonStatus.setText("Text is not JSON!");
+                    jsonStatus.setEnabled(false);
+                    jsonStatus.setBackground(themes.get(theme).get(6));
+
+                }
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+
+                if(JsonUtility.isJSONValid(jsonPane.getText())) {
+
+                    jsonStatus.setText("Beautify JSON");
+                    jsonStatus.setEnabled(true);
+
+                } else {
+
+                    jsonStatus.setText("Text is not JSON!");
+                    jsonStatus.setEnabled(false);
+                    jsonStatus.setBackground(themes.get(theme).get(6));
+
+                }
+
+            }
+        });
+
+        jsonStatus.addActionListener(e -> jsonPane.setText(JsonUtility.beautifyJson(jsonPane.getText())));
+
 
         TextLineNumber tln = new TextLineNumber(jsonPane);
         tln.setBorderGap(0);
@@ -668,6 +732,8 @@ public class CenterPanel extends JPanel{
 
 
         jsonPanel.add(rawScroll, BorderLayout.CENTER);
+
+        jsonPanel.add(jsonStatus, BorderLayout.SOUTH);
         // end of json changing
 
 
