@@ -69,7 +69,6 @@ public class HttpRequest implements Serializable{
         }catch(MalformedURLException er) {
             er.printStackTrace();
             setRequestEnable(false);
-            responseSetter.launchMalformedUrlError(er.getMessage());
         }
 
 
@@ -560,15 +559,34 @@ public class HttpRequest implements Serializable{
 
                 input.close();
 
-                String fileName = "./cache/I" + System.currentTimeMillis() + ".png";
+                String fileName = "./cache/I" + System.currentTimeMillis();
 
+                if(connection.getContentType().contains("png")) {
+                    fileName += ".png";
+                } else if(connection.getContentType().contains("bmp")) {
+                    fileName += ".bmp";
+                } else if(connection.getContentType().contains("gif")) {
+                    fileName += ".gif";
+                } else if(connection.getContentType().contains("vnd.microsoft.icon")) {
+                    fileName += ".ico";
+                } else if(connection.getContentType().contains("jpeg")) {
+                    fileName += ".jpg";
+                } else if(connection.getContentType().contains("svg+xml")) {
+                    fileName += ".svg";
+                } else if(connection.getContentType().contains("tiff")) {
+                    fileName += ".tif";
+                } else if(connection.getContentType().contains("webp")) {
+                    fileName += ".webp";
+                }
                 DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(new File(fileName))));
 
                 out.write(imageBytes);
                 out.flush();
 
-                responseSetter.setImagePath(fileName);
-                responseSetter.setResponseSize(new File(fileName).length());
+                if(responseSetter != null) {
+                    responseSetter.setImagePath(fileName);
+                    responseSetter.setResponseSize(new File(fileName).length());
+                }
 
             } else {
 
@@ -612,9 +630,10 @@ public class HttpRequest implements Serializable{
 
                     output.close();
 
-                    responseSetter.setResponseBody(beautyString);
-
-                    responseSetter.setResponseSize(new File(fileName).length());
+                    if(responseSetter != null) {
+                        responseSetter.setResponseBody(beautyString);
+                        responseSetter.setResponseSize(new File(fileName).length());
+                    }
 
                 } else if(connection.getContentType() != null && connection.getHeaderField("Content-Type").contains("text/html")) {
 
@@ -635,9 +654,10 @@ public class HttpRequest implements Serializable{
 
                     output.close();
 
-                    responseSetter.setResponseBody(beautyHtml);
-
-                    responseSetter.setResponseSize(new File(fileName).length());
+                    if(responseSetter != null) {
+                        responseSetter.setResponseBody(beautyHtml);
+                        responseSetter.setResponseSize(new File(fileName).length());
+                    }
 
                 } else {
 
@@ -653,9 +673,10 @@ public class HttpRequest implements Serializable{
 
                     output.close();
 
-                    responseSetter.setResponseBody(responseBody);
-
-                    responseSetter.setResponseSize(new File(fileName).length());
+                    if(responseSetter != null) {
+                        responseSetter.setResponseBody(responseBody);
+                        responseSetter.setResponseSize(new File(fileName).length());
+                    }
 
                 }
 
@@ -678,7 +699,9 @@ public class HttpRequest implements Serializable{
                         System.out.println(stringBuilder);
                         System.out.println();
 
-                        responseSetter.setResponseBody(stringBuilder.toString());
+                        if(responseSetter != null) {
+                            responseSetter.setResponseBody(stringBuilder.toString());
+                        }
 
                     }
 
@@ -687,16 +710,20 @@ public class HttpRequest implements Serializable{
                     System.out.println("There is no Response!!!");
                     System.out.println();
 
-                    responseSetter.setResponseBody("There is no Response!!!");
+                    if(responseSetter != null) {
+                        responseSetter.setResponseBody("There is no Response!!!");
+                    }
 
                 }
 
             }
 
-            responseSetter.setHeaderMap(connection.getHeaderFields());
-            responseSetter.setDelayTime(getDelayTime());
-            responseSetter.setStatusCode(connection.getResponseCode());
-            responseSetter.setStatusMessage(connection.getResponseMessage());
+            if(responseSetter != null) {
+                responseSetter.setHeaderMap(connection.getHeaderFields());
+                responseSetter.setDelayTime(getDelayTime());
+                responseSetter.setStatusCode(connection.getResponseCode());
+                responseSetter.setStatusMessage(connection.getResponseMessage());
+            }
 
 
             if(isShowResponseHeader()) {
@@ -711,19 +738,27 @@ public class HttpRequest implements Serializable{
 
             }
 
-            responseSetter.updateRightPanel();
+            if(responseSetter != null) {
+                responseSetter.updateRightPanel();
+            }
 
             connection.disconnect();
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
-            responseSetter.launchMalformedUrlError(e.getMessage());
+            if(responseSetter != null) {
+                responseSetter.launchMalformedUrlError(e.getMessage());
+            }
         } catch(UnknownHostException e) {
             e.printStackTrace();
-            responseSetter.launchUnknownHostError(e.getMessage());
+            if(responseSetter != null) {
+                responseSetter.launchUnknownHostError(e.getMessage());
+            }
         } catch (IOException e) {
             e.printStackTrace();
-            responseSetter.launchIOError(e.getMessage());
+            if(responseSetter != null) {
+                responseSetter.launchIOError(e.getMessage());
+            }
         }
 
     }
