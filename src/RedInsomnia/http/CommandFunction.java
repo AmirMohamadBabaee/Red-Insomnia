@@ -86,7 +86,6 @@ public class CommandFunction {
 
             } else {
 
-                // todo : this log must be changed for connection of this to GUI
                 System.out.println("There is file with \"" + outputName + "\" name!");
                 return;
 
@@ -172,6 +171,7 @@ public class CommandFunction {
 
                 httpRequest = savedRequestList.get(i);
                 if(httpRequest.isRequestEnable()) {
+                    System.out.println("Fire Request: " + httpRequest.toString());
                     httpRequest.establishConnection();
                 }
 
