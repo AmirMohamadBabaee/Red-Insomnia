@@ -1,6 +1,6 @@
 package RedInsomnia.gui;
 
-import RedInsomnia.main.Main;
+import RedInsomnia.main.REDInsomniaMain;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -160,7 +160,7 @@ public class OptionController {
                 }
 
                 optionFrame.dispose();
-                Main.startAgain(((MainFrame)mainFrame).getTheme());
+                REDInsomniaMain.startAgain(((MainFrame)mainFrame).getTheme());
                 mainFrame.dispose();
 
             }
