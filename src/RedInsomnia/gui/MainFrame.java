@@ -275,7 +275,14 @@ public class MainFrame extends JFrame {
         helpItem.setMnemonic(KeyEvent.VK_H);
 
         about.addActionListener(e -> SwingUtilities.invokeLater(() -> new AboutFrame(MainFrame.this, theme)));
-        helpItem.addActionListener(e -> SwingUtilities.invokeLater(() -> new HelpFrame(MainFrame.this, theme)));
+        helpItem.addActionListener(e -> {
+            File file = new File(currentDir + "\\resource\\help.html");
+            try {
+                Desktop.getDesktop().open(file);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
 
         help.add(about);
         help.add(helpItem);
@@ -494,8 +501,8 @@ public class MainFrame extends JFrame {
         leftPanel.setPreferredSize(new Dimension(250, 580));
         leftPanel.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
 
-        JButton insomniaPart = new JButton("Insomnia               ");
-        insomniaPart.setFont(new Font("Santa Fe LET", Font.PLAIN, 25));
+        JButton insomniaPart = new JButton("REDInsomnia           ");
+        insomniaPart.setFont(new Font("Santa Fe LET", Font.BOLD, 23));
         insomniaPart.setEnabled(false);
         insomniaPart.setBackground(themes.get(theme).get(0));
         insomniaPart.setForeground(themes.get(theme).get(11));
@@ -521,6 +528,28 @@ public class MainFrame extends JFrame {
         requestFilter.setMaximumSize(new Dimension(200, 30));
         requestFilter.setAlignmentY(Component.CENTER_ALIGNMENT);
         requestFilter.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
+        requestFilter.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+
+                if(requestFilter.getText().trim().toLowerCase().equals("filter")) {
+                    requestFilter.setText("");
+                }
+
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+
+                if(requestFilter.getText().trim().equals("")
+                    || requestFilter.getText().trim().toLowerCase().equals("filter")) {
+
+                    requestFilter.setText("Filter");
+
+                }
+
+            }
+        });
 
 
         JButton plusButton = new JButton();
@@ -667,6 +696,7 @@ public class MainFrame extends JFrame {
 
                         ((RequestPanel)component).setSelected(false);
                         ((RequestPanel) component).restartColor(1);
+                        component.setVisible(true);
 
                     }
 
@@ -711,6 +741,46 @@ public class MainFrame extends JFrame {
 
 
         }*/
+
+        requestFilter.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+                new SwingWorker<Void, Void>() {
+
+                    @Override
+                    protected Void doInBackground() throws Exception {
+
+                        for (Component component : requestList.getComponents()) {
+
+                            if(component instanceof RequestPanel) {
+
+                                if(!((RequestPanel) component).getRequestName().contains(requestFilter.getText().trim())) {
+
+                                    component.setVisible(false);
+
+                                } else {
+
+                                    component.setVisible(true);
+
+                                }
+
+                                if(requestFilter.getText().trim().equals("")) {
+
+                                    component.setVisible(true);
+
+                                }
+
+                            }
+
+                        }
+
+                        return null;
+                    }
+                }.execute();
+
+            }
+        });
 
         newRequest.addActionListener(e -> new Thread(() -> new NewRequestFrame(MainFrame.this, requestList, currentDir)).start());
 
@@ -812,7 +882,7 @@ public class MainFrame extends JFrame {
                     }
 
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    System.err.println(e.getMessage());
                 }
 
             }
