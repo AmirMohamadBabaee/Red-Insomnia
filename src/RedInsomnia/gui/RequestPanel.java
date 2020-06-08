@@ -26,7 +26,7 @@ public class RequestPanel extends JButton {
     private JPanel buttonPanel;
     private JPanel coverPanel;
     private JLabel requestMethod;
-    private JLabel requsetName;
+    private JLabel requestName;
     private JPopupMenu requestPopup;
     private String openMenu = "\uD83D\uDF83";
     private int theme;
@@ -77,17 +77,17 @@ public class RequestPanel extends JButton {
             }
         });
 
-        requsetName = new JLabel();
-        requsetName.setOpaque(false);
-        requsetName.setPreferredSize(new Dimension(200, 50));
-        requsetName.setText(this.getRequestName());
-        requsetName.setForeground(new Color(91, 92, 90));
-        requsetName.setFont(new Font("Santa Fe Let", Font.PLAIN, 16));
+        requestName = new JLabel();
+        requestName.setOpaque(false);
+        requestName.setPreferredSize(new Dimension(200, 50));
+        requestName.setText(this.getRequestName());
+        requestName.setForeground(new Color(91, 92, 90));
+        requestName.setFont(new Font("Santa Fe Let", Font.PLAIN, 16));
 
         coverPanel.add(Box.createRigidArea(new Dimension(5, 0)));
         coverPanel.add(requestMethod);
         coverPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        coverPanel.add(requsetName);
+        coverPanel.add(requestName);
         coverPanel.add(Box.createRigidArea(new Dimension(200, 0)));
 
         coverPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
