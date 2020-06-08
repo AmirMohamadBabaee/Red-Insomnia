@@ -246,6 +246,8 @@ public class ResponseSetter {
         }
         rightPanel.headerArrangement();
 
+        rightPanel.getVisualPanel().removeAll();
+
         // visual setting
         BufferedImage responseImage = null;
         JLabel pic ;
@@ -261,6 +263,17 @@ public class ResponseSetter {
                     rightPanel.getVisualPanel().add(pic, BorderLayout.CENTER);
 
                 }
+
+            } else if(responseBody.trim().toLowerCase().startsWith("<html>")
+                && responseBody.trim().toLowerCase().endsWith("</html>")) {
+
+                pic = new JLabel(responseBody);
+                rightPanel.getVisualPanel().add(pic, BorderLayout.CENTER);
+
+            } else {
+
+                pic = new JLabel();
+                rightPanel.getVisualPanel().add(pic, BorderLayout.CENTER);
 
             }
 
