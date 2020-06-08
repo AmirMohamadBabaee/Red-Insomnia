@@ -137,15 +137,15 @@ public class CenterPanel extends JPanel{
         });
 
         bean.addPropertyChangeListener(e -> {
-            String str = " " + e.getNewValue();
-            for(int i = 0 ; i < 10 - str.length() ; i++) {
+            if(centerPanelData != null) {
+                String str = " " + getCenterPanelData().getRequestPanel().getRequestMethod();
+                for(int i = 0 ; i < 10 - str.length() ; i++) {
+                    str += " ";
+                }
+                str += openMenu;
 
-                str += " ";
-
+                getHttpMethodButton().setText(str);
             }
-            str += openMenu;
-
-            getHttpMethodButton().setText(str);
         });
 
 
@@ -184,7 +184,7 @@ public class CenterPanel extends JPanel{
 
         } else {
 
-            urlTextField = new JTextField("apapi.haditabatabaei.ir/");
+            urlTextField = new JTextField("........... URL ...........");
 
         }
         urlTextField.setBackground(Color.white);
@@ -195,14 +195,25 @@ public class CenterPanel extends JPanel{
         urlTextField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-                if(urlTextField.getText().equals("apapi.haditabatabaei.ir/"))
+                if(urlTextField.getText().equals("........... URL ..........."))
                 urlTextField.setText("");
             }
 
             @Override
             public void focusLost(FocusEvent e) {
                 if(urlTextField.getText().equals("")) {
-                    urlTextField.setText("apapi.haditabatabaei.ir/");
+                    urlTextField.setText("........... URL ...........");
+                }
+            }
+        });
+        urlTextField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                if(e.getKeyChar() == '\n' && e.isControlDown()) {
+
+                    sendTrigger();
+                    updateSavedData();
+
                 }
             }
         });
@@ -714,6 +725,24 @@ public class CenterPanel extends JPanel{
                 }
 
             }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+                if(JsonUtility.isJSONValid(jsonPane.getText())) {
+
+                    jsonStatus.setText("Beautify JSON");
+                    jsonStatus.setEnabled(true);
+
+                } else {
+
+                    jsonStatus.setText("Text is not JSON!");
+                    jsonStatus.setEnabled(false);
+                    jsonStatus.setBackground(themes.get(theme).get(6));
+
+                }
+
+            }
         });
 
         jsonStatus.addActionListener(e -> jsonPane.setText(JsonUtility.beautifyJson(jsonPane.getText())));
@@ -829,8 +858,6 @@ public class CenterPanel extends JPanel{
 
                 headerField.subList(1, headerField.size()).clear();
 
-                System.out.println(headerField.size());
-
                 addHeaderFieldPanel(headerPanel, headerField);
                 headerPanel.revalidate();
                 headerPanel.repaint();
@@ -854,7 +881,7 @@ public class CenterPanel extends JPanel{
                 settingButton.setIcon(settingIcon);
 
             } else {
-                System.out.println("setting icon normal doesn't found!!!");
+                System.err.println("setting icon normal doesn't found!!!");
             }
 
         } catch (Exception err) {
@@ -890,7 +917,7 @@ public class CenterPanel extends JPanel{
                         settingButton.setIcon(settingIcon);
 
                     } else {
-                        System.out.println("setting icon white doesn't found!!!");
+                        System.err.println("setting icon white doesn't found!!!");
                     }
 
                 } catch (Exception err) {
@@ -911,7 +938,7 @@ public class CenterPanel extends JPanel{
                         settingButton.setIcon(settingIcon);
 
                     } else {
-                        System.out.println("setting icon normal doesn't found!!!");
+                        System.err.println("setting icon normal doesn't found!!!");
                     }
 
                 } catch (Exception err) {
@@ -1138,7 +1165,7 @@ public class CenterPanel extends JPanel{
                 trashButton.setIcon(trashIcon);
 
             } else {
-                System.out.println("trash image doesn't exist!!!");
+                System.err.println("trash image doesn't exist!!!");
             }
         } catch (Exception err) {
             err.printStackTrace();
@@ -1175,7 +1202,7 @@ public class CenterPanel extends JPanel{
                         trashButton.setIcon(trashIcon);
 
                     } else {
-                        System.out.println("trash image doesn't exist!!!");
+                        System.err.println("trash image doesn't exist!!!");
                     }
                 } catch (Exception err) {
                     err.printStackTrace();
@@ -1194,7 +1221,7 @@ public class CenterPanel extends JPanel{
                         trashButton.setIcon(trashIcon);
 
                     } else {
-                        System.out.println("trash image doesn't exist!!!");
+                        System.err.println("trash image doesn't exist!!!");
                     }
                 } catch (Exception err) {
                     err.printStackTrace();
@@ -1295,8 +1322,6 @@ public class CenterPanel extends JPanel{
 
                 headerField.subList(1, headerField.size()).clear();
 
-                System.out.println(headerField.size());
-
                 addHeaderFieldPanel(headerPanel, headerField);
                 headerPanel.revalidate();
                 headerPanel.repaint();
@@ -1320,7 +1345,7 @@ public class CenterPanel extends JPanel{
                 settingButton.setIcon(settingIcon);
 
             } else {
-                System.out.println("setting icon normal doesn't found!!!");
+                System.err.println("setting icon normal doesn't found!!!");
             }
 
         } catch (Exception err) {
@@ -1356,7 +1381,7 @@ public class CenterPanel extends JPanel{
                         settingButton.setIcon(settingIcon);
 
                     } else {
-                        System.out.println("setting icon white doesn't found!!!");
+                        System.err.println("setting icon white doesn't found!!!");
                     }
 
                 } catch (Exception err) {
@@ -1377,7 +1402,7 @@ public class CenterPanel extends JPanel{
                         settingButton.setIcon(settingIcon);
 
                     } else {
-                        System.out.println("setting icon normal doesn't found!!!");
+                        System.err.println("setting icon normal doesn't found!!!");
                     }
 
                 } catch (Exception err) {
@@ -1603,7 +1628,7 @@ public class CenterPanel extends JPanel{
                 trashButton.setIcon(trashIcon);
 
             } else {
-                System.out.println("trash image doesn't exist!!!");
+                System.err.println("trash image doesn't exist!!!");
             }
         } catch (Exception err) {
             err.printStackTrace();
@@ -1640,7 +1665,7 @@ public class CenterPanel extends JPanel{
                         trashButton.setIcon(trashIcon);
 
                     } else {
-                        System.out.println("trash image doesn't exist!!!");
+                        System.err.println("trash image doesn't exist!!!");
                     }
                 } catch (Exception err) {
                     err.printStackTrace();
@@ -1659,7 +1684,7 @@ public class CenterPanel extends JPanel{
                         trashButton.setIcon(trashIcon);
 
                     } else {
-                        System.out.println("trash image doesn't exist!!!");
+                        System.err.println("trash image doesn't exist!!!");
                     }
                 } catch (Exception err) {
                     err.printStackTrace();
@@ -1738,7 +1763,6 @@ public class CenterPanel extends JPanel{
 
     private void addHeaderFieldPanel(JPanel headerPanel, List<JPanel> headerField) {
 
-        System.out.println(headerField.size());
         for (JPanel panel : headerField) {
 
             headerPanel.add(panel);
@@ -1781,13 +1805,21 @@ public class CenterPanel extends JPanel{
         requestSetter.setHeader(convertListToMap(headerField));
         requestSetter.setFormData(convertListToMap(formDataField));
         requestSetter.setFilePath(filePathArea.getText());
-        requestSetter.setJsonData(jsonPane.getText().isEmpty()? "" : jsonPane.getText());
+
+        if(JsonUtility.isJSONValid(jsonPane.getText())) {
+
+            requestSetter.setJsonData(jsonPane.getText().isEmpty()? "" : jsonPane.getText());
+
+        }
+
         if(mainFrame.isFollowDirect()) {
             requestSetter.setFollowRedirect();
         }
 
 //        new Thread(requestSetter::callStartConnection).start();
-        new Thread(() -> requestSetter.callStartConnection()).start();
+//        new Thread(() -> requestSetter.callStartConnection()).start();
+        BackgroundOperation backgroundOperation = new BackgroundOperation(requestSetter);
+        backgroundOperation.execute();
 
     }
 
