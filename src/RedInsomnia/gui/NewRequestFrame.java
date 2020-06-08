@@ -177,15 +177,6 @@ public class NewRequestFrame extends JFrame {
             requestPanel.setSelected(true);
             requestPanel.restartColor(0);
 
-            mainFrame.getBean().setValue(method);
-
-            mainFrame.getContentPane().removeAll();
-            mainFrame.getContentPane().add(mainFrame.getLeftPanel(), BorderLayout.WEST);
-            mainFrame.getContentPane().add(pack.getCenterPanel(), BorderLayout.CENTER);
-            mainFrame.getContentPane().add(pack.getRightPanel(), BorderLayout.EAST);
-            mainFrame.getContentPane().revalidate();
-            mainFrame.getContentPane().repaint();
-
             for (Component component : requestList.getComponents()) {
 
                 if(component instanceof RequestPanel && ((RequestPanel)component) != requestPanel) {
@@ -196,6 +187,17 @@ public class NewRequestFrame extends JFrame {
                 }
 
             }
+
+            requestPanel.setSelected(true);
+
+            mainFrame.getBean().setValue(method);
+
+            mainFrame.getContentPane().removeAll();
+            mainFrame.getContentPane().add(mainFrame.getLeftPanel(), BorderLayout.WEST);
+            mainFrame.getContentPane().add(pack.getCenterPanel(), BorderLayout.CENTER);
+            mainFrame.getContentPane().add(pack.getRightPanel(), BorderLayout.EAST);
+            mainFrame.getContentPane().revalidate();
+            mainFrame.getContentPane().repaint();
 
             requestPanel.addActionListener(e1 -> {
 
@@ -213,6 +215,7 @@ public class NewRequestFrame extends JFrame {
 
                         ((RequestPanel)component).setSelected(false);
                         ((RequestPanel) component).restartColor(1);
+                        component.setVisible(true);
 
                     }
 
@@ -226,7 +229,6 @@ public class NewRequestFrame extends JFrame {
             try(FileOutputStream out = new FileOutputStream(currentDir + "\\data\\request_list")) {
 
                 ObjectOutputStream outputStream = new ObjectOutputStream(out);
-                System.out.println(requestList.getComponents().length);
                 for (Component component : requestList.getComponents()) {
 
                     if(component instanceof JButton) {
@@ -396,15 +398,6 @@ public class NewRequestFrame extends JFrame {
             requestPanel.setSelected(true);
             requestPanel.restartColor(0);
 
-            mainFrame.getBean().setValue(method);
-
-            mainFrame.getContentPane().removeAll();
-            mainFrame.getContentPane().add(mainFrame.getLeftPanel(), BorderLayout.WEST);
-            mainFrame.getContentPane().add(pack.getCenterPanel(), BorderLayout.CENTER);
-            mainFrame.getContentPane().add(pack.getRightPanel(), BorderLayout.EAST);
-            mainFrame.getContentPane().revalidate();
-            mainFrame.getContentPane().repaint();
-
             for (Component component : requestList.getComponents()) {
 
                 if(component instanceof RequestPanel && ((RequestPanel)component) != requestPanel) {
@@ -415,6 +408,18 @@ public class NewRequestFrame extends JFrame {
                 }
 
             }
+
+            requestPanel.setSelected(true);
+
+            mainFrame.getBean().setValue(method);
+
+            mainFrame.getContentPane().removeAll();
+            mainFrame.getContentPane().add(mainFrame.getLeftPanel(), BorderLayout.WEST);
+            mainFrame.getContentPane().add(pack.getCenterPanel(), BorderLayout.CENTER);
+            mainFrame.getContentPane().add(pack.getRightPanel(), BorderLayout.EAST);
+            mainFrame.getContentPane().revalidate();
+            mainFrame.getContentPane().repaint();
+
 
             requestPanel.addActionListener(e1 -> {
 
@@ -432,6 +437,7 @@ public class NewRequestFrame extends JFrame {
 
                         ((RequestPanel)component).setSelected(false);
                         ((RequestPanel) component).restartColor(1);
+                        component.setVisible(true);
 
                     }
 
@@ -445,7 +451,6 @@ public class NewRequestFrame extends JFrame {
             try(FileOutputStream out = new FileOutputStream(currentDir + "\\data\\request_list")) {
 
                 ObjectOutputStream outputStream = new ObjectOutputStream(out);
-                System.out.println(requestList.getComponents().length);
                 for (Component component : requestList.getComponents()) {
 
                     if(component instanceof JButton) {
