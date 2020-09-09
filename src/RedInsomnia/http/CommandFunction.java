@@ -1,5 +1,7 @@
 package RedInsomnia.http;
 
+import RedInsomnia.sync.ResponseSetter;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +25,7 @@ public class CommandFunction {
     private boolean outputCalled;
     private boolean saveCalled;
     private List<HttpRequest> savedRequestList;
+    private ResponseSetter responseSetter;
 
 
     /**
@@ -55,7 +58,9 @@ public class CommandFunction {
      */
     public void headersOperation(String head) {
 
-        httpRequest.setHttpHeader(splitHeaders(head));
+        if(!head.isEmpty()) {
+            httpRequest.setHttpHeader(splitHeaders(head));
+        }
 
     }
 
@@ -81,7 +86,6 @@ public class CommandFunction {
 
             } else {
 
-                // todo : this log must be changed for connection of this to GUI
                 System.out.println("There is file with \"" + outputName + "\" name!");
                 return;
 
@@ -100,7 +104,9 @@ public class CommandFunction {
      */
     public void dataOperation(String data) {
 
-        httpRequest.setHttpData(splitDatas(data));
+        if(!data.isEmpty()) {
+            httpRequest.setHttpData(splitDatas(data));
+        }
 
     }
 
@@ -165,6 +171,7 @@ public class CommandFunction {
 
                 httpRequest = savedRequestList.get(i);
                 if(httpRequest.isRequestEnable()) {
+                    System.out.println("Fire Request: " + httpRequest.toString());
                     httpRequest.establishConnection();
                 }
 
@@ -376,6 +383,7 @@ public class CommandFunction {
                 saveRequest();
 
             }
+            httpRequest.setResponseSetter(responseSetter);
             httpRequest.establishConnection();
             if(outputCalled) {
 
@@ -444,10 +452,19 @@ public class CommandFunction {
      */
     private void outputWriterOperation() {
 
-        try(ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(RESPONSE_DIR + fileName))) {
+        try(DataOutputStream out = new DataOutputStream(new FileOutputStream(RESPONSE_DIR + fileName))) {
 
-            out.writeBytes(httpRequest.getResponseBody());
-            System.out.println("Successfully saved in file \"" + fileName + "\"");
+            if(httpRequest.getImageBytes() == null) {
+
+                out.writeBytes(httpRequest.getResponseBody());
+                System.out.println("Successfully saved in file \"" + fileName + "\"");
+
+            } else {
+
+                out.write(httpRequest.getImageBytes());
+                out.flush();
+
+            }
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -555,4 +572,21 @@ public class CommandFunction {
 
     }
 
+    /**
+     * getter of response setter object
+     *
+     * @return response setter object
+     */
+    public ResponseSetter getResponseSetter() {
+        return responseSetter;
+    }
+
+    /**
+     * setter of response setter object
+     *
+     * @param responseSetter response setter object
+     */
+    public void setResponseSetter(ResponseSetter responseSetter) {
+        this.responseSetter = responseSetter;
+    }
 }

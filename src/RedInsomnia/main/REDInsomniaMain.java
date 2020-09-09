@@ -4,7 +4,7 @@ import RedInsomnia.gui.MainFrame;
 
 import javax.swing.*;
 
-public class Main {
+public class REDInsomniaMain {
 
     public static void main(String[] args) {
 

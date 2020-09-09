@@ -1,15 +1,16 @@
 package RedInsomnia.gui;
 
+import RedInsomnia.http.JsonUtility;
+import RedInsomnia.sync.RequestSetter;
+import RedInsomnia.sync.ResponseSetter;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -33,15 +34,36 @@ public class CenterPanel extends JPanel{
     private int theme;
     private String currentDir;
 
+    private JButton httpMethodButton;
+    private JTextField urlTextField;
+    private List<JPanel> headerField;
+    private List<JPanel> formDataField;
+    private JTextArea filePathArea;
+    private JEditorPane jsonPane;
+    private boolean multiTextHeaderShown;
+    private String multiLineContext;
+
+    private RequestSetter requestSetter;
+    private ResponseSetter responseSetter;
+
+    private List<String> editorContexts;
+    private CenterPanelData centerPanelData;
+
 
     /**
      * Constructor of RedInsomnia.gui.CenterPanel class
      *
      * @param mainFrame mainFrame of this panel
      */
-    public CenterPanel(MainFrame mainFrame) {
+    public CenterPanel(MainFrame mainFrame, CenterPanelData centerPanelData) {
 
         super();
+
+        this.setCenterPanelData(centerPanelData);
+
+        responseSetter = new ResponseSetter();
+        requestSetter = new RequestSetter(responseSetter);
+        editorContexts = new ArrayList<>();
 
         this.themes = mainFrame.getThemes();
         this.theme = mainFrame.getTheme();
@@ -58,15 +80,23 @@ public class CenterPanel extends JPanel{
         urlPanel.setPreferredSize(new Dimension(550, 65));
         this.add(urlPanel, BorderLayout.NORTH);
 
-        JButton httpMethodButton = new JButton(" GET       " + openMenu);
-        httpMethodButton.setBackground(Color.white);
-        httpMethodButton.setForeground(themes.get(theme).get(4));
-        httpMethodButton.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
-        httpMethodButton.setBorder(null);
-        httpMethodButton.setPreferredSize(new Dimension(110, 65));
-        httpMethodButton.setContentAreaFilled(false);
-        httpMethodButton.setOpaque(true);
-        urlPanel.add(httpMethodButton, BorderLayout.WEST);
+        if(this.getCenterPanelData() != null && getCenterPanelData().getMethod() != null) {
+
+            httpMethodButton = new JButton(getCenterPanelData().getMethod());
+
+        } else {
+
+            httpMethodButton = new JButton(" GET       " + openMenu);
+
+        }
+        getHttpMethodButton().setBackground(Color.white);
+        getHttpMethodButton().setForeground(themes.get(theme).get(4));
+        getHttpMethodButton().setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+        getHttpMethodButton().setBorder(null);
+        getHttpMethodButton().setPreferredSize(new Dimension(110, 65));
+        getHttpMethodButton().setContentAreaFilled(false);
+        getHttpMethodButton().setOpaque(true);
+        urlPanel.add(getHttpMethodButton(), BorderLayout.WEST);
 
 
         JPopupMenu popupMenu = new JPopupMenu();
@@ -83,20 +113,50 @@ public class CenterPanel extends JPanel{
         popupMenu.add(patch);
         popupMenu.add(delete);
 
-        get.addActionListener(e -> httpMethodButton.setText(" GET       " + openMenu));
-        post.addActionListener(e -> httpMethodButton.setText(" POST     " + openMenu));
-        put.addActionListener(e -> httpMethodButton.setText(" PUT       " + openMenu));
-        patch.addActionListener(e -> httpMethodButton.setText(" PATCH    " + openMenu));
-        delete.addActionListener(e -> httpMethodButton.setText(" DELETE   " + openMenu));
+        MessageBean bean = mainFrame.getBean();
 
-        httpMethodButton.addMouseListener(new MouseAdapter() {
+        get.addActionListener(e -> {
+            getHttpMethodButton().setText(" GET       " + openMenu);
+            bean.setValue("GET");
+        });
+        post.addActionListener(e -> {
+            getHttpMethodButton().setText(" POST     " + openMenu);
+            bean.setValue("POST");
+        });
+        put.addActionListener(e -> {
+            getHttpMethodButton().setText(" PUT       " + openMenu);
+            bean.setValue("PUT");
+        });
+        patch.addActionListener(e -> {
+            getHttpMethodButton().setText(" PATCH    " + openMenu);
+            bean.setValue("PATCH");
+        });
+        delete.addActionListener(e -> {
+            getHttpMethodButton().setText(" DELETE   " + openMenu);
+            bean.setValue("DELETE");
+        });
+
+        bean.addPropertyChangeListener(e -> {
+            if(centerPanelData != null) {
+                String str = " " + getCenterPanelData().getRequestPanel().getRequestMethod();
+                for(int i = 0 ; i < 10 - str.length() ; i++) {
+                    str += " ";
+                }
+                str += openMenu;
+
+                getHttpMethodButton().setText(str);
+            }
+        });
+
+
+        getHttpMethodButton().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
 
                 if(e.getButton() == MouseEvent.BUTTON1) {
 
                     Component button = (Component)e.getSource();
-                    popupMenu.show(httpMethodButton, button.getX(), button.getY()+button.getHeight());
+                    popupMenu.show(getHttpMethodButton(), button.getX(), button.getY()+button.getHeight());
 
                 }
 
@@ -105,25 +165,58 @@ public class CenterPanel extends JPanel{
             @Override
             public void mouseEntered(MouseEvent e) {
 
-                httpMethodButton.setBackground(themes.get(theme).get(5));
+                getHttpMethodButton().setBackground(themes.get(theme).get(5));
 
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
 
-                httpMethodButton.setBackground(Color.white);
+                getHttpMethodButton().setBackground(Color.white);
 
             }
         });
 
 
-        JTextField urlTextField = new JTextField("changelog.insomnia.rest/changelog.json");
+        if(this.getCenterPanelData() != null && getCenterPanelData().getUrl() != null) {
+
+            urlTextField = new JTextField(centerPanelData.getUrl());
+
+        } else {
+
+            urlTextField = new JTextField("........... URL ...........");
+
+        }
         urlTextField.setBackground(Color.white);
         urlTextField.setForeground(themes.get(theme).get(4));
         urlTextField.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
         urlTextField.setBorder(null);
         urlPanel.add(urlTextField, BorderLayout.CENTER);
+        urlTextField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if(urlTextField.getText().equals("........... URL ..........."))
+                urlTextField.setText("");
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if(urlTextField.getText().equals("")) {
+                    urlTextField.setText("........... URL ...........");
+                }
+            }
+        });
+        urlTextField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                if(e.getKeyChar() == '\n' && e.isControlDown()) {
+
+                    sendTrigger();
+                    updateSavedData();
+
+                }
+            }
+        });
 
 
         JButton sendButton = new JButton("Send");
@@ -147,6 +240,14 @@ public class CenterPanel extends JPanel{
             public void mouseExited(MouseEvent e) {
 
                 sendButton.setBackground(Color.white);
+
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+                sendTrigger();
+                updateSavedData();
 
             }
         });
@@ -334,9 +435,25 @@ public class CenterPanel extends JPanel{
         headerPanel.setBackground(themes.get(theme).get(6));
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
 
-        java.util.List<JPanel> headerField = new ArrayList<>();
+        headerField = new ArrayList<>();
 
-        headerField.add(headerFieldCreator(headerField, headerPanel, false));
+        if(this.getCenterPanelData() != null && getCenterPanelData().getHeaders() != null) {
+
+            for (Map.Entry<String, String> entry : getCenterPanelData().getHeaders().entrySet()) {
+
+                headerField.add(headerFieldCreator(headerField, headerPanel, false, entry.getKey(), entry.getValue()));
+
+            }
+
+            if(getCenterPanelData().getHeaders().isEmpty()) {
+                headerField.add(headerFieldCreator(headerField, headerPanel, false));
+            }
+
+        } else {
+
+            headerField.add(headerFieldCreator(headerField, headerPanel, false));
+
+        }
         addHeaderFieldPanel(headerPanel, headerField);
 
         headerPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -371,8 +488,24 @@ public class CenterPanel extends JPanel{
         formPanel.add(coverFormPanelScroll, BorderLayout.CENTER);
 
 
-        List<JPanel> formDataField = new ArrayList<>();
-        formDataField.add(headerFieldCreator(formDataField, coverFormPanel, true));
+        formDataField = new ArrayList<>();
+
+        if(getCenterPanelData() != null && getCenterPanelData().getFormData() != null) {
+
+            for (Map.Entry<String, String> entry : getCenterPanelData().getFormData().entrySet()) {
+
+                formDataField.add(headerFieldCreator(formDataField, coverFormPanel, true, entry.getKey(), entry.getValue()));
+
+            }
+
+            if(getCenterPanelData().getFormData().isEmpty()) {
+                formDataField.add(headerFieldCreator(formDataField, coverFormPanel, true));
+            }
+
+        } else {
+            formDataField.add(headerFieldCreator(formDataField, coverFormPanel, true));
+        }
+
         addHeaderFieldPanel(coverFormPanel, formDataField);
 
         // end of changes to form data part of central panel
@@ -388,7 +521,15 @@ public class CenterPanel extends JPanel{
         selectedFile.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 
-        JTextArea filePathArea = new JTextArea("No file selected");
+        if(centerPanelData != null && getCenterPanelData().getFilePath() != null) {
+
+            filePathArea = new JTextArea(centerPanelData.getFilePath());
+
+        } else {
+
+            filePathArea = new JTextArea("No file selected");
+
+        }
         filePathArea.setBackground(themes.get(theme).get(6));
         filePathArea.setForeground(themes.get(theme).get(8));
         filePathArea.setFont(new Font("Santa Fe Let", Font.PLAIN, 18));
@@ -503,8 +644,148 @@ public class CenterPanel extends JPanel{
 
         // end of changes to binary file panel in central panel
 
+        // start of json panel
+
+        jsonPanel.setLayout(new BorderLayout());
+
+
+        JButton jsonStatus = new JButton("Text is not JSON!");
+        jsonStatus.setBackground(themes.get(theme).get(6));
+        jsonStatus.setForeground(themes.get(theme).get(11));
+        jsonStatus.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+        jsonStatus.setPreferredSize(new Dimension(150, 50));
+        jsonStatus.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(8), 1));
+        jsonStatus.setContentAreaFilled(false);
+        jsonStatus.setOpaque(true);
+        jsonStatus.setEnabled(false);
+        jsonStatus.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                if(jsonStatus.isEnabled()) {
+                    jsonStatus.setBackground(themes.get(theme).get(1));
+                }
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                jsonStatus.setBackground(themes.get(theme).get(6));
+            }
+        });
+
+
+        jsonPane = new JEditorPane();
+        jsonPane.setBackground(themes.get(theme).get(6));
+        jsonPane.setForeground(themes.get(theme).get(11));
+        jsonPane.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+
+        if(centerPanelData != null && getCenterPanelData().getJson() != null) {
+
+            jsonPane.setText(centerPanelData.getJson());
+
+        } else {
+
+            jsonPane.setText("");
+
+        }
+
+        jsonPane.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+                if(JsonUtility.isJSONValid(jsonPane.getText())) {
+
+                    jsonStatus.setText("Beautify JSON");
+                    jsonStatus.setEnabled(true);
+
+                } else {
+
+                    jsonStatus.setText("Text is not JSON!");
+                    jsonStatus.setEnabled(false);
+                    jsonStatus.setBackground(themes.get(theme).get(6));
+
+                }
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+
+                if(JsonUtility.isJSONValid(jsonPane.getText())) {
+
+                    jsonStatus.setText("Beautify JSON");
+                    jsonStatus.setEnabled(true);
+
+                } else {
+
+                    jsonStatus.setText("Text is not JSON!");
+                    jsonStatus.setEnabled(false);
+                    jsonStatus.setBackground(themes.get(theme).get(6));
+
+                }
+
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+                if(JsonUtility.isJSONValid(jsonPane.getText())) {
+
+                    jsonStatus.setText("Beautify JSON");
+                    jsonStatus.setEnabled(true);
+
+                } else {
+
+                    jsonStatus.setText("Text is not JSON!");
+                    jsonStatus.setEnabled(false);
+                    jsonStatus.setBackground(themes.get(theme).get(6));
+
+                }
+
+            }
+        });
+
+        jsonStatus.addActionListener(e -> jsonPane.setText(JsonUtility.beautifyJson(jsonPane.getText())));
+
+
+        TextLineNumber tln = new TextLineNumber(jsonPane);
+        tln.setBorderGap(0);
+        tln.setDigitAlignment(TextLineNumber.CENTER);
+
+
+        JScrollPane rawScroll = new JScrollPane(jsonPane);
+        rawScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        rawScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        rawScroll.setRowHeaderView(tln);
+        rawScroll.setBorder(null);
+
+
+        jsonPanel.add(rawScroll, BorderLayout.CENTER);
+
+        jsonPanel.add(jsonStatus, BorderLayout.SOUTH);
+        // end of json changing
+
+
     }
 
+
+    /**
+     * setter of multiTextLine context
+     *
+     * @param multiLineContext multi text line context
+     */
+    public void setMultiLineContext(String multiLineContext) {
+        this.multiLineContext = multiLineContext;
+    }
+
+    /**
+     * getter of response setter
+     *
+     * @return response setter object
+     */
+    public ResponseSetter getResponseSetter() {
+        return responseSetter;
+    }
 
     /**
      * this method change color when an event happen and change color
@@ -552,7 +833,7 @@ public class CenterPanel extends JPanel{
      * @param headerPanel panel of header fields
      * @return prepared header field panel
      */
-    private JPanel headerFieldCreator(List<JPanel> headerField, JPanel headerPanel, boolean isFormData) {
+    private JPanel headerFieldCreator(List<JPanel> headerField, JPanel headerPanel, boolean isFormData, String key, String value) {
 
         JPanel field = new JPanel();
         field.setBackground(themes.get(theme).get(6));
@@ -577,8 +858,6 @@ public class CenterPanel extends JPanel{
 
                 headerField.subList(1, headerField.size()).clear();
 
-                System.out.println(headerField.size());
-
                 addHeaderFieldPanel(headerPanel, headerField);
                 headerPanel.revalidate();
                 headerPanel.repaint();
@@ -602,7 +881,7 @@ public class CenterPanel extends JPanel{
                 settingButton.setIcon(settingIcon);
 
             } else {
-                System.out.println("setting icon normal doesn't found!!!");
+                System.err.println("setting icon normal doesn't found!!!");
             }
 
         } catch (Exception err) {
@@ -638,7 +917,7 @@ public class CenterPanel extends JPanel{
                         settingButton.setIcon(settingIcon);
 
                     } else {
-                        System.out.println("setting icon white doesn't found!!!");
+                        System.err.println("setting icon white doesn't found!!!");
                     }
 
                 } catch (Exception err) {
@@ -659,7 +938,471 @@ public class CenterPanel extends JPanel{
                         settingButton.setIcon(settingIcon);
 
                     } else {
-                        System.out.println("setting icon normal doesn't found!!!");
+                        System.err.println("setting icon normal doesn't found!!!");
+                    }
+
+                } catch (Exception err) {
+                    err.printStackTrace();
+                }
+
+            }
+        });
+
+
+
+        JTextField headerTextField = new JTextField();
+
+        if(theme == MainFrame.LIGHT_THEME) {
+            // TODO: after completing dark theme
+        } else if(theme == MainFrame.DARK_THEME) {
+            headerTextField.setBackground(themes.get(theme).get(6));
+        }
+
+        headerTextField.setForeground(themes.get(theme).get(8));
+        headerTextField.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+        headerTextField.setPreferredSize(new Dimension(250, 30));
+        headerTextField.setMaximumSize(new Dimension(2000, 35));
+        headerTextField.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
+
+        headerTextField.setText(key);
+
+        String initialName = headerTextField.getText();
+
+        headerTextField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+
+                if(headerTextField.getText().equals("Header") || headerTextField.getText().equals("New header")
+                        || headerTextField.getText().equals("Name") || headerTextField.getText().equals("New name")) {
+
+                    headerTextField.setText("");
+
+                }
+                if(headerField.contains(field)) {
+                    if(headerField.get(headerField.size()-1) == field) {
+
+                        System.out.println("last field found!!!");
+                        headerField.add(headerFieldCreator(headerField, headerPanel, isFormData));
+                        addHeaderFieldPanel(headerPanel, headerField);
+                        headerPanel.revalidate();
+                        headerPanel.repaint();
+
+                    }
+                }
+
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+
+                if(headerTextField.getText().equals("")) {
+
+                    headerTextField.setText(initialName);
+
+                }
+
+            }
+        });
+
+        headerTextField.setAlignmentY(Component.CENTER_ALIGNMENT);
+
+        JPanel valueCardLayout = new JPanel(new CardLayout());
+        valueCardLayout.setBackground(themes.get(theme).get(6));
+        valueCardLayout.setMaximumSize(new Dimension(2000, 35));
+        valueCardLayout.setAlignmentY(Component.CENTER_ALIGNMENT);
+
+
+        JTextField valueTextField = new JTextField();
+
+        if(theme == MainFrame.LIGHT_THEME) {
+            // TODO: after completing dark theme
+        } else if(theme == MainFrame.DARK_THEME) {
+            valueTextField.setBackground(themes.get(theme).get(6));
+        }
+
+        valueTextField.setForeground(themes.get(theme).get(8));
+        valueTextField.setFont(new Font("Santa Fe Let", Font.PLAIN, 15));
+        valueTextField.setPreferredSize(new Dimension(200, 30));
+        valueTextField.setMaximumSize(new Dimension(2000, 35));
+        valueTextField.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
+
+
+        if(value.contains("\n") && isFormData) {
+
+        } else {
+            valueTextField.setText(value);
+        }
+
+        String initialName1 = valueTextField.getText();
+
+        valueTextField.addFocusListener(new FocusAdapter() {
+
+            @Override
+            public void focusGained(FocusEvent e) {
+
+                if(valueTextField.getText().equals("Value") || valueTextField.getText().equals("New value")) {
+
+                    valueTextField.setText("");
+
+                }
+                if(headerField.contains(field)) {
+                    if(headerField.get(headerField.size()-1) == field) {
+
+                        System.out.println("last field found!!!");
+                        headerField.add(headerFieldCreator(headerField, headerPanel, isFormData));
+                        addHeaderFieldPanel(headerPanel, headerField);
+                        headerPanel.revalidate();
+                        headerPanel.repaint();
+
+                    }
+                }
+
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+
+                if(valueTextField.getText().equals("")) {
+
+                    valueTextField.setText(initialName1);
+
+                }
+
+            }
+        });
+
+        valueTextField.setAlignmentY(Component.CENTER_ALIGNMENT);
+
+
+        JButton editButton = null;
+        if(getCenterPanelData() != null && isFormData) {
+
+            if(value.contains("\n")) {
+
+                editButton = new JButton();
+                EditorFrame.contextsList.put(editButton, value);
+
+            } else {
+                editButton = new JButton();
+            }
+
+        } else {
+
+            editButton = new JButton();
+
+        }
+        editButton.setText("\u270E Click to Edit");
+        editButton.setBackground(themes.get(theme).get(6));
+        editButton.setForeground(themes.get(theme).get(11));
+        editButton.setFont(new Font("Santa Fe Let", Font.PLAIN, 18));
+        editButton.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
+        editButton.setPreferredSize(new Dimension(200, 30));
+        editButton.setContentAreaFilled(false);
+        editButton.setOpaque(true);
+        final JButton temp = editButton;
+        editButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+                if(e.getButton() == MouseEvent.BUTTON1) {
+
+                    Thread editorFrameThread = new Thread(() -> {
+
+                        new EditorFrame("RedInsomnia-Editor Panel", theme, mainFrame, temp);
+
+                    }, "editor thread");
+
+                    editorFrameThread.start();
+
+                }
+
+            }
+        });
+
+
+        valueCardLayout.add(valueTextField, "textField");
+        valueCardLayout.add(editButton, "button");
+
+        CardLayout cardLayout = (CardLayout) valueCardLayout.getLayout();
+        cardLayout.show(valueCardLayout, "textField");
+
+
+        JCheckBox headerState = new JCheckBox();
+        headerState.setAlignmentY(Component.CENTER_ALIGNMENT);
+        headerState.setBackground(themes.get(theme).get(6));
+        headerState.setForeground(themes.get(theme).get(1));
+        headerState.addItemListener(e -> {
+            if(e.getItemSelectable() == headerState && headerState.isSelected()) {
+
+                headerTextField.setForeground(themes.get(theme).get(10));
+                headerTextField.setBorder(BorderFactory.createDashedBorder(themes.get(theme).get(10)));
+                valueTextField.setForeground(themes.get(theme).get(10));
+                valueTextField.setBorder(BorderFactory.createDashedBorder(themes.get(theme).get(10)));
+                temp.setForeground(themes.get(theme).get(10));
+                temp.setBorder(BorderFactory.createDashedBorder(themes.get(theme).get(10)));
+
+            } else if(!headerState.isSelected()){
+
+                headerTextField.setForeground(themes.get(theme).get(8));
+                headerTextField.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1)));
+                valueTextField.setForeground(themes.get(theme).get(8));
+                valueTextField.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1)));
+                temp.setForeground(themes.get(theme).get(11));
+                temp.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1)));
+
+            }
+        });
+
+        JButton trashButton = new JButton();
+        trashButton.setBackground(themes.get(theme).get(6));
+        trashButton.setContentAreaFilled(false);
+        trashButton.setOpaque(true);
+        try{
+            File trashImage = new File(currentDir + "\\resource\\trash_icon_normal.png");
+            if(trashImage.exists()) {
+
+                ImageIcon trashIcon = new ImageIcon(currentDir + "\\resource\\trash_icon_normal.png");
+                trashButton.setIcon(trashIcon);
+
+            } else {
+                System.err.println("trash image doesn't exist!!!");
+            }
+        } catch (Exception err) {
+            err.printStackTrace();
+        }
+
+        trashButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+                if(e.getButton() == MouseEvent.BUTTON1) {
+
+                    if(headerField.indexOf(field) != 0) {
+
+                        headerPanel.remove(field);
+                        headerField.remove(field);
+                        addHeaderFieldPanel(headerPanel, headerField);
+                        mainFrame.revalidate();
+                        mainFrame.repaint();
+
+                    }
+
+                }
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+                try{
+                    File trashImage = new File(currentDir + "\\resource\\trash_icon_white.png");
+                    if(trashImage.exists()) {
+
+                        ImageIcon trashIcon = new ImageIcon(currentDir + "\\resource\\trash_icon_white.png");
+                        trashButton.setIcon(trashIcon);
+
+                    } else {
+                        System.err.println("trash image doesn't exist!!!");
+                    }
+                } catch (Exception err) {
+                    err.printStackTrace();
+                }
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+                try{
+                    File trashImage = new File(currentDir + "\\resource\\trash_icon_normal.png");
+                    if(trashImage.exists()) {
+
+                        ImageIcon trashIcon = new ImageIcon(currentDir + "\\resource\\trash_icon_normal.png");
+                        trashButton.setIcon(trashIcon);
+
+                    } else {
+                        System.err.println("trash image doesn't exist!!!");
+                    }
+                } catch (Exception err) {
+                    err.printStackTrace();
+                }
+
+            }
+        });
+
+        JButton textType = null;
+        if(isFormData) {
+
+            JPopupMenu textTypePopup = new JPopupMenu();
+            textTypePopup.setPreferredSize(new Dimension(200, 75));
+
+            JMenuItem text = new JMenuItem("Text");
+            JMenuItem multiLineText = new JMenuItem("Text (Multi-line)");
+
+            text.addActionListener(e -> {
+                cardLayout.show(valueCardLayout, "textField");
+                multiTextHeaderShown = false;
+            });
+            multiLineText.addActionListener(e -> {
+                cardLayout.show(valueCardLayout, "button");
+                multiTextHeaderShown = true;
+            });
+
+            textTypePopup.add(text);
+            textTypePopup.add(multiLineText);
+
+            textType = new JButton(openMenu);
+            textType.setBackground(themes.get(theme).get(6));
+            textType.setForeground(themes.get(theme).get(1));
+            textType.setFont(new Font("Santa Fe Let", Font.PLAIN, 18));
+            textType.setContentAreaFilled(false);
+            textType.setOpaque(true);
+            final JButton finalTextType = textType;
+            textType.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+
+                    if(e.getButton() == MouseEvent.BUTTON1) {
+
+                        Component button = (Component)e.getSource();
+                        textTypePopup.show(finalTextType, -150, button.getY()+button.getHeight());
+
+                    }
+
+                }
+            });
+
+        }
+
+
+
+        field.add(settingButton);
+        field.add(Box.createRigidArea(new Dimension(5, 0)));
+        field.add(headerTextField);
+        field.add(Box.createRigidArea(new Dimension(10, 0)));
+        field.add(valueCardLayout);
+        if(textType != null) {
+
+            field.add(Box.createRigidArea(new Dimension(5, 0)));
+            field.add(textType);
+
+        }
+        field.add(Box.createRigidArea(new Dimension(10, 0)));
+        field.add(headerState);
+        field.add(Box.createRigidArea(new Dimension(5, 0)));
+        field.add(trashButton);
+        field.add(Box.createRigidArea(new Dimension(5, 0)));
+
+        return field;
+    }
+
+
+    private JPanel headerFieldCreator(List<JPanel> headerField, JPanel headerPanel, boolean isFormData) {
+
+        JPanel field = new JPanel();
+        field.setBackground(themes.get(theme).get(6));
+        field.setLayout(new BoxLayout(field, BoxLayout.X_AXIS));
+        field.setPreferredSize(new Dimension(400, 50));
+        field.setMaximumSize(new Dimension(2000, 50));
+        field.add(Box.createRigidArea(new Dimension(20, 0)));
+
+
+
+        JPopupMenu settingPopup = new JPopupMenu();
+        settingPopup.setPreferredSize(new Dimension(200, 40));
+        JMenuItem deleteAllItem = new JMenuItem("Delete All Items");
+        deleteAllItem.addActionListener(e -> {
+            if(headerField.size() > 1) {
+
+                for(int i = 1 ; i < headerField.size() ; i++) {
+
+                    headerPanel.remove(headerField.get(i));
+
+                }
+
+                headerField.subList(1, headerField.size()).clear();
+
+                addHeaderFieldPanel(headerPanel, headerField);
+                headerPanel.revalidate();
+                headerPanel.repaint();
+
+            }
+        });
+        settingPopup.add(deleteAllItem);
+
+
+        JButton settingButton = new JButton();
+        settingButton.setBackground(themes.get(theme).get(6));
+        settingButton.setContentAreaFilled(false);
+        settingButton.setOpaque(true);
+
+        try {
+
+            File settingImage = new File(currentDir + "\\resource\\setting_icon_normal.png");
+            if(settingImage.exists()) {
+
+                ImageIcon settingIcon = new ImageIcon(currentDir + "\\resource\\setting_icon_normal.png");
+                settingButton.setIcon(settingIcon);
+
+            } else {
+                System.err.println("setting icon normal doesn't found!!!");
+            }
+
+        } catch (Exception err) {
+            err.printStackTrace();
+        }
+
+        settingButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+                if(e.getButton() == MouseEvent.BUTTON1) {
+
+                    if(headerField.contains(field) && headerField.get(headerField.size()-1) == field) {
+
+                        Component button = (Component)e.getSource();
+                        settingPopup.show(settingButton, button.getX(), button.getY()+button.getHeight());
+
+                    }
+
+                }
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+                try {
+
+                    File settingImage = new File(currentDir + "\\resource\\setting_icon_white.png");
+                    if(settingImage.exists()) {
+
+                        ImageIcon settingIcon = new ImageIcon(currentDir + "\\resource\\setting_icon_white.png");
+                        settingButton.setIcon(settingIcon);
+
+                    } else {
+                        System.err.println("setting icon white doesn't found!!!");
+                    }
+
+                } catch (Exception err) {
+                    err.printStackTrace();
+                }
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+                try {
+
+                    File settingImage = new File(currentDir + "\\resource\\setting_icon_normal.png");
+                    if(settingImage.exists()) {
+
+                        ImageIcon settingIcon = new ImageIcon(currentDir + "\\resource\\setting_icon_normal.png");
+                        settingButton.setIcon(settingIcon);
+
+                    } else {
+                        System.err.println("setting icon normal doesn't found!!!");
                     }
 
                 } catch (Exception err) {
@@ -688,7 +1431,7 @@ public class CenterPanel extends JPanel{
         if(isFormData) {
 
             if(headerField.isEmpty()) {
-                headerTextField.setText("name");
+                headerTextField.setText("Name");
             } else {
                 headerTextField.setText("New name");
             }
@@ -696,7 +1439,7 @@ public class CenterPanel extends JPanel{
         } else {
 
             if(headerField.isEmpty()) {
-                headerTextField.setText("header");
+                headerTextField.setText("Header");
             } else {
                 headerTextField.setText("New header");
             }
@@ -709,8 +1452,8 @@ public class CenterPanel extends JPanel{
             @Override
             public void focusGained(FocusEvent e) {
 
-                if(headerTextField.getText().equals("header") || headerTextField.getText().equals("New header")
-                        || headerTextField.getText().equals("name") || headerTextField.getText().equals("New name")) {
+                if(headerTextField.getText().equals("Header") || headerTextField.getText().equals("New header")
+                        || headerTextField.getText().equals("Name") || headerTextField.getText().equals("New name")) {
 
                     headerTextField.setText("");
 
@@ -765,9 +1508,9 @@ public class CenterPanel extends JPanel{
 
 
         if(headerField.isEmpty()) {
-            valueTextField.setText("value");
+            valueTextField.setText("Value");
         } else {
-            valueTextField.setText("new value");
+            valueTextField.setText("New value");
         }
 
         String initialName1 = valueTextField.getText();
@@ -777,7 +1520,7 @@ public class CenterPanel extends JPanel{
             @Override
             public void focusGained(FocusEvent e) {
 
-                if(valueTextField.getText().equals("value") || valueTextField.getText().equals("new value")) {
+                if(valueTextField.getText().equals("Value") || valueTextField.getText().equals("New value")) {
 
                     valueTextField.setText("");
 
@@ -818,14 +1561,21 @@ public class CenterPanel extends JPanel{
         editButton.setPreferredSize(new Dimension(200, 30));
         editButton.setContentAreaFilled(false);
         editButton.setOpaque(true);
+        MessageBean editorBean = new MessageBean();
+        final JButton temp = editButton;
         editButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
 
                 if(e.getButton() == MouseEvent.BUTTON1) {
 
-                    // Todo : handling concurrent problems
-                    new EditorFrame("RedInsomnia-Editor Panel", theme, mainFrame);
+                    Thread editorFrameThread = new Thread(() -> {
+
+                        new EditorFrame("RedInsomnia-Editor Panel", theme, mainFrame, temp);
+
+                    }, "editor thread");
+
+                    editorFrameThread.start();
 
                 }
 
@@ -878,7 +1628,7 @@ public class CenterPanel extends JPanel{
                 trashButton.setIcon(trashIcon);
 
             } else {
-                System.out.println("trash image doesn't exist!!!");
+                System.err.println("trash image doesn't exist!!!");
             }
         } catch (Exception err) {
             err.printStackTrace();
@@ -915,7 +1665,7 @@ public class CenterPanel extends JPanel{
                         trashButton.setIcon(trashIcon);
 
                     } else {
-                        System.out.println("trash image doesn't exist!!!");
+                        System.err.println("trash image doesn't exist!!!");
                     }
                 } catch (Exception err) {
                     err.printStackTrace();
@@ -934,7 +1684,7 @@ public class CenterPanel extends JPanel{
                         trashButton.setIcon(trashIcon);
 
                     } else {
-                        System.out.println("trash image doesn't exist!!!");
+                        System.err.println("trash image doesn't exist!!!");
                     }
                 } catch (Exception err) {
                     err.printStackTrace();
@@ -952,8 +1702,14 @@ public class CenterPanel extends JPanel{
             JMenuItem text = new JMenuItem("Text");
             JMenuItem multiLineText = new JMenuItem("Text (Multi-line)");
 
-            text.addActionListener(e -> cardLayout.show(valueCardLayout, "textField"));
-            multiLineText.addActionListener(e -> cardLayout.show(valueCardLayout, "button"));
+            text.addActionListener(e -> {
+                cardLayout.show(valueCardLayout, "textField");
+                multiTextHeaderShown = false;
+            });
+            multiLineText.addActionListener(e -> {
+                cardLayout.show(valueCardLayout, "button");
+                multiTextHeaderShown = true;
+            });
 
             textTypePopup.add(text);
             textTypePopup.add(multiLineText);
@@ -1007,7 +1763,6 @@ public class CenterPanel extends JPanel{
 
     private void addHeaderFieldPanel(JPanel headerPanel, List<JPanel> headerField) {
 
-        System.out.println(headerField.size());
         for (JPanel panel : headerField) {
 
             headerPanel.add(panel);
@@ -1040,4 +1795,154 @@ public class CenterPanel extends JPanel{
 
     }
 
+
+    private void sendTrigger() {
+
+        requestSetter.setResponseSetter(responseSetter);
+        assert urlTextField != null;
+        requestSetter.setUrl(urlTextField.getText());
+        requestSetter.setMethod(getHttpMethodButton().getText());
+        requestSetter.setHeader(convertListToMap(headerField));
+        requestSetter.setFormData(convertListToMap(formDataField));
+        requestSetter.setFilePath(filePathArea.getText());
+
+        if(JsonUtility.isJSONValid(jsonPane.getText())) {
+
+            requestSetter.setJsonData(jsonPane.getText().isEmpty()? "" : jsonPane.getText());
+
+        }
+
+        if(mainFrame.isFollowDirect()) {
+            requestSetter.setFollowRedirect();
+        }
+
+//        new Thread(requestSetter::callStartConnection).start();
+//        new Thread(() -> requestSetter.callStartConnection()).start();
+        BackgroundOperation backgroundOperation = new BackgroundOperation(requestSetter);
+        backgroundOperation.execute();
+
+    }
+
+    private void updateSavedData() {
+
+        if(getCenterPanelData() != null) {
+
+            getCenterPanelData().setUrl(urlTextField.getText());
+            getCenterPanelData().setMethod(getHttpMethodButton().getText());
+            getCenterPanelData().setHeaders(convertListToMap(headerField));
+            getCenterPanelData().setFormData(convertListToMap(formDataField));
+            getCenterPanelData().setFilePath(filePathArea.getText());
+            getCenterPanelData().setJson(jsonPane.getText().isEmpty()? "" : jsonPane.getText());
+
+            getCenterPanelData().writeCenterPanelData();
+
+        }
+
+    }
+
+
+    private Map<String, String> convertListToMap(List<JPanel> list) {
+
+        Map<String, String> map = new LinkedHashMap<>();
+
+        Iterator<String> iterator = editorContexts.iterator();
+
+        for (JPanel panel : list) {
+
+            boolean headerState = false;
+
+            String[] pair = new String[2];
+
+            for (Component component : panel.getComponents()) {
+
+                if(component instanceof JTextField) {
+
+                    String val = ((JTextField)component).getText();
+                    if(!(val.equals("New header") || val.equals("Header")
+                            || val.equals("New name") || val.equals("Name"))) {
+
+                        pair[0] = val;
+
+                    }
+
+                }
+
+                if(component instanceof JCheckBox) {
+
+                    headerState = ((JCheckBox)component).isSelected();
+
+                }
+
+                if(component instanceof JPanel) {
+
+                    for (Component component1 : ((JPanel) component).getComponents()) {
+
+                        if(component1 instanceof JButton) {
+
+                            if(EditorFrame.contextsList.containsKey((JButton)component1)) {
+                                if(((JButton) component1).isVisible()) {
+                                    pair[1] = EditorFrame.contextsList.get((JButton)component1);
+                                }
+                            }
+
+                        }
+
+                        if(component1 instanceof JTextField) {
+
+                            String val = ((JTextField)component1).getText();
+                            if(!(val.equals("New value") || val.equals("Value"))) {
+
+                                if(((JTextField)component1).isVisible()) {
+                                    pair[1] = val;
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+            if(!headerState) {
+                if(pair[0] != null && pair[1] != null) {
+
+                    map.put(pair[0], pair[1]);
+
+                }
+            }
+        }
+
+        return map;
+    }
+
+    /**
+     * getter of http method button selector
+     *
+     * @return http method button selector
+     */
+    public JButton getHttpMethodButton() {
+        return httpMethodButton;
+    }
+
+
+    /**
+     * getter of center panel data object
+     *
+     * @return center panel data object
+     */
+    public CenterPanelData getCenterPanelData() {
+        return centerPanelData;
+    }
+
+    /**
+     * setter of center panel data object
+     *
+     * @param centerPanelData center panel data object
+     */
+    public void setCenterPanelData(CenterPanelData centerPanelData) {
+        this.centerPanelData = centerPanelData;
+    }
 }

@@ -1,14 +1,17 @@
 package RedInsomnia.gui;
 
-import RedInsomnia.main.Main;
+import RedInsomnia.sync.RequestSetter;
+import RedInsomnia.sync.ResponseSetter;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * RedInsomnia.gui.MainFrame
@@ -45,6 +48,14 @@ public class MainFrame extends JFrame {
     private boolean closeOperation;
     private JPanel leftPanel;
     private TrayIcon trayIcon;
+    private RequestSetter requestSetter;
+    private ResponseSetter responseSetter;
+
+    private MessageBean bean;
+    private MessageBean saveBean;
+
+    private CenterPanel centerPanel;
+    private RightPanel rightPanel;
 
     // Constructor
 
@@ -72,6 +83,8 @@ public class MainFrame extends JFrame {
         icon = new ImageIcon(currentDir+"\\resource\\newIcon.png");
         setIconImage(icon.getImage());
 
+        bean = new MessageBean();
+        saveBean = new MessageBean();
 
         this.theme = theme;
 
@@ -262,7 +275,14 @@ public class MainFrame extends JFrame {
         helpItem.setMnemonic(KeyEvent.VK_H);
 
         about.addActionListener(e -> SwingUtilities.invokeLater(() -> new AboutFrame(MainFrame.this, theme)));
-        helpItem.addActionListener(e -> SwingUtilities.invokeLater(() -> new HelpFrame(MainFrame.this, theme)));
+        helpItem.addActionListener(e -> {
+            File file = new File(currentDir + "\\resource\\help.html");
+            try {
+                Desktop.getDesktop().open(file);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
 
         help.add(about);
         help.add(helpItem);
@@ -272,6 +292,9 @@ public class MainFrame extends JFrame {
         setJMenuBar(menuBar);
 
         setVisible(true);
+
+        responseSetter = new ResponseSetter();
+        requestSetter = new RequestSetter(responseSetter);
     }
 
     /**
@@ -397,6 +420,23 @@ public class MainFrame extends JFrame {
         return leftPanel;
     }
 
+    /**
+     * getter of message bean object
+     *
+     * @return message bean object
+     */
+    public MessageBean getBean() {
+        return bean;
+    }
+
+    /**
+     * getter of requestSetter object
+     *
+     * @return request setter object
+     */
+    public RequestSetter getRequestSetter() {
+        return requestSetter;
+    }
 
     /**
      * this method add three panel to MainPanel
@@ -421,14 +461,17 @@ public class MainFrame extends JFrame {
         // Central part of RedInsomnia (part 2)
 
 
-        JPanel centerPanel = new CenterPanel(this);
+        centerPanel = new CenterPanel(this, null);
 
 
 
         // right part of RedInsomnia (part3)
 
 
-        JPanel rightPanel = new RightPanel(this);
+        rightPanel = new RightPanel(this);
+
+
+        centerPanel.getResponseSetter().setRightPanel(rightPanel);
 
 
 
@@ -458,8 +501,9 @@ public class MainFrame extends JFrame {
         leftPanel.setPreferredSize(new Dimension(250, 580));
         leftPanel.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
 
-        JButton insomniaPart = new JButton("Insomnia               ");
-        insomniaPart.setFont(new Font("Santa Fe LET", Font.PLAIN, 25));
+        JButton insomniaPart = new JButton("REDInsomnia           ");
+        insomniaPart.setFont(new Font("Santa Fe LET", Font.BOLD, 23));
+        insomniaPart.setEnabled(false);
         insomniaPart.setBackground(themes.get(theme).get(0));
         insomniaPart.setForeground(themes.get(theme).get(11));
         insomniaPart.setPreferredSize(new Dimension(250, 65));
@@ -484,6 +528,28 @@ public class MainFrame extends JFrame {
         requestFilter.setMaximumSize(new Dimension(200, 30));
         requestFilter.setAlignmentY(Component.CENTER_ALIGNMENT);
         requestFilter.setBorder(BorderFactory.createLineBorder(themes.get(theme).get(1), 1));
+        requestFilter.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+
+                if(requestFilter.getText().trim().toLowerCase().equals("filter")) {
+                    requestFilter.setText("");
+                }
+
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+
+                if(requestFilter.getText().trim().equals("")
+                    || requestFilter.getText().trim().toLowerCase().equals("filter")) {
+
+                    requestFilter.setText("Filter");
+
+                }
+
+            }
+        });
 
 
         JButton plusButton = new JButton();
@@ -513,16 +579,12 @@ public class MainFrame extends JFrame {
         }
 
         JPopupMenu plusPopupMenu = new JPopupMenu();
-        plusPopupMenu.setPreferredSize(new Dimension(250, 100));
+        plusPopupMenu.setPreferredSize(new Dimension(200, 40));
 
         JMenuItem newRequest = new JMenuItem("New Request");
         newRequest.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK));
 
-        JMenuItem newFolder = new JMenuItem("New Folder");
-        newFolder.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK | KeyEvent.SHIFT_MASK));
-
         plusPopupMenu.add(newRequest);
-        plusPopupMenu.add(newFolder);
 
         /*newRequest.addActionListener();
         newFolder.addActionListener();*/
@@ -607,8 +669,45 @@ public class MainFrame extends JFrame {
         requestListScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         requestListScroll.setBorder(null);
 
+        Map<RequestPanel, CenterPanelData> map = readCenterData();
 
-        for (RequestPanel object : readObjects()) {
+        for (Map.Entry<RequestPanel, CenterPanelData> entry : map.entrySet()) {
+
+            RequestPanel button = new RequestPanel(this, entry.getKey().getRequestMethod(), entry.getKey().getRequestName(), requestList);
+            requestList.add(button);
+            RequestPack pack = new RequestPack(button, this, entry.getValue());
+
+
+            button.addActionListener(e -> {
+
+                ((RequestPanel)e.getSource()).setSelected(true);
+                mainPanel.removeAll();
+                mainPanel.add(leftPanel, BorderLayout.WEST);
+                mainPanel.add(pack.getCenterPanel(), BorderLayout.CENTER);
+                mainPanel.add(pack.getRightPanel(), BorderLayout.EAST);
+                mainPanel.revalidate();
+                mainPanel.repaint();
+                MainFrame.this.revalidate();
+                MainFrame.this.repaint();
+
+                for (Component component : requestList.getComponents()) {
+
+                    if(component instanceof RequestPanel && component != e.getSource()) {
+
+                        ((RequestPanel)component).setSelected(false);
+                        ((RequestPanel) component).restartColor(1);
+                        component.setVisible(true);
+
+                    }
+
+                }
+
+
+            });
+
+        }
+
+        /*for (RequestPanel object : readObjects()) {
 
             RequestPanel button = new RequestPanel(this, object.getRequestMethod(), object.getRequestName(), requestList);
             requestList.add(button);
@@ -641,9 +740,74 @@ public class MainFrame extends JFrame {
             });
 
 
-        }
+        }*/
 
-        newRequest.addActionListener(e -> new NewRequestFrame(MainFrame.this, requestList, currentDir));
+        requestFilter.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+                new SwingWorker<Void, Void>() {
+
+                    @Override
+                    protected Void doInBackground() throws Exception {
+
+                        for (Component component : requestList.getComponents()) {
+
+                            if(component instanceof RequestPanel) {
+
+                                if(!((RequestPanel) component).getRequestName().contains(requestFilter.getText().trim())) {
+
+                                    component.setVisible(false);
+
+                                } else {
+
+                                    component.setVisible(true);
+
+                                }
+
+                                if(requestFilter.getText().trim().equals("")) {
+
+                                    component.setVisible(true);
+
+                                }
+
+                            }
+
+                        }
+
+                        return null;
+                    }
+                }.execute();
+
+            }
+        });
+
+        newRequest.addActionListener(e -> new Thread(() -> new NewRequestFrame(MainFrame.this, requestList, currentDir)).start());
+
+        getSaveBean().addPropertyChangeListener(evt -> {
+
+            if(((String)evt.getNewValue()).equals("true")) {
+
+                boolean anyRequestSelected = false;
+
+                for (Component component : requestList.getComponents()) {
+
+                    if(((RequestPanel)component).isSelect()) {
+                        anyRequestSelected = true;
+                        break;
+                    }
+
+                }
+
+                if(!anyRequestSelected) {
+
+                    new Thread(() -> new NewRequestFrame(MainFrame.this, requestList, centerPanel, rightPanel)).start();
+
+                }
+
+            }
+
+        });
 
 
         requestPanel.add(requestListScroll, BorderLayout.CENTER);
@@ -660,7 +824,7 @@ public class MainFrame extends JFrame {
      *
      * @see <a href="https://stackoverflow.com/questions/27409718/java-reading-multiple-objects-from-a-file-as-they-were-in-an-array">StackOverFlow</>
      */
-    public ArrayList<RequestPanel> readObjects(){
+    public ArrayList<RequestPanel> readObjects() {
         ArrayList<RequestPanel> al = new ArrayList<>();
         boolean cont = true;
         try {
@@ -683,6 +847,50 @@ public class MainFrame extends JFrame {
         }
 
         return al;
+    }
+
+
+    public Map<RequestPanel, CenterPanelData> readCenterData() {
+
+        new File("./data/center_panel_data").mkdirs();
+
+        Map<RequestPanel, CenterPanelData> map = new LinkedHashMap<>();
+        boolean cont = true;
+
+        File[] files = new File("./data/center_panel_data/").listFiles();
+
+        for (File file : files) {
+
+            if(file != null && file.isFile() && file.canRead() && file.getName().endsWith(".cpdata")) {
+
+                try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+
+                    while(cont){
+                        RequestPanel obj = null;
+                        CenterPanelData cen = null;
+                        try {
+                            obj = (RequestPanel) ois.readObject();
+                            cen = (CenterPanelData) ois.readObject();
+
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        if(obj != null && cen != null)
+                            map.put(obj, cen);
+                        else
+                            cont = false;
+                    }
+
+                } catch (IOException e) {
+                    System.err.println(e.getMessage());
+                }
+
+            }
+
+        }
+
+        return map;
+
     }
 
 
@@ -751,5 +959,7 @@ public class MainFrame extends JFrame {
 
     }
 
-
+    public MessageBean getSaveBean() {
+        return saveBean;
+    }
 }

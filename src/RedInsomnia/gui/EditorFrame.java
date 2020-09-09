@@ -7,6 +7,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * RedInsomnia.gui.EditorFrame
@@ -27,6 +29,8 @@ public class EditorFrame extends JFrame {
     private JEditorPane editorPane;
     private JButton doneButton;
     private String context;
+    private JButton editorButton;
+    static Map<JButton, String> contextsList = new LinkedHashMap<>();
 
     /**
      * Constructor of RedInsomnia.gui.EditorFrame Class in RedInsomnia
@@ -35,7 +39,7 @@ public class EditorFrame extends JFrame {
      * @param theme theme of this Frame
      * @param mainFrame main frame of this program
      */
-    public EditorFrame(String title, int theme, JFrame mainFrame) {
+    public EditorFrame(String title, int theme, JFrame mainFrame, JButton editorButton) {
 
         super();
 
@@ -56,7 +60,21 @@ public class EditorFrame extends JFrame {
         setLayout(null);
         setVisible(true);
 
+        if(contextsList.containsKey(editorButton)) {
+
+            context = contextsList.get(editorButton);
+
+        } else {
+
+            context = "";
+
+        }
+
+        this.editorButton = editorButton;
+
+
         editorPane = new JEditorPane();
+        editorPane.setText(context);
         editorPane.setFont(new Font("Santa Fe Let", Font.PLAIN, 18));
         editorPane.addKeyListener(new KeyAdapter() {
             @Override
@@ -71,20 +89,29 @@ public class EditorFrame extends JFrame {
             }
         });
 
+        TextLineNumber tln = new TextLineNumber(editorPane);
+        tln.setBorderGap(0);
+        tln.setDigitAlignment(TextLineNumber.CENTER);
+
         JScrollPane scrollPane = new JScrollPane(editorPane);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setRowHeaderView(tln);
         scrollPane.setBounds(10, 10, 780, 400);
         add(scrollPane);
 
         doneButton = new JButton("Done");
         Color currentColor = doneButton.getBackground();
+        doneButton.setForeground(Color.black);
         doneButton.setPreferredSize(new Dimension(75, 50));
         doneButton.setFont(new Font("Santa Fe Let", Font.PLAIN, 25));
         doneButton.setBorder(null);
         doneButton.setContentAreaFilled(false);
         doneButton.setOpaque(true);
         doneButton.setBounds(700, 415, 90, 45);
+
+        this.revalidate();
+        this.repaint();
 
         doneButton.addMouseListener(new MouseAdapter() {
             @Override
@@ -111,10 +138,7 @@ public class EditorFrame extends JFrame {
 
         add(doneButton);
 
-
-
     }
-
 
     /**
      * Implementation of MouseClicked Action in Done button
@@ -122,11 +146,9 @@ public class EditorFrame extends JFrame {
     private void doneAction() {
 
         context = editorPane.getText();
-        System.out.println(context);
+        contextsList.putIfAbsent(editorButton, context);
         setVisible(false);
         dispose();
-        System.out.println("hello");
 
     }
-
 }
